@@ -1,0 +1,37 @@
+{
+  "name": "fiatconnect-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "prepublish": "tsc",
+    "lint": "eslint --ext=.ts src/",
+    "release": "standard-version"
+  },
+  "keywords": [
+    "fiatconnect",
+    "sdk",
+    "api",
+    "celo"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/fiatconnect/fiatconnect-sdk",
+  "author": "Jacob Waterman <jacob.waterman@valoraapp.com>",
+  "bugs": {
+    "url": "https://github.com/fiatconnect/fiatconnect-sdk/issues"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@valora/eslint-config-typescript": "^0.0.1",
+    "eslint": "^8.10.0",
+    "eslint-plugin-import": "^2.25.4",
+    "standard-version": "^9.3.2",
+    "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "@fiatconnect/fiatconnect-types": "^1.0.0",
+    "node-fetch": "^3.2.2",
+    "ts-results": "^3.3.0"
+  }
+}
