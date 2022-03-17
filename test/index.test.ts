@@ -27,7 +27,6 @@ const mockJwt =
 describe('FiatConnect SDK', () => {
   const client = new FiatConnectClient({
     baseUrl: 'https://fiat-connect-api.com',
-    accountAddress: '0x7E98000458E0f8f903b0Aec7873406a7CA77FB09',
   })
 
   beforeEach(() => {
@@ -157,7 +156,7 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('deleteKyc', () => {
-    it('calls DELETE /kyc/${params.kycSchemaName} and returns KycStatusResponse', async () => {
+    it('calls DELETE /kyc/${params.kycSchemaName} and returns undefined', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({}))
       const response = await client.deleteKyc(
         {
@@ -341,7 +340,7 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('deleteFiatAccount', () => {
-    it('calls DELETE /accounts/${params.fiatAccountId} and returns GetFiatAccountsResponse', async () => {
+    it('calls DELETE /accounts/${params.fiatAccountId} and returns undefined', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({}))
       const response = await client.deleteFiatAccount(
         mockDeleteFiatAccountParams,
@@ -472,6 +471,7 @@ describe('FiatConnect SDK', () => {
       })
     })
   })
+
   describe('getTransferStatus', () => {
     it('calls GET /transfer/${params.transferId}/status and returns TransferStatusResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockTransferStatusResponse))

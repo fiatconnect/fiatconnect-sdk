@@ -81,7 +81,6 @@ export interface AddFiatAccountParams {
 
 export interface FiatConnectClientConfig {
   baseUrl: string
-  accountAddress: string
 }
 
 export interface ErrorResponse {

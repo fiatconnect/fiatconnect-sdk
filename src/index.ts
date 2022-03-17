@@ -29,6 +29,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     this.config = config
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3311-get-quotein
+   */
   async getQuoteIn(
     params: QuoteRequestQuery,
     jwt: string,
@@ -60,6 +63,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3312-get-quoteout
+   */
   async getQuoteOut(
     params: QuoteRequestQuery,
     jwt: string,
@@ -91,6 +97,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3321-post-kyckycschema
+   */
   async addKyc(
     params: AddKycParams,
     jwt: string,
@@ -120,6 +129,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3323-delete-kyckycschema
+   */
   async deleteKyc(
     params: KycRequestParams,
     jwt: string,
@@ -145,6 +157,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3322-get-kyckycschemastatus
+   */
   async getKycStatus(
     params: KycRequestParams,
     jwt: string,
@@ -170,6 +185,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3331-post-accountsfiataccountschema
+   */
   async addFiatAccount(
     params: AddFiatAccountParams,
     jwt: string,
@@ -199,6 +217,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3332-get-accounts
+   */
   async getFiatAccounts(
     jwt: string,
   ): Promise<Result<GetFiatAccountsResponse, ErrorResponse>> {
@@ -220,6 +241,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3333-delete-accountfiataccountid
+   */
   async deleteFiatAccount(
     params: DeleteFiatAccountRequestParams,
     jwt: string,
@@ -245,6 +269,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3341-post-transferin
+   */
   async transferIn(
     params: TransferRequestParams,
     jwt: string,
@@ -272,6 +299,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3342-post-transferout
+   */
   async transferOut(
     params: TransferRequestParams,
     jwt: string,
@@ -299,6 +329,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
     }
   }
 
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3343-get-transfertransferidstatus
+   */
   async getTransferStatus(
     params: TransferStatusRequestParams,
     jwt: string,
