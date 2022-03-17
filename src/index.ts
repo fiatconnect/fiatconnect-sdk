@@ -1,8 +1,7 @@
-import {  AddFiatAccountResponse, DeleteFiatAccountRequestParams,  GetFiatAccountsResponse,  KycRequestParams,  KycStatusResponse,  QuoteErrorResponse,  QuoteRequestQuery, QuoteResponse, TransferRequestBody, TransferResponse, TransferStatusRequestParams, TransferStatusResponse } from "@fiatconnect/fiatconnect-types"
-import fetch, { Response } from "node-fetch"
+import {  AddFiatAccountResponse, DeleteFiatAccountRequestParams,  GetFiatAccountsResponse,  KycRequestParams,  KycStatusResponse,  QuoteErrorResponse,  QuoteRequestQuery, QuoteResponse, TransferResponse, TransferStatusRequestParams, TransferStatusResponse } from "@fiatconnect/fiatconnect-types"
+import fetch from "node-fetch"
 import { Ok, Err, Result } from "ts-results";
-import { v4 as uuidv4 } from 'uuid';
-import { AddFiatAccountParams, AddKycParams, ErrorResponse, FiatConectApiClient, FiatConnectClientConfig, SignAndFetchParams } from "./types";
+import { AddFiatAccountParams, AddKycParams, ErrorResponse, FiatConectApiClient, FiatConnectClientConfig, TransferRequestParams } from "./types";
 
 export default class FiatConnectClient implements FiatConectApiClient {
     config: FiatConnectClientConfig
@@ -11,42 +10,19 @@ export default class FiatConnectClient implements FiatConectApiClient {
         this.config = config
     }
 
-      
-  /**
-   * A fetch wrapper that adds in the signature needed for IHL authorization
-   *
-   *
-   * @param {params.path} string like /persona/get/foo
-   * @param {params.accountMTWAddress} accountMTWAddress
-   * @param {params.requestOptions} requestOptions all the normal fetch options
-   * @returns {Response} response object from the fetch call
-   */
-    private signAndFetch({
-        path,
-        requestOptions,
-      }: SignAndFetchParams): Promise<Response> {
-        // TODO: Implement Auth
-        const authHeader = 'Bearer: '
-        return fetch(`${this.config.baseUrl}${path}`, {
-            ...requestOptions,
-            headers: {
-                ...requestOptions.headers,
-                Authorization: authHeader,
-            },
-        })
-    }
 
-    async getQuoteIn(params: QuoteRequestQuery): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
+    async getQuoteIn(params: QuoteRequestQuery, jwt: string): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
         try {
             const queryParams = Object.entries(params).map(([key, value]) => 
                 `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
             ).join('&')
-            const response = await this.signAndFetch({
-                path: `/quote/in?${queryParams}`,
-                requestOptions: {
-                    method: 'GET'
-                },
-            })
+            const response = await fetch(
+                `${this.config.baseUrl}/quote/in?${queryParams}`,
+                { 
+                    method: 'GET', 
+                    headers: { Authorization: `Bearer: ${jwt}`}
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data as QuoteErrorResponse)
@@ -60,17 +36,18 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
     
-    async getQuoteOut(params: QuoteRequestQuery): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
+    async getQuoteOut(params: QuoteRequestQuery, jwt: string): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
         try {
             const queryParams = Object.entries(params).map(([key, value]) => 
                 `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
             ).join('&')
-            const response = await this.signAndFetch({
-                path: `/quote/out?${queryParams}`,
-                requestOptions: {
-                    method: 'GET'
-                },
-            })
+            const response = await fetch(
+                `${this.config.baseUrl}/quote/out?${queryParams}`,
+                { 
+                    method: 'GET', 
+                    headers: { Authorization: `Bearer: ${jwt}`}
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data as QuoteErrorResponse)
@@ -84,18 +61,19 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
     
-    async addKyc(params: AddKycParams): Promise<Result<KycStatusResponse, ErrorResponse>> {
+    async addKyc(params: AddKycParams, jwt: string): Promise<Result<KycStatusResponse, ErrorResponse>> {
         try {
-            const response = await this.signAndFetch({
-                path: `/kyc/${params.kycSchemaName}`,
-                requestOptions: {
+            const response = await fetch(
+                `${this.config.baseUrl}/kyc/${params.kycSchemaName}`,
+                {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        Authorization: `Bearer: ${jwt}`
                     },
                     body: JSON.stringify(params.data)
-                },
-            })
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data)
@@ -109,14 +87,15 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
     
-    async deleteKyc(params: KycRequestParams): Promise<Result<void, ErrorResponse>> {
+    async deleteKyc(params: KycRequestParams, jwt: string): Promise<Result<void, ErrorResponse>> {
         try {
-            const response = await this.signAndFetch({
-                path: `/kyc/${params.kycSchema}`,
-                requestOptions: {
-                    method: 'DELETE'
-                },
-            })
+            const response = await fetch(
+                `${this.config.baseUrl}/kyc/${params.kycSchema}`,
+                { 
+                    method: 'DELETE', 
+                    headers: { Authorization: `Bearer: ${jwt}`}
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data)
@@ -130,14 +109,15 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
 
-    async getKycStatus(params: KycRequestParams): Promise<Result<KycStatusResponse, ErrorResponse>> {
+    async getKycStatus(params: KycRequestParams, jwt: string): Promise<Result<KycStatusResponse, ErrorResponse>> {
         try {
-            const response = await this.signAndFetch({
-                path: `/kyc/${params.kycSchema}`,
-                requestOptions: {
-                    method: 'GET'
-                },
-            })
+            const response = await fetch(
+                `${this.config.baseUrl}/kyc/${params.kycSchema}`,
+                { 
+                    method: 'GET', 
+                    headers: { Authorization: `Bearer: ${jwt}`}
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data)
@@ -151,18 +131,19 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
 
-    async addFiatAccount(params: AddFiatAccountParams): Promise<Result<AddFiatAccountResponse, ErrorResponse>> {
+    async addFiatAccount(params: AddFiatAccountParams, jwt: string): Promise<Result<AddFiatAccountResponse, ErrorResponse>> {
         try {
-            const response = await this.signAndFetch({
-                path: `/accounts/${params.fiatAccountSchemaName}`,
-                requestOptions: {
+            const response = await fetch(
+                `${this.config.baseUrl}/accounts/${params.fiatAccountSchemaName}`,
+                {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        Authorization: `Bearer: ${jwt}`
                     },
                     body: JSON.stringify(params.data)
-                },
-            })
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data)
@@ -176,14 +157,15 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
 
-    async getFiatAccounts(): Promise<Result<GetFiatAccountsResponse, ErrorResponse>> {
+    async getFiatAccounts(jwt: string): Promise<Result<GetFiatAccountsResponse, ErrorResponse>> {
         try {
-            const response = await this.signAndFetch({
-                path: `/accounts`,
-                requestOptions: {
-                    method: 'GET'
-                },
-            })
+            const response = await fetch(
+                `${this.config.baseUrl}/accounts`,
+                { 
+                    method: 'GET', 
+                    headers: { Authorization: `Bearer: ${jwt}`}
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data)
@@ -197,14 +179,15 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
     
-    async deleteFiatAccount(params: DeleteFiatAccountRequestParams): Promise<Result<void, ErrorResponse>> {
+    async deleteFiatAccount(params: DeleteFiatAccountRequestParams, jwt: string): Promise<Result<void, ErrorResponse>> {
         try {
-            const response = await this.signAndFetch({
-                path: `/accounts/${params.fiatAccountId}`,
-                requestOptions: {
-                    method: 'DELETE'
-                },
-            })
+            const response = await fetch(
+                `${this.config.baseUrl}/accounts/${params.fiatAccountId}`,
+                { 
+                    method: 'DELETE', 
+                    headers: { Authorization: `Bearer: ${jwt}`}
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data)
@@ -218,19 +201,20 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
 
-    async transferIn(params: TransferRequestBody): Promise<Result<TransferResponse, ErrorResponse>> {
+    async transferIn(params: TransferRequestParams, jwt: string): Promise<Result<TransferResponse, ErrorResponse>> {
         try {
-            const response = await this.signAndFetch({
-                path: `/transfer/in`,
-                requestOptions: {
+            const response = await fetch(
+                `${this.config.baseUrl}/transfer/in`,
+                {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Idempotency-Key': uuidv4()
+                        Authorization: `Bearer: ${jwt}`,
+                        'Idempotency-Key': params.idempotencyKey
                     },
-                    body: JSON.stringify(params)
-                },
-            })
+                    body: JSON.stringify(params.data)
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data)
@@ -244,19 +228,20 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
 
-    async transferOut(params: TransferRequestBody): Promise<Result<TransferResponse, ErrorResponse>> {
+    async transferOut(params: TransferRequestParams, jwt: string): Promise<Result<TransferResponse, ErrorResponse>> {
         try {
-            const response = await this.signAndFetch({
-                path: `/transfer/out`,
-                requestOptions: {
+            const response = await fetch(
+                `${this.config.baseUrl}/transfer/out`,
+                {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Idempotency-Key': uuidv4()
+                        Authorization: `Bearer: ${jwt}`,
+                        'Idempotency-Key': params.idempotencyKey
                     },
-                    body: JSON.stringify(params)
-                },
-            })
+                    body: JSON.stringify(params.data)
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data)
@@ -270,14 +255,15 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
 
-    async getTransferStatus(params: TransferStatusRequestParams): Promise<Result<TransferStatusResponse, ErrorResponse>> {
+    async getTransferStatus(params: TransferStatusRequestParams, jwt: string): Promise<Result<TransferStatusResponse, ErrorResponse>> {
         try {
-            const response = await this.signAndFetch({
-                path: `/transfer/${params.transferId}/status`,
-                requestOptions: {
-                    method: 'GET'
-                },
-            })
+            const response = await fetch(
+                `${this.config.baseUrl}/transfer/${params.transferId}/status`,
+                { 
+                    method: 'GET', 
+                    headers: { Authorization: `Bearer: ${jwt}`}
+                }
+            )
             const data = await response.json()
             if(!response.ok) {
                 return Err(data)

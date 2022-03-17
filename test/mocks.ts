@@ -1,5 +1,5 @@
-import { AddFiatAccountResponse, CryptoType, DeleteFiatAccountRequestParams, FeeType, FiatAccountSchema, FiatAccountType, FiatConnectError, FiatType, GetFiatAccountsResponse, KycSchema, KycStatus, KycStatusResponse, QuoteErrorResponse, QuoteRequestQuery, QuoteResponse, TransferRequestBody, TransferResponse, TransferStatus, TransferStatusRequestParams, TransferStatusResponse, TransferType } from "@fiatconnect/fiatconnect-types"
-import { FiatAccountSchemaData, KycSchemaData } from "../src/types"
+import { AddFiatAccountResponse, CryptoType, DeleteFiatAccountRequestParams, FeeType, FiatAccountSchema, FiatAccountType, FiatConnectError, FiatType, GetFiatAccountsResponse, KycSchema, KycStatus, KycStatusResponse, QuoteErrorResponse, QuoteRequestQuery, QuoteResponse, TransferResponse, TransferStatus, TransferStatusRequestParams, TransferStatusResponse, TransferType } from "@fiatconnect/fiatconnect-types"
+import { FiatAccountSchemaData, KycSchemaData, TransferRequestParams } from "../src/types"
 
 export const mockQuoteRequestQuery: QuoteRequestQuery = {
     fiatType: FiatType.USD,
@@ -79,11 +79,14 @@ export const mockDeleteFiatAccountParams: DeleteFiatAccountRequestParams = {
     fiatAccountId: '12358'
 }
 
-export const mockTransferRequestBody: TransferRequestBody = {
-    fiatType: FiatType.USD,
-    cryptoType: CryptoType.cUSD,
-    amount: '5.0',
-    fiatAccountId: '12358'
+export const mockTransferRequestParams: TransferRequestParams = {
+    idempotencyKey: '94d3fa9e-000b-4523-95e0-e9b6f7fcf849',
+    data: {
+        fiatType: FiatType.USD,
+        cryptoType: CryptoType.cUSD,
+        amount: '5.0',
+        fiatAccountId: '12358'
+    }
 }
 
 export const mockTransferResponse: TransferResponse = {

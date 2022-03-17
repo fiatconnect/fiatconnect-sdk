@@ -3,17 +3,17 @@ import { RequestInit } from "node-fetch"
 import { Result } from "ts-results"
 
 export interface FiatConectApiClient {
-    getQuoteIn(params: QuoteRequestQuery): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>>
-    getQuoteOut(params: QuoteRequestQuery): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>>
-    addKyc(params: AddKycParams): Promise<Result<KycStatusResponse, ErrorResponse>>
-    deleteKyc(params: KycRequestParams): Promise<Result<void, ErrorResponse>>
-    getKycStatus(params: KycRequestParams): Promise<Result<KycStatusResponse, ErrorResponse>>
-    addFiatAccount(params: AddFiatAccountParams): Promise<Result<AddFiatAccountResponse, ErrorResponse>>
-    getFiatAccounts(): Promise<Result<GetFiatAccountsResponse, ErrorResponse>>
-    deleteFiatAccount(params: DeleteFiatAccountRequestParams): Promise<Result<void, ErrorResponse>>
-    transferIn(params: TransferRequestBody): Promise<Result<TransferResponse, ErrorResponse>>
-    transferOut(params: TransferRequestBody): Promise<Result<TransferResponse, ErrorResponse>>
-    getTransferStatus(params: TransferStatusRequestParams): Promise<Result<TransferStatusResponse, ErrorResponse>>
+    getQuoteIn(params: QuoteRequestQuery, jwt: string): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>>
+    getQuoteOut(params: QuoteRequestQuery, jwt: string): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>>
+    addKyc(params: AddKycParams, jwt: string): Promise<Result<KycStatusResponse, ErrorResponse>>
+    deleteKyc(params: KycRequestParams, jwt: string): Promise<Result<void, ErrorResponse>>
+    getKycStatus(params: KycRequestParams, jwt: string): Promise<Result<KycStatusResponse, ErrorResponse>>
+    addFiatAccount(params: AddFiatAccountParams, jwt: string): Promise<Result<AddFiatAccountResponse, ErrorResponse>>
+    getFiatAccounts(jwt: string): Promise<Result<GetFiatAccountsResponse, ErrorResponse>>
+    deleteFiatAccount(params: DeleteFiatAccountRequestParams, jwt: string): Promise<Result<void, ErrorResponse>>
+    transferIn(params: TransferRequestParams, jwt: string): Promise<Result<TransferResponse, ErrorResponse>>
+    transferOut(params: TransferRequestParams, jwt: string): Promise<Result<TransferResponse, ErrorResponse>>
+    getTransferStatus(params: TransferStatusRequestParams, jwt: string): Promise<Result<TransferStatusResponse, ErrorResponse>>
 }
 
 // These must be manually updated as more KYC and FiatAccount types become standardized
@@ -35,11 +35,11 @@ export interface FiatConnectClientConfig {
     accountAddress: string
 }
 
-export interface SignAndFetchParams {
-    path: string
-    requestOptions: RequestInit
+export interface ErrorResponse {
+    error: FiatConnectError | string
 }
 
-export type ErrorResponse = {
-    error: FiatConnectError | string
+export interface TransferRequestParams {
+    idempotencyKey: string
+    data: TransferRequestBody
 }
