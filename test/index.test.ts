@@ -1,4 +1,4 @@
-import FiatConnectClient from './index'
+import FiatConnectClient from '../src/index'
 import { mockAddFiatAccountResponse, mockDeleteFiatAccountParams, mockFiatAccountSchemaData, mockGetFiatAccountsResponse, mockKycSchemaData, mockKycStatusResponse, mockQuoteErrorResponse, mockQuoteRequestQuery, mockQuoteResponse, mockTransferRequestBody, mockTransferResponse, mockTransferStatusRequestParams, mockTransferStatusResponse } from './mocks'
 import 'jest-fetch-mock'
 import { FiatAccountSchema, FiatConnectError, KycSchema } from '@fiatconnect/fiatconnect-types'

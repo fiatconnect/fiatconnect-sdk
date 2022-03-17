@@ -1,7 +1,7 @@
 {
   "name": "fiatconnect-sdk",
   "version": "1.0.0",
-  "description": "",
+  "description": "A helper libary for wallets to integrate with FiatConnect APIs",
   "scripts": {
     "prepublish": "tsc",
     "lint": "eslint --ext=.ts src/",

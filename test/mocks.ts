@@ -1,13 +1,11 @@
 import { AddFiatAccountResponse, CryptoType, DeleteFiatAccountRequestParams, FeeType, FiatAccountSchema, FiatAccountType, FiatConnectError, FiatType, GetFiatAccountsResponse, KycSchema, KycStatus, KycStatusResponse, QuoteErrorResponse, QuoteRequestQuery, QuoteResponse, TransferRequestBody, TransferResponse, TransferStatus, TransferStatusRequestParams, TransferStatusResponse, TransferType } from "@fiatconnect/fiatconnect-types"
-import { FiatAccountSchemaData, KycSchemaData } from "./types"
+import { FiatAccountSchemaData, KycSchemaData } from "../src/types"
 
 export const mockQuoteRequestQuery: QuoteRequestQuery = {
     fiatType: FiatType.USD,
     cryptoType: CryptoType.cUSD,
     country: 'Germany'
 }
-
-
 
 export const mockQuoteResponse: QuoteResponse = {
     quote: {
