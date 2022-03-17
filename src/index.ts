@@ -1,54 +1,8 @@
-import {  AddFiatAccountResponse, DeleteFiatAccountRequestParams, FiatAccountSchema, FiatConnectError, GetFiatAccountsResponse, KycRequestParams, KycSchema, KycStatusResponse, MockCheckingAccount, MockNameAndAddressKyc, QuoteRequestQuery, QuoteResponse, TransferRequestBody, TransferResponse, TransferStatusRequestParams, TransferStatusResponse } from "@fiatconnect/fiatconnect-types"
-import fetch, { RequestInit } from "node-fetch"
+import {  AddFiatAccountResponse, DeleteFiatAccountRequestParams,  GetFiatAccountsResponse,  KycRequestParams,  KycStatusResponse,  QuoteErrorResponse,  QuoteRequestQuery, QuoteResponse, TransferRequestBody, TransferResponse, TransferStatusRequestParams, TransferStatusResponse } from "@fiatconnect/fiatconnect-types"
+import fetch, { Response } from "node-fetch"
 import { Ok, Err, Result } from "ts-results";
-
-// These must be manually updated as more KYC and FiatAccount types become standardized
-type KycSchemaData = MockNameAndAddressKyc
-type FiatAccountSchemaData = MockCheckingAccount
-
-interface AddKycParams {
-    kycSchemaName: KycSchema
-    data: KycSchemaData
-}
-
-interface AddFiatAccountParams {
-    fiatAccountSchemaName: FiatAccountSchema
-    data: FiatAccountSchemaData
-}
-
-interface FiatConnectClientConfig {
-    baseUrl: string
-    accountAddress: string
-}
-
-interface SignAndFetchParams {
-    path: string
-    requestOptions: RequestInit
-  }
-
-type QuoteErrorResponse = {
-    error: FiatConnectError | string
-    minimumFiatAmount?: number
-    maximumFiatAmount?: number
-    minimumCryptoAmount?: number
-    maximumCryptoAmount?: number
-  }
-
-interface FiatConectApiClient {
-    getQuoteIn(params: QuoteRequestQuery): Promise<Result<QuoteResponse, QuoteErrorResponse>>
-    getQuoteOut(params: QuoteRequestQuery): Promise<Result<QuoteResponse, QuoteErrorResponse>>
-    addKyc(params: AddKycParams): Promise<KycStatusResponse>
-    deleteKyc(params: KycRequestParams): Promise<void>
-    getKycStatus(params: KycRequestParams): Promise<KycStatusResponse>
-    addFiatAccount(params: AddFiatAccountParams): Promise<AddFiatAccountResponse>
-    getFiatAccounts(): Promise<GetFiatAccountsResponse>
-    deleteFiatAccount(params: DeleteFiatAccountRequestParams): Promise<void>
-    transferIn(params: TransferRequestBody): Promise<TransferResponse>
-    transferOut(params: TransferRequestBody): Promise<TransferResponse>
-    getTransferStatus(params: TransferStatusRequestParams): Promise<TransferStatusResponse>
-}
-
-
+import { v4 as uuidv4 } from 'uuid';
+import { AddFiatAccountParams, AddKycParams, ErrorResponse, FiatConectApiClient, FiatConnectClientConfig, SignAndFetchParams } from "./types";
 
 export default class FiatConnectClient implements FiatConectApiClient {
     config: FiatConnectClientConfig
@@ -82,18 +36,65 @@ export default class FiatConnectClient implements FiatConectApiClient {
         })
     }
 
-    async getQuoteIn(params: QuoteRequestQuery) {
+    async getQuoteIn(params: QuoteRequestQuery): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
         try {
-            const path = '/quote/in'
+            const queryParams = Object.entries(params).map(([key, value]) => 
+                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+            ).join('&')
             const response = await this.signAndFetch({
-                path,
+                path: `/quote/in?${queryParams}`,
                 requestOptions: {
-                    method: 'GET',
+                    method: 'GET'
+                },
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data as QuoteErrorResponse)
+            }
+            return Ok(data as QuoteResponse)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
+        }
+    }
+    
+    async getQuoteOut(params: QuoteRequestQuery): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
+        try {
+            const queryParams = Object.entries(params).map(([key, value]) => 
+                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+            ).join('&')
+            const response = await this.signAndFetch({
+                path: `/quote/out?${queryParams}`,
+                requestOptions: {
+                    method: 'GET'
+                },
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data as QuoteErrorResponse)
+            }
+            return Ok(data as QuoteResponse)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
+        }
+    }
+    
+    async addKyc(params: AddKycParams): Promise<Result<KycStatusResponse, ErrorResponse>> {
+        try {
+            const response = await this.signAndFetch({
+                path: `/kyc/${params.kycSchemaName}`,
+                requestOptions: {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(params)
-                    },
+                    body: JSON.stringify(params.data)
+                },
             })
             const data = await response.json()
             if(!response.ok) {
@@ -108,58 +109,186 @@ export default class FiatConnectClient implements FiatConectApiClient {
         }
     }
     
-    async getQuoteOut(params: QuoteRequestQuery) {
-        const path = '/quote/in'
-        const response = await this.signAndFetch({
-            path,
-            requestOptions: {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
+    async deleteKyc(params: KycRequestParams): Promise<Result<void, ErrorResponse>> {
+        try {
+            const response = await this.signAndFetch({
+                path: `/kyc/${params.kycSchema}`,
+                requestOptions: {
+                    method: 'DELETE'
                 },
-                body: JSON.stringify(params)
-                },
-        })
-        const data = await response.json()
-        if(!response.ok) {
-            return Err(data)
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data)
+            }
+            return Ok(undefined)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
         }
-        return Ok(data)
+    }
+
+    async getKycStatus(params: KycRequestParams): Promise<Result<KycStatusResponse, ErrorResponse>> {
+        try {
+            const response = await this.signAndFetch({
+                path: `/kyc/${params.kycSchema}`,
+                requestOptions: {
+                    method: 'GET'
+                },
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data)
+            }
+            return Ok(data)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
+        }
+    }
+
+    async addFiatAccount(params: AddFiatAccountParams): Promise<Result<AddFiatAccountResponse, ErrorResponse>> {
+        try {
+            const response = await this.signAndFetch({
+                path: `/accounts/${params.fiatAccountSchemaName}`,
+                requestOptions: {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(params.data)
+                },
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data)
+            }
+            return Ok(data)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
+        }
+    }
+
+    async getFiatAccounts(): Promise<Result<GetFiatAccountsResponse, ErrorResponse>> {
+        try {
+            const response = await this.signAndFetch({
+                path: `/accounts`,
+                requestOptions: {
+                    method: 'GET'
+                },
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data)
+            }
+            return Ok(data)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
+        }
     }
     
-    addKyc() {
-        //Todo
+    async deleteFiatAccount(params: DeleteFiatAccountRequestParams): Promise<Result<void, ErrorResponse>> {
+        try {
+            const response = await this.signAndFetch({
+                path: `/accounts/${params.fiatAccountId}`,
+                requestOptions: {
+                    method: 'DELETE'
+                },
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data)
+            }
+            return Ok(undefined)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
+        }
+    }
+
+    async transferIn(params: TransferRequestBody): Promise<Result<TransferResponse, ErrorResponse>> {
+        try {
+            const response = await this.signAndFetch({
+                path: `/transfer/in`,
+                requestOptions: {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Idempotency-Key': uuidv4()
+                    },
+                    body: JSON.stringify(params)
+                },
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data)
+            }
+            return Ok(data)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
+        }
+    }
+
+    async transferOut(params: TransferRequestBody): Promise<Result<TransferResponse, ErrorResponse>> {
+        try {
+            const response = await this.signAndFetch({
+                path: `/transfer/out`,
+                requestOptions: {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Idempotency-Key': uuidv4()
+                    },
+                    body: JSON.stringify(params)
+                },
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data)
+            }
+            return Ok(data)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
+        }
+    }
+
+    async getTransferStatus(params: TransferStatusRequestParams): Promise<Result<TransferStatusResponse, ErrorResponse>> {
+        try {
+            const response = await this.signAndFetch({
+                path: `/transfer/${params.transferId}/status`,
+                requestOptions: {
+                    method: 'GET'
+                },
+            })
+            const data = await response.json()
+            if(!response.ok) {
+                return Err(data)
+            }
+            return Ok(data)
+        } catch (error) {
+            if(error instanceof Error) {
+                return Err({error: error.message})
+            }
+            return Err({error: String(error)})
+        }
     }
     
-    deleteKyc() {
-        //Todo
-    }
-    
-    getKycStatus() {
-        //Todo
-    }
-    
-    addFiatAccount() {
-        //Todo
-    }
-    
-    getFiatAccounts() {
-        //Todo
-    }
-    
-    deleteFiatAccount() {
-        //Todo
-    }
-    
-    transferIn() {
-        //Todo
-    }
-    
-    transferOut() {
-        //Todo
-    }
-    
-    getTransferStatus() {
-        //Todo
-    }
 }
