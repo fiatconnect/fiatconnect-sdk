@@ -56,10 +56,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(data as QuoteResponse)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -90,10 +87,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(data as QuoteResponse)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -122,10 +116,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(data)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -150,10 +141,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(undefined)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -178,10 +166,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(data)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -210,10 +195,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(data)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -234,10 +216,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(data)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -262,10 +241,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(undefined)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -292,10 +268,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(data)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -322,10 +295,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(data)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
 
@@ -350,10 +320,14 @@ export default class FiatConnectClient implements FiatConectApiClient {
       }
       return Ok(data)
     } catch (error) {
-      if (error instanceof Error) {
-        return Err({ error: error.message })
-      }
-      return Err({ error: String(error) })
+      return handleError(error)
     }
   }
+}
+
+function handleError(error: unknown): Err<ErrorResponse> {
+  if (error instanceof Error) {
+    return Err({ error: error.message })
+  }
+  return Err({ error: String(error) })
 }
