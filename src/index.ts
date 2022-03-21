@@ -29,22 +29,15 @@ export default class FiatConnectClient implements FiatConectApiClient {
     this.config = config
   }
 
-  /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3311-get-quotein
-   */
-  async getQuoteIn(
+  async _getQuote(
     params: QuoteRequestQuery,
     jwt: string,
+    inOrOut: 'in' | 'out',
   ): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
     try {
-      const queryParams = Object.entries(params)
-        .map(
-          ([key, value]) =>
-            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-        )
-        .join('&')
+      const queryParams = new URLSearchParams(params).toString()
       const response = await fetch(
-        `${this.config.baseUrl}/quote/in?${queryParams}`,
+        `${this.config.baseUrl}/quote/${inOrOut}?${queryParams}`,
         {
           method: 'GET',
           headers: { Authorization: `Bearer: ${jwt}` },
@@ -61,34 +54,23 @@ export default class FiatConnectClient implements FiatConectApiClient {
   }
 
   /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3311-get-quotein
+   */
+  async getQuoteIn(
+    params: QuoteRequestQuery,
+    jwt: string,
+  ): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
+    return this._getQuote(params, jwt, 'in')
+  }
+
+  /**
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3312-get-quoteout
    */
   async getQuoteOut(
     params: QuoteRequestQuery,
     jwt: string,
   ): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
-    try {
-      const queryParams = Object.entries(params)
-        .map(
-          ([key, value]) =>
-            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-        )
-        .join('&')
-      const response = await fetch(
-        `${this.config.baseUrl}/quote/out?${queryParams}`,
-        {
-          method: 'GET',
-          headers: { Authorization: `Bearer: ${jwt}` },
-        },
-      )
-      const data = await response.json()
-      if (!response.ok) {
-        return Err(data as QuoteErrorResponse)
-      }
-      return Ok(data as QuoteResponse)
-    } catch (error) {
-      return handleError(error)
-    }
+    return this._getQuote(params, jwt, 'out')
   }
 
   /**

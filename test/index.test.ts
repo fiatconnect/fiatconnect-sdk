@@ -38,7 +38,7 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
       const response = await client.getQuoteIn(mockQuoteRequestQuery, mockJwt)
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/quote/in?fiatType=USD&cryptoType=cUSD&country=Germany',
+        'https://fiat-connect-api.com/quote/in?fiatType=USD&cryptoType=cUSD&country=DE',
         expect.objectContaining({
           method: 'GET',
           headers: expect.objectContaining({
@@ -73,7 +73,7 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
       const response = await client.getQuoteOut(mockQuoteRequestQuery, mockJwt)
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/quote/out?fiatType=USD&cryptoType=cUSD&country=Germany',
+        'https://fiat-connect-api.com/quote/out?fiatType=USD&cryptoType=cUSD&country=DE',
         expect.objectContaining({
           method: 'GET',
           headers: expect.objectContaining({

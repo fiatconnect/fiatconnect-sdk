@@ -29,7 +29,7 @@ import {
 export const mockQuoteRequestQuery: QuoteRequestQuery = {
   fiatType: FiatType.USD,
   cryptoType: CryptoType.cUSD,
-  country: 'Germany',
+  country: 'DE',
 }
 
 export const mockQuoteResponse: QuoteResponse = {
