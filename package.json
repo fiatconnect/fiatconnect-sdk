@@ -1,0 +1,52 @@
+{
+  "name": "fiatconnect-sdk",
+  "version": "1.0.0",
+  "description": "A helper libary for wallets to integrate with FiatConnect APIs",
+  "scripts": {
+    "format": "prettier --loglevel error --write \"./**/*.ts\"",
+    "prepublish": "tsc",
+    "lint": "eslint --ext=.ts src/",
+    "release": "standard-version",
+    "test": "jest",
+    "prepare": "husky install"
+  },
+  "prettier": "@valora/prettier-config",
+  "keywords": [
+    "fiatconnect",
+    "sdk",
+    "api",
+    "celo"
+  ],
+  "main": "dist/index.js",
+  "repository": "https://github.com/fiatconnect/fiatconnect-sdk",
+  "author": "Jacob Waterman <jacob.waterman@valoraapp.com>",
+  "bugs": {
+    "url": "https://github.com/fiatconnect/fiatconnect-sdk/issues"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@types/node-fetch": "^2.6.1",
+    "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@valora/eslint-config-typescript": "^0.0.1",
+    "@valora/prettier-config": "^0.0.1",
+    "eslint": "^8.10.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-react-native": "^4.0.0",
+    "husky": "^7.0.4",
+    "jest": "^27.5.1",
+    "jest-fetch-mock": "^3.0.3",
+    "prettier": "2.6.0",
+    "standard-version": "^9.3.2",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "@fiatconnect/fiatconnect-types": "^2.1.1",
+    "node-fetch": "^2.6.6",
+    "ts-results": "^3.3.0"
+  }
+}
