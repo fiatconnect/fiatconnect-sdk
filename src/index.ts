@@ -309,7 +309,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
 
 function handleError(error: unknown): Err<ErrorResponse> {
   if (error instanceof Error) {
-    return Err({ error: error.message })
+    return Err({ ...error, error: error.message })
   }
   return Err({ error: String(error) })
 }
