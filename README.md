@@ -1,14 +1,13 @@
 # fiatconnect-sdk
 
-A (WIP) Typescript helper libary for wallets to integrate with FiatConnect compliant APIs
+A (WIP) Typescript helper libary for wallets to integrate with FiatConnect compliant APIs.
 
 ## Running tests
 
-```js
+```console
 yarn test
 ```
 
 ## Contributing
 
-- [Reporting issues](https://github.com/fiatconnect/fiatconnect-sdk/issues)
-- [Submitting a pull request](https://github.com/fiatconnect/fiatconnect-sdk/pulls)
+We welcome contributions in the form of Issues and PRs. See [CONTRIBUTING.md](CONTRIBUTING.md).
