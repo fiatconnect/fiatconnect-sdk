@@ -36,4 +36,4 @@ Additionally, make sure your issue:
   behavior including, if relevant, links to external references and
   specific implementation guidelines. 
 - Is tagged with the relevant labels.
-- Is assigned if you or someone else is already working on it.
+- Is assigned if you or someone else who is already working on it.
