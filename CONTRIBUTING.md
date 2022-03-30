@@ -30,7 +30,7 @@ Conduct](https://celo.org/code-of-conduct).
 
 If you are submitting an issue, please double check that there doesn’t
 already exist and issue for the work you have in mind.
-
+Additionally, make sure your issue:
 - Has a clear detailed title such that it can’t be confused with other FiatConnect issues.
 - Provides a comprehensive description of the current and expected
   behavior including, if relevant, links to external references and
