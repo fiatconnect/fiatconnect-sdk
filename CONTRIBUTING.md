@@ -11,7 +11,7 @@ request\) your work regularly and often to solicit feedback and to
 ensure everyone has an idea of what you’re working on. If you’ve just
 started, we suggest creating a PR with “WIP” \(Work In Progress\) in
 the title and let us know when it’s ready to review in the comments.
-
+### Code of Conduct
 FiatConnect is part of the Celo community and follows Celo's [Code of
 Conduct](https://celo.org/code-of-conduct).
 
