@@ -25,12 +25,13 @@ const mockJwt =
   'eyJhbGciOiJSUzI1NiIsInByb3BYIjo1MTk5OX0.eyJpc3MiOiJEaW5vQ2hpZXNhLmdpdGh1Yi5pbyIsInN1YiI6ImFubmEiLCJhdWQiOiJtaW5nIiwiaWF0IjoxNjQ3NTQ1OTk2LCJleHAiOjE2NDc1NDY1OTYsInByb3BZIjp7ImNsYXNzaWQiOiJ6azQyMW9pY3hndzlnNzZ4dHNjenQiLCJlbnRpdGxlbWVudCI6ZmFsc2V9fQ.V3E9CaxU632TrZ8pIuXFtOzS2xj2yy0LWEuc0HI5yMjcymmFCkMhNYBkXt60dRkkioSo0xvQa78ja8CXeB7ixBqxcpFRIxK6vRd6MZuKyGcp9EdwJSaJa_DVZ-a19qofuxUOQYDFbB--yZ0-2TQbQyJR35W0puEVBPYJUjKCvu8frtsr1c8mHQ9baRJEJtnQhI_hz4loUUr9rTvrtbex_7OyOldaTnejozAb92iLSITriFz1Rg8lo7sBCqITM4HorFGujgEw_xWT94tZTlXtR83KhZFZoFXA6WhBDXPwgotn0hiPYpF-D3DIJSJqCxw14tD50XpjT_JwqkfwrVQuTg'
 
 describe('FiatConnect SDK', () => {
-  const exampleIconUrl = 'https://storage.googleapis.com/celo-mobile-mainnet.appspot.com/images/valora-icon.png';
-  const exampleProviderName = 'Example Provider';
+  const exampleIconUrl =
+    'https://storage.googleapis.com/celo-mobile-mainnet.appspot.com/images/valora-icon.png'
+  const exampleProviderName = 'Example Provider'
   const client = new FiatConnectClient({
     baseUrl: 'https://fiat-connect-api.com',
     providerName: exampleProviderName,
-    iconUrl: exampleIconUrl
+    iconUrl: exampleIconUrl,
   })
 
   beforeEach(() => {
