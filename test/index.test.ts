@@ -27,11 +27,15 @@ const mockJwt =
 describe('FiatConnect SDK', () => {
   const client = new FiatConnectClient({
     baseUrl: 'https://fiat-connect-api.com',
+    providerName: 'Example Provider'
   })
 
   beforeEach(() => {
     fetchMock.resetMocks()
     jest.clearAllMocks()
+  })
+  it('Provider name can be accessed', () => {
+    expect(client.config.providerName).toEqual('Example Provider')
   })
   describe('getQuoteIn', () => {
     it('calls /quote/in and returns QuoteResponse', async () => {
