@@ -27,7 +27,8 @@ const mockJwt =
 describe('FiatConnect SDK', () => {
   const client = new FiatConnectClient({
     baseUrl: 'https://fiat-connect-api.com',
-    providerName: 'Example Provider'
+    providerName: 'Example Provider',
+    iconUrl: 'https://storage.googleapis.com/celo-mobile-mainnet.appspot.com/images/valora-icon.png'
   })
 
   beforeEach(() => {
