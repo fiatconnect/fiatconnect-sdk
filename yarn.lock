@@ -308,10 +308,10 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@fiatconnect/fiatconnect-types@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-2.1.1.tgz#fe7b63129703f87c7976208bd35b60aea71cf6ff"
-  integrity sha512-0UU0iMpddqH9VFcKdncrugWgmEo/IeyAV7hSGgC5wLOO7wmWRN2KdrnjFdvdu1ciUdyPyceGkaturMoRRTw/MQ==
+"@fiatconnect/fiatconnect-types@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-3.0.0.tgz#684b8f5c6beefb98db3a2a3c41066b976e099269"
+  integrity sha512-JMyAgkHNufqbo9roDmUpzhZH3UMbhyuLYYMI9kE1qQTtQMPVlPz9zHbS2syFz2Ymdjl7wzgIijph+QckYwwP8A==
 
 "@humanwhocodes/config-array@^0.9.2":
   version "0.9.5"

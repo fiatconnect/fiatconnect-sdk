@@ -38,14 +38,23 @@ export const mockQuoteResponse: QuoteResponse = {
     cryptoType: CryptoType.cUSD,
     fiatAmount: '1.0',
     cryptoAmount: '1.0',
+    quoteId: 'mock_quote_id',
+    guaranteedUntil: '2030-01-01T00:00:00.000Z',
   },
   kyc: {
     kycRequired: true,
-    kycSchemas: [KycSchema.PersonalDataAndDocuments],
+    kycSchemas: [
+      { kycSchema: KycSchema.PersonalDataAndDocuments, allowedValues: {} },
+    ],
   },
   fiatAccount: {
-    [FiatAccountType.MockCheckingAccount]: {
-      fiatAccountSchemas: [FiatAccountSchema.MockCheckingAccount],
+    [FiatAccountType.BankAccount]: {
+      fiatAccountSchemas: [
+        {
+          fiatAccountSchema: FiatAccountSchema.AccountNumber,
+          allowedValues: {},
+        },
+      ],
       fee: '.001',
       feeType: FeeType.PlatformFee,
     },
@@ -91,13 +100,13 @@ export const mockFiatAccountSchemaData: FiatAccountSchemaData = {
 
 export const mockAddFiatAccountResponse: AddFiatAccountResponse = {
   fiatAccountId: '12345',
-  name: 'Checking Account',
-  institution: 'Chase',
-  fiatAccountType: FiatAccountType.MockCheckingAccount,
+  accountName: 'Checking Account',
+  institutionName: 'Chase',
+  fiatAccountType: FiatAccountType.BankAccount,
 }
 
 export const mockGetFiatAccountsResponse: GetFiatAccountsResponse = {
-  [FiatAccountSchema.MockCheckingAccount]: [mockAddFiatAccountResponse],
+  [FiatAccountType.BankAccount]: [mockAddFiatAccountResponse],
 }
 
 export const mockDeleteFiatAccountParams: DeleteFiatAccountRequestParams = {
@@ -111,6 +120,7 @@ export const mockTransferRequestParams: TransferRequestParams = {
     cryptoType: CryptoType.cUSD,
     amount: '5.0',
     fiatAccountId: '12358',
+    quoteId: 'mock_quote_id',
   },
 }
 
