@@ -20,11 +20,7 @@ import {
   TransferStatusResponse,
   TransferType,
 } from '@fiatconnect/fiatconnect-types'
-import {
-  FiatAccountSchemaData,
-  KycSchemaData,
-  TransferRequestParams,
-} from '../src/types'
+import {FiatAccountSchemaData, KycSchemaData, TransferRequestParams,} from '../src/types'
 
 export const mockQuoteRequestQuery: QuoteRequestQuery = {
   fiatType: FiatType.USD,
@@ -38,14 +34,23 @@ export const mockQuoteResponse: QuoteResponse = {
     cryptoType: CryptoType.cUSD,
     fiatAmount: '1.0',
     cryptoAmount: '1.0',
+    quoteId: 'mock_quote_id',
+    guaranteedUntil: '2030-01-01T00:00:00.000Z',
   },
   kyc: {
     kycRequired: true,
-    kycSchemas: [KycSchema.PersonalDataAndDocuments],
+    kycSchemas: [
+      { kycSchema: KycSchema.PersonalDataAndDocuments, allowedValues: {} },
+    ],
   },
   fiatAccount: {
-    [FiatAccountType.MockCheckingAccount]: {
-      fiatAccountSchemas: [FiatAccountSchema.MockCheckingAccount],
+    [FiatAccountType.BankAccount]: {
+      fiatAccountSchemas: [
+        {
+          fiatAccountSchema: FiatAccountSchema.AccountNumber,
+          allowedValues: {},
+        },
+      ],
       fee: '.001',
       feeType: FeeType.PlatformFee,
     },
@@ -82,22 +87,22 @@ export const mockKycStatusResponse: KycStatusResponse = {
 }
 
 export const mockFiatAccountSchemaData: FiatAccountSchemaData = {
-  bankName: 'Chase',
+  institutionName: 'Chase',
   accountName: 'Checking Account',
-  fiatType: FiatType.USD,
   accountNumber: '12533986',
-  routingNumber: '494187652',
+  country: 'US',
+  fiatAccountType: FiatAccountType.BankAccount
 }
 
 export const mockAddFiatAccountResponse: AddFiatAccountResponse = {
   fiatAccountId: '12345',
-  name: 'Checking Account',
-  institution: 'Chase',
-  fiatAccountType: FiatAccountType.MockCheckingAccount,
+  accountName: 'Checking Account',
+  institutionName: 'Chase',
+  fiatAccountType: FiatAccountType.BankAccount,
 }
 
 export const mockGetFiatAccountsResponse: GetFiatAccountsResponse = {
-  [FiatAccountSchema.MockCheckingAccount]: [mockAddFiatAccountResponse],
+  [FiatAccountType.BankAccount]: [mockAddFiatAccountResponse],
 }
 
 export const mockDeleteFiatAccountParams: DeleteFiatAccountRequestParams = {
@@ -111,6 +116,7 @@ export const mockTransferRequestParams: TransferRequestParams = {
     cryptoType: CryptoType.cUSD,
     amount: '5.0',
     fiatAccountId: '12358',
+    quoteId: 'mock_quote_id',
   },
 }
 

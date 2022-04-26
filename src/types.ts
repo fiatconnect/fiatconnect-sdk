@@ -1,4 +1,5 @@
 import {
+  AccountNumber,
   AddFiatAccountResponse,
   DeleteFiatAccountRequestParams,
   FiatAccountSchema,
@@ -7,7 +8,6 @@ import {
   KycRequestParams,
   KycSchema,
   KycStatusResponse,
-  MockCheckingAccount,
   PersonalDataAndDocumentsKyc,
   QuoteErrorResponse,
   QuoteRequestQuery,
@@ -67,7 +67,7 @@ export interface FiatConectApiClient {
 
 // These must be manually updated as more KYC and FiatAccount types become standardized
 export type KycSchemaData = PersonalDataAndDocumentsKyc // in the future this will be the union of all KYC schema types (currently there is just one)
-export type FiatAccountSchemaData = MockCheckingAccount // similarly, this will be the union of all fiat account schema types
+export type FiatAccountSchemaData = AccountNumber // similarly, this will be the union of all fiat account schema types
 
 export interface AddKycParams {
   kycSchemaName: KycSchema

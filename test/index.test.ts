@@ -267,13 +267,13 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockAddFiatAccountResponse))
       const response = await client.addFiatAccount(
         {
-          fiatAccountSchemaName: FiatAccountSchema.MockCheckingAccount,
+          fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
           data: mockFiatAccountSchemaData,
         },
         mockJwt,
       )
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/accounts/MockCheckingAccount',
+        'https://fiat-connect-api.com/accounts/AccountNumber',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -291,7 +291,7 @@ describe('FiatConnect SDK', () => {
       })
       const response = await client.addFiatAccount(
         {
-          fiatAccountSchemaName: FiatAccountSchema.MockCheckingAccount,
+          fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
           data: mockFiatAccountSchemaData,
         },
         mockJwt,
@@ -303,7 +303,7 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.addFiatAccount(
         {
-          fiatAccountSchemaName: FiatAccountSchema.MockCheckingAccount,
+          fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
           data: mockFiatAccountSchemaData,
         },
         mockJwt,
