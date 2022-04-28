@@ -35,12 +35,12 @@ const fetch = fetchCookie(nodeFetch)
 
 export default class FiatConnectClient implements FiatConectApiClient {
   config: FiatConnectClientConfig
-  _wallet: ethers.Wallet
+  signingFunction: (message: string) => Promise<string>
   _sessionExpiry?: Date
 
-  constructor(config: FiatConnectClientConfig) {
+  constructor(config: FiatConnectClientConfig, signingFunction: (message: string) => Promise<string>) {
     this.config = config
-    this._wallet = new ethers.Wallet(this.config.privateKey)
+    this.signingFunction = signingFunction
   }
 
   async _ensureLogin() {
@@ -75,7 +75,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       const message = siweMessage.prepareMessage()
       const body: AuthRequestBody = {
         message,
-        signature: await this._wallet.signMessage(message),
+        signature: await this.signingFunction(message),
       }
 
       const response = await fetch(`${this.config.baseUrl}/auth/login`, {

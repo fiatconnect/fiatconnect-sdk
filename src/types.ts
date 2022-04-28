@@ -84,7 +84,6 @@ export interface FiatConnectClientConfig {
   providerName: string
   iconUrl: string
   celoNetwork: 'alfajores' | 'mainnet'
-  privateKey: string
   accountAddress: string
 }
 

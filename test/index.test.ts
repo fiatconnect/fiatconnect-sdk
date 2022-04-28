@@ -30,10 +30,8 @@ describe('FiatConnect SDK', () => {
     providerName: exampleProviderName,
     iconUrl: exampleIconUrl,
     celoNetwork: 'alfajores',
-    privateKey:
-      '0x9999999999999999999999999999999999999999999999999999999999999999',
     accountAddress: '0x0D8e461687b7D06f86EC348E0c270b0F279855F0',
-  })
+  }, jest.fn())
 
   beforeEach(() => {
     fetchMock.resetMocks()
