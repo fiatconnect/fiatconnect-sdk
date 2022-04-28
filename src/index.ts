@@ -38,7 +38,10 @@ export default class FiatConnectClient implements FiatConectApiClient {
   signingFunction: (message: string) => Promise<string>
   _sessionExpiry?: Date
 
-  constructor(config: FiatConnectClientConfig, signingFunction: (message: string) => Promise<string>) {
+  constructor(
+    config: FiatConnectClientConfig,
+    signingFunction: (message: string) => Promise<string>,
+  ) {
     this.config = config
     this.signingFunction = signingFunction
   }

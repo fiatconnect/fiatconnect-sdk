@@ -25,13 +25,16 @@ describe('FiatConnect SDK', () => {
   const exampleIconUrl =
     'https://storage.googleapis.com/celo-mobile-mainnet.appspot.com/images/valora-icon.png'
   const exampleProviderName = 'Example Provider'
-  const client = new FiatConnectClient({
-    baseUrl: 'https://fiat-connect-api.com',
-    providerName: exampleProviderName,
-    iconUrl: exampleIconUrl,
-    celoNetwork: 'alfajores',
-    accountAddress: '0x0D8e461687b7D06f86EC348E0c270b0F279855F0',
-  }, jest.fn())
+  const client = new FiatConnectClient(
+    {
+      baseUrl: 'https://fiat-connect-api.com',
+      providerName: exampleProviderName,
+      iconUrl: exampleIconUrl,
+      celoNetwork: 'alfajores',
+      accountAddress: '0x0D8e461687b7D06f86EC348E0c270b0F279855F0',
+    },
+    jest.fn(),
+  )
 
   beforeEach(() => {
     fetchMock.resetMocks()
