@@ -12,7 +12,6 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
 } from '@fiatconnect/fiatconnect-types'
-import { ethers } from 'ethers'
 import fetchCookie from 'fetch-cookie'
 import nodeFetch from 'node-fetch'
 import { generateNonce, SiweMessage } from 'siwe'
