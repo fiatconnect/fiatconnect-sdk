@@ -83,6 +83,9 @@ export interface FiatConnectClientConfig {
   baseUrl: string
   providerName: string
   iconUrl: string
+  celoNetwork: 'alfajores' | 'mainnet'
+  privateKey: string
+  accountAddress: string
 }
 
 export interface ErrorResponse {
