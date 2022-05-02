@@ -38,7 +38,6 @@ describe('FiatConnect SDK', () => {
   beforeEach(() => {
     fetchMock.resetMocks()
     jest.clearAllMocks()
-    jest.useRealTimers()
   })
   it('Provider name and icon can be accessed', () => {
     expect(client.config.providerName).toEqual(exampleProviderName)
