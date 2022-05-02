@@ -58,9 +58,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
    * @returns a Promise resolving to the literal string 'success' on a
    * successful login or an Error response.
    */
-  async login(): Promise<Result<string, ErrorResponse>> {
+  async login(): Promise<Result<'success', ErrorResponse>> {
     try {
-      if (this._sessionExpiry && this._sessionExpiry < new Date()) {
+      if (this._sessionExpiry && this._sessionExpiry > new Date()) {
         return Ok('success')
       }
       const expirationDate = new Date(Date.now() + 14400000) // 4 hours from now
