@@ -20,7 +20,12 @@ import {
   TransferStatusResponse,
   TransferType,
 } from '@fiatconnect/fiatconnect-types'
-import {FiatAccountSchemaData, KycSchemaData, TransferRequestParams,} from '../src/types'
+import {
+  FiatAccountSchemaData,
+  KycSchemaData,
+  TransferRequestParams,
+  ClockResponse,
+} from '../src/types'
 
 export const mockQuoteRequestQuery: QuoteRequestQuery = {
   fiatType: FiatType.USD,
@@ -91,7 +96,7 @@ export const mockFiatAccountSchemaData: FiatAccountSchemaData = {
   accountName: 'Checking Account',
   accountNumber: '12533986',
   country: 'US',
-  fiatAccountType: FiatAccountType.BankAccount
+  fiatAccountType: FiatAccountType.BankAccount,
 }
 
 export const mockAddFiatAccountResponse: AddFiatAccountResponse = {
@@ -138,4 +143,8 @@ export const mockTransferStatusResponse: TransferStatusResponse = {
   amountProvided: '5.0',
   amountReceived: '5.0',
   fiatAccountId: '12358',
+}
+
+export const mockClockResponse: ClockResponse = {
+  time: '2022-05-02T22:06:00+0000',
 }

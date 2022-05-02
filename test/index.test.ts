@@ -13,6 +13,7 @@ import {
   mockTransferResponse,
   mockTransferStatusRequestParams,
   mockTransferStatusResponse,
+  mockClockResponse,
 } from './mocks'
 import 'jest-fetch-mock'
 import {
@@ -37,10 +38,66 @@ describe('FiatConnect SDK', () => {
   beforeEach(() => {
     fetchMock.resetMocks()
     jest.clearAllMocks()
+    jest.useRealTimers()
   })
   it('Provider name and icon can be accessed', () => {
     expect(client.config.providerName).toEqual(exampleProviderName)
     expect(client.config.iconUrl).toEqual(exampleIconUrl)
+  })
+  describe('getClock', () => {
+    it('gets the server clock', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
+      const response = await client.getClock()
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://fiat-connect-api.com/clock',
+        expect.objectContaining({
+          method: 'GET',
+        }),
+      )
+      expect(response.ok).toBeTruthy()
+      expect(response.val).toMatchObject(mockClockResponse)
+    })
+    it('handles fetch errors', async () => {
+      fetchMock.mockRejectOnce(new Error('fake error message'))
+      const response = await client.getClock()
+
+      expect(response.ok).toBeFalsy()
+      expect(response.val).toMatchObject({
+        error: 'fake error message',
+      })
+    })
+  })
+  describe('getClockDiff', () => {
+    it('calculates clock difference when server is ahead', async () => {
+      jest
+        .spyOn(global.Date, 'now')
+        .mockReturnValueOnce(new Date('2022-05-02T22:05:55+0000').getTime())
+        .mockReturnValueOnce(new Date('2022-05-02T22:05:56+0000').getTime())
+      fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
+      const clockDiff = await client.getClockDiff()
+      expect(clockDiff.ok).toBeTruthy()
+      expect(clockDiff.val).toEqual(4500)
+    })
+
+    it('calculates clock difference when server is behind', async () => {
+      jest
+        .spyOn(global.Date, 'now')
+        .mockReturnValueOnce(new Date('2022-05-02T22:06:04+0000').getTime())
+        .mockReturnValueOnce(new Date('2022-05-02T22:06:05+0000').getTime())
+      fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
+      const clockDiff = await client.getClockDiff()
+      expect(clockDiff.ok).toBeTruthy()
+      expect(clockDiff.val).toEqual(-4500)
+    })
+    it('handles errors when getting server clock', async () => {
+      fetchMock.mockRejectOnce(new Error('fake error message'))
+      const response = await client.getClockDiff()
+
+      expect(response.ok).toBeFalsy()
+      expect(response.val).toMatchObject({
+        error: 'fake error message',
+      })
+    })
   })
   describe('getQuoteIn', () => {
     it('calls /quote/in and returns QuoteResponse', async () => {

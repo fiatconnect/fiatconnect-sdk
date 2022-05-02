@@ -20,6 +20,7 @@ import {
 import { Result } from 'ts-results'
 
 export interface FiatConectApiClient {
+  getClock(): Promise<>
   getQuoteIn(
     params: QuoteRequestQuery,
     jwt: string,
@@ -92,4 +93,9 @@ export interface ErrorResponse {
 export interface TransferRequestParams {
   idempotencyKey: string
   data: TransferRequestBody
+}
+
+// todo(jbergeron): Import this from the types repo
+export type ClockResponse = {
+  time: string
 }

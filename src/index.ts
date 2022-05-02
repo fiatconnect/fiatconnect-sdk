@@ -20,6 +20,7 @@ import {
   FiatConectApiClient,
   FiatConnectClientConfig,
   TransferRequestParams,
+  ClockResponse,
 } from './types'
 
 export default class FiatConnectClient implements FiatConectApiClient {
@@ -48,6 +49,45 @@ export default class FiatConnectClient implements FiatConectApiClient {
         return Err(data as QuoteErrorResponse)
       }
       return Ok(data as QuoteResponse)
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+
+  /**
+   * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
+   *
+   * Convenience method to calculate the difference between server and client clocks.
+   * Returns the difference between the client and server clocks as a number of milliseconds.
+   * Positive values mean the server's clock is ahead of the client's.
+   */
+  async getClockDiff(): Promise<Result<number, ErrorResponse>> {
+    const t0 = Date.now()
+    const clockResponse = await this.getClock()
+    const t3 = Date.now()
+
+    if (!clockResponse.ok) {
+      return clockResponse
+    }
+
+    const t1 = new Date(clockResponse.val.time).getTime()
+    // We can assume that t1 and t2 are sufficiently close to each other
+    return Ok((t1 - t0 + (t1 - t3)) / 2)
+  }
+
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#321-get-clock
+   */
+  async getClock(): Promise<Result<ClockResponse, ErrorResponse>> {
+    try {
+      const response = await fetch(`${this.config.baseUrl}/clock`, {
+        method: 'GET',
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        return Err(data)
+      }
+      return Ok(data)
     } catch (error) {
       return handleError(error)
     }
