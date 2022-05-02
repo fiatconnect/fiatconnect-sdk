@@ -72,7 +72,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
 
     const t1 = new Date(clockResponse.val.time).getTime()
     // We can assume that t1 and t2 are sufficiently close to each other
-    return Ok((t1 - t0 + (t1 - t3)) / 2)
+    return Ok((t1 - t0 + t1 - t3) / 2)
   }
 
   /**
