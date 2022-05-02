@@ -20,7 +20,8 @@ import {
 import { Result } from 'ts-results'
 
 export interface FiatConectApiClient {
-  getClock(): Promise<>
+  getClockDiff(): Promise<Result<number, ErrorResponse>>
+  getClock(): Promise<Result<ClockResponse, ErrorResponse>>
   getQuoteIn(
     params: QuoteRequestQuery,
     jwt: string,
