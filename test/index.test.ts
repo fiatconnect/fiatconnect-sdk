@@ -66,31 +66,58 @@ describe('FiatConnect SDK', () => {
       })
     })
   })
-  describe('getClockDiff', () => {
-    it('calculates clock difference when server is ahead', async () => {
-      jest
-        .spyOn(global.Date, 'now')
-        .mockReturnValueOnce(new Date('2022-05-02T22:05:55+0000').getTime())
-        .mockReturnValueOnce(new Date('2022-05-02T22:05:56+0000').getTime())
-      fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
-      const clockDiff = await client.getClockDiff()
-      expect(clockDiff.ok).toBeTruthy()
-      expect(clockDiff.val).toEqual(4500)
+  describe('_calculateClockDiff', () => {
+    it('calculates clock diff when server is ahead', async () => {
+      const t0 = 10000
+      const t1 = 10500
+      const t2 = 10500
+      const t3 = 10500
+      const clockDiffResult = client._calculateClockDiff({ t0, t1, t2, t3 })
+      expect(clockDiffResult.diff).toEqual(250)
+      expect(clockDiffResult.maxError).toEqual(250)
     })
-
-    it('calculates clock difference when server is behind', async () => {
+    it('calculates clock diff when server is behind', async () => {
+      const t0 = 10000
+      const t1 = 9500
+      const t2 = 9500
+      const t3 = 10500
+      const clockDiffResult = client._calculateClockDiff({ t0, t1, t2, t3 })
+      expect(clockDiffResult.diff).toEqual(-750)
+      expect(clockDiffResult.maxError).toEqual(250)
+    })
+  })
+  describe('getClockDiffApprox', () => {
+    it('calculates clock diff with correct arguments', async () => {
+      const t0 = new Date('2022-05-02T22:05:55+0000').getTime()
+      const t1 = new Date(mockClockResponse.time).getTime()
+      const t2 = t1
+      const t3 = new Date('2022-05-02T22:05:56+0000').getTime()
       jest
         .spyOn(global.Date, 'now')
-        .mockReturnValueOnce(new Date('2022-05-02T22:06:04+0000').getTime())
-        .mockReturnValueOnce(new Date('2022-05-02T22:06:05+0000').getTime())
+        .mockReturnValueOnce(t0)
+        .mockReturnValueOnce(t3)
       fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
-      const clockDiff = await client.getClockDiff()
-      expect(clockDiff.ok).toBeTruthy()
-      expect(clockDiff.val).toEqual(-4500)
+      const expectedClockDiffResult = {
+        diff: 1000,
+        maxError: 500,
+      }
+      jest
+        .spyOn(client, '_calculateClockDiff')
+        .mockReturnValueOnce(expectedClockDiffResult)
+
+      const actualClockDiffResult = await client.getClockDiffApprox()
+      expect(actualClockDiffResult.ok).toBeTruthy()
+      expect(actualClockDiffResult.val).toEqual(expectedClockDiffResult)
+      expect(client._calculateClockDiff).toHaveBeenCalledWith({
+        t0,
+        t1,
+        t2,
+        t3,
+      })
     })
     it('handles errors when getting server clock', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
-      const response = await client.getClockDiff()
+      const response = await client.getClockDiffApprox()
 
       expect(response.ok).toBeFalsy()
       expect(response.val).toMatchObject({

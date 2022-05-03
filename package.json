@@ -45,7 +45,7 @@
     "typescript": "^4.6.2"
   },
   "dependencies": {
-    "@fiatconnect/fiatconnect-types": "^3.1.0",
+    "@fiatconnect/fiatconnect-types": "^3.2.0",
     "node-fetch": "^2.6.6",
     "ts-results": "^3.3.0"
   }

@@ -19,12 +19,12 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
   TransferType,
+  ClockResponse,
 } from '@fiatconnect/fiatconnect-types'
 import {
   FiatAccountSchemaData,
   KycSchemaData,
   TransferRequestParams,
-  ClockResponse,
 } from '../src/types'
 
 export const mockQuoteRequestQuery: QuoteRequestQuery = {

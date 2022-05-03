@@ -10,6 +10,7 @@ import {
   TransferResponse,
   TransferStatusRequestParams,
   TransferStatusResponse,
+  ClockResponse,
 } from '@fiatconnect/fiatconnect-types'
 import fetch from 'node-fetch'
 import { Ok, Err, Result } from 'ts-results'
@@ -20,7 +21,8 @@ import {
   FiatConectApiClient,
   FiatConnectClientConfig,
   TransferRequestParams,
-  ClockResponse,
+  ClockDiffParams,
+  ClockDiffResult,
 } from './types'
 
 export default class FiatConnectClient implements FiatConectApiClient {
@@ -57,11 +59,21 @@ export default class FiatConnectClient implements FiatConectApiClient {
   /**
    * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
    *
-   * Convenience method to calculate the difference between server and client clocks.
-   * Returns the difference between the client and server clocks as a number of milliseconds.
+   * Returns the calculated difference between the client and server clocks as a number of milliseconds.
    * Positive values mean the server's clock is ahead of the client's.
+   * Also returns the maximum error of the calculated difference.
    */
-  async getClockDiff(): Promise<Result<number, ErrorResponse>> {
+  _calculateClockDiff({ t0, t1, t2, t3 }: ClockDiffParams): ClockDiffResult {
+    return {
+      diff: Math.floor((t1 - t0 + (t2 - t3)) / 2),
+      maxError: Math.floor((t3 - t0) / 2),
+    }
+  }
+
+  /**
+   * Convenience method to calculate the approximate difference between server and client clocks.
+   */
+  async getClockDiffApprox(): Promise<Result<ClockDiffResult, ErrorResponse>> {
     const t0 = Date.now()
     const clockResponse = await this.getClock()
     const t3 = Date.now()
@@ -72,7 +84,8 @@ export default class FiatConnectClient implements FiatConectApiClient {
 
     const t1 = new Date(clockResponse.val.time).getTime()
     // We can assume that t1 and t2 are sufficiently close to each other
-    return Ok((t1 - t0 + t1 - t3) / 2)
+    const t2 = t1
+    return Ok(this._calculateClockDiff({ t0, t1, t2, t3 }))
   }
 
   /**
