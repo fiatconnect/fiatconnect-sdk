@@ -5,6 +5,7 @@ import {
   GetFiatAccountsResponse,
   KycRequestParams,
   KycStatusResponse,
+  Network,
   QuoteErrorResponse,
   QuoteRequestQuery,
   QuoteResponse,
@@ -26,8 +27,8 @@ import {
 } from './types'
 
 const NETWORK_CHAIN_IDS = {
-  alfajores: 44787,
-  mainnet: 42220,
+  [Network.Alfajores]: 44787,
+  [Network.Mainnet]: 42220,
 }
 
 const fetch = fetchCookie(nodeFetch)
@@ -70,7 +71,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
         statement: 'Sign in with Ethereum',
         uri: `${this.config.baseUrl}/auth/login`,
         version: '1',
-        chainId: NETWORK_CHAIN_IDS[this.config.celoNetwork],
+        chainId: NETWORK_CHAIN_IDS[this.config.network],
         nonce: generateNonce(),
         expirationTime: expirationDate.toISOString(),
       })

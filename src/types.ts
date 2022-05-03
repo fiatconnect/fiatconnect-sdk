@@ -8,6 +8,7 @@ import {
   KycRequestParams,
   KycSchema,
   KycStatusResponse,
+  Network,
   PersonalDataAndDocumentsKyc,
   QuoteErrorResponse,
   QuoteRequestQuery,
@@ -83,7 +84,7 @@ export interface FiatConnectClientConfig {
   baseUrl: string
   providerName: string
   iconUrl: string
-  celoNetwork: 'alfajores' | 'mainnet'
+  network: Network
   accountAddress: string
 }
 

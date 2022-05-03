@@ -19,6 +19,7 @@ import {
   FiatAccountSchema,
   FiatConnectError,
   KycSchema,
+  Network,
 } from '@fiatconnect/fiatconnect-types'
 import * as siwe from 'siwe'
 import { Err, Ok } from 'ts-results'
@@ -43,7 +44,7 @@ describe('FiatConnect SDK', () => {
       baseUrl: 'https://fiat-connect-api.com',
       providerName: exampleProviderName,
       iconUrl: exampleIconUrl,
-      celoNetwork: 'alfajores',
+      network: Network.Alfajores,
       accountAddress,
     },
     signingFunction,
