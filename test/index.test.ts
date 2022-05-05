@@ -114,7 +114,9 @@ describe('FiatConnect SDK', () => {
         .spyOn(global.Date, 'now')
         .mockReturnValueOnce(t0)
         .mockReturnValueOnce(t3)
-      fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
+      jest
+        .spyOn(client, 'getClock')
+        .mockResolvedValueOnce(Ok(mockClockResponse))
       const expectedClockDiffResult = {
         diff: 1000,
         maxError: 500,
