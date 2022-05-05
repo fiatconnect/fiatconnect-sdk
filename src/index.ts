@@ -12,6 +12,7 @@ import {
   TransferResponse,
   TransferStatusRequestParams,
   TransferStatusResponse,
+  ClockResponse,
 } from '@fiatconnect/fiatconnect-types'
 import fetchCookie from 'fetch-cookie'
 import nodeFetch from 'node-fetch'
@@ -24,6 +25,8 @@ import {
   FiatConectApiClient,
   FiatConnectClientConfig,
   TransferRequestParams,
+  ClockDiffParams,
+  ClockDiffResult,
 } from './types'
 
 const NETWORK_CHAIN_IDS = {
@@ -119,6 +122,56 @@ export default class FiatConnectClient implements FiatConectApiClient {
         return Err(data as QuoteErrorResponse)
       }
       return Ok(data as QuoteResponse)
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+
+  /**
+   * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
+   *
+   * Returns the calculated difference between the client and server clocks as a number of milliseconds.
+   * Positive values mean the server's clock is ahead of the client's.
+   * Also returns the maximum error of the calculated difference.
+   */
+  _calculateClockDiff({ t0, t1, t2, t3 }: ClockDiffParams): ClockDiffResult {
+    return {
+      diff: Math.floor((t1 - t0 + (t2 - t3)) / 2),
+      maxError: Math.floor((t3 - t0) / 2),
+    }
+  }
+
+  /**
+   * Convenience method to calculate the approximate difference between server and client clocks.
+   */
+  async getClockDiffApprox(): Promise<Result<ClockDiffResult, ErrorResponse>> {
+    const t0 = Date.now()
+    const clockResponse = await this.getClock()
+    const t3 = Date.now()
+
+    if (!clockResponse.ok) {
+      return clockResponse
+    }
+
+    const t1 = new Date(clockResponse.val.time).getTime()
+    // We can assume that t1 and t2 are sufficiently close to each other
+    const t2 = t1
+    return Ok(this._calculateClockDiff({ t0, t1, t2, t3 }))
+  }
+
+  /**
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#321-get-clock
+   */
+  async getClock(): Promise<Result<ClockResponse, ErrorResponse>> {
+    try {
+      const response = await fetch(`${this.config.baseUrl}/clock`, {
+        method: 'GET',
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        return Err(data)
+      }
+      return Ok(data)
     } catch (error) {
       return handleError(error)
     }

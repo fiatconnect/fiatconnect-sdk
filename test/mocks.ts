@@ -19,6 +19,7 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
   TransferType,
+  ClockResponse,
 } from '@fiatconnect/fiatconnect-types'
 import {
   FiatAccountSchemaData,
@@ -142,4 +143,8 @@ export const mockTransferStatusResponse: TransferStatusResponse = {
   amountProvided: '5.0',
   amountReceived: '5.0',
   fiatAccountId: '12358',
+}
+
+export const mockClockResponse: ClockResponse = {
+  time: '2022-05-02T22:06:00+0000',
 }

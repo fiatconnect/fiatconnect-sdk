@@ -17,10 +17,13 @@ import {
   TransferResponse,
   TransferStatusRequestParams,
   TransferStatusResponse,
+  ClockResponse,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from 'ts-results'
 
 export interface FiatConectApiClient {
+  getClockDiffApprox(): Promise<Result<ClockDiffResult, ErrorResponse>>
+  getClock(): Promise<Result<ClockResponse, ErrorResponse>>
   getQuoteIn(
     params: QuoteRequestQuery,
     jwt: string,
@@ -95,4 +98,16 @@ export interface ErrorResponse {
 export interface TransferRequestParams {
   idempotencyKey: string
   data: TransferRequestBody
+}
+
+export interface ClockDiffParams {
+  t0: number
+  t1: number
+  t2: number
+  t3: number
+}
+
+export interface ClockDiffResult {
+  diff: number
+  maxError: number
 }
