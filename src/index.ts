@@ -51,7 +51,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
 
   _getAuthHeader() {
     if (this.config.apiKey) {
-      return {'Authorization': `Bearer ${this.config.apiKey}`}
+      return { Authorization: `Bearer ${this.config.apiKey}` }
     }
   }
 
@@ -94,7 +94,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...this._getAuthHeader()
+          ...this._getAuthHeader(),
         },
         body: JSON.stringify(body),
       })
@@ -217,7 +217,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...this._getAuthHeader()
+            ...this._getAuthHeader(),
           },
           body: JSON.stringify(params.data),
         },
@@ -244,7 +244,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
         `${this.config.baseUrl}/kyc/${params.kycSchema}`,
         {
           method: 'DELETE',
-          headers: this._getAuthHeader()
+          headers: this._getAuthHeader(),
         },
       )
       const data = await response.json()
@@ -269,7 +269,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
         `${this.config.baseUrl}/kyc/${params.kycSchema}`,
         {
           method: 'GET',
-          headers: this._getAuthHeader()
+          headers: this._getAuthHeader(),
         },
       )
       const data = await response.json()
@@ -320,7 +320,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
       await this._ensureLogin()
       const response = await fetch(`${this.config.baseUrl}/accounts`, {
         method: 'GET',
-        headers: this._getAuthHeader()
+        headers: this._getAuthHeader(),
       })
       const data = await response.json()
       if (!response.ok) {
@@ -344,7 +344,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
         `${this.config.baseUrl}/accounts/${params.fiatAccountId}`,
         {
           method: 'DELETE',
-          headers: this._getAuthHeader()
+          headers: this._getAuthHeader(),
         },
       )
       const data = await response.json()
@@ -421,7 +421,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
         `${this.config.baseUrl}/transfer/${params.transferId}/status`,
         {
           method: 'GET',
-          headers: this._getAuthHeader()
+          headers: this._getAuthHeader(),
         },
       )
       const data = await response.json()
