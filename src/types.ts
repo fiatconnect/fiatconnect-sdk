@@ -89,6 +89,7 @@ export interface FiatConnectClientConfig {
   iconUrl: string
   network: Network
   accountAddress: string
+  apiKey?: string
 }
 
 export interface ErrorResponse {
