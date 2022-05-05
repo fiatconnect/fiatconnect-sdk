@@ -1,9 +1,11 @@
 import {
   AddFiatAccountResponse,
+  AuthRequestBody,
   DeleteFiatAccountRequestParams,
   GetFiatAccountsResponse,
   KycRequestParams,
   KycStatusResponse,
+  Network,
   QuoteErrorResponse,
   QuoteRequestQuery,
   QuoteResponse,
@@ -12,7 +14,9 @@ import {
   TransferStatusResponse,
   ClockResponse,
 } from '@fiatconnect/fiatconnect-types'
-import fetch from 'node-fetch'
+import fetchCookie from 'fetch-cookie'
+import nodeFetch from 'node-fetch'
+import { generateNonce, SiweMessage } from 'siwe'
 import { Ok, Err, Result } from 'ts-results'
 import {
   AddFiatAccountParams,
@@ -25,16 +29,84 @@ import {
   ClockDiffResult,
 } from './types'
 
+const NETWORK_CHAIN_IDS = {
+  [Network.Alfajores]: 44787,
+  [Network.Mainnet]: 42220,
+}
+
+const fetch = fetchCookie(nodeFetch)
+
 export default class FiatConnectClient implements FiatConectApiClient {
   config: FiatConnectClientConfig
+  signingFunction: (message: string) => Promise<string>
+  _sessionExpiry?: Date
 
-  constructor(config: FiatConnectClientConfig) {
+  constructor(
+    config: FiatConnectClientConfig,
+    signingFunction: (message: string) => Promise<string>,
+  ) {
     this.config = config
+    this.signingFunction = signingFunction
+  }
+
+  async _ensureLogin() {
+    const loginResult = await this.login()
+    if (!loginResult.ok) {
+      throw new Error(`Login failed: ${loginResult.val.error}`)
+    }
+  }
+
+  /**
+   * Logs in with the provider and initializes a session.
+   *
+   * @returns a Promise resolving to the literal string 'success' on a
+   * successful login or an Error response.
+   */
+  async login(): Promise<Result<'success', ErrorResponse>> {
+    try {
+      if (this._sessionExpiry && this._sessionExpiry > new Date()) {
+        return Ok('success')
+      }
+      const expirationDate = new Date(Date.now() + 14400000) // 4 hours from now
+      const siweMessage = new SiweMessage({
+        domain: new URL(this.config.baseUrl).hostname,
+        address: this.config.accountAddress,
+        statement: 'Sign in with Ethereum',
+        uri: `${this.config.baseUrl}/auth/login`,
+        version: '1',
+        chainId: NETWORK_CHAIN_IDS[this.config.network],
+        nonce: generateNonce(),
+        expirationTime: expirationDate.toISOString(),
+      })
+      const message = siweMessage.prepareMessage()
+      const body: AuthRequestBody = {
+        message,
+        signature: await this.signingFunction(message),
+      }
+
+      const response = await fetch(`${this.config.baseUrl}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+
+      if (!response.ok) {
+        // On a non 200 response, the response should be a JSON including an error field.
+        const data = await response.json()
+        return Err(data as ErrorResponse)
+      }
+
+      this._sessionExpiry = expirationDate
+      return Ok('success')
+    } catch (error) {
+      return handleError(error)
+    }
   }
 
   async _getQuote(
     params: QuoteRequestQuery,
-    jwt: string,
     inOrOut: 'in' | 'out',
   ): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
     try {
@@ -43,7 +115,6 @@ export default class FiatConnectClient implements FiatConectApiClient {
         `${this.config.baseUrl}/quote/${inOrOut}?${queryParams}`,
         {
           method: 'GET',
-          headers: { Authorization: `Bearer: ${jwt}` },
         },
       )
       const data = await response.json()
@@ -111,9 +182,8 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async getQuoteIn(
     params: QuoteRequestQuery,
-    jwt: string,
   ): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
-    return this._getQuote(params, jwt, 'in')
+    return this._getQuote(params, 'in')
   }
 
   /**
@@ -121,9 +191,8 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async getQuoteOut(
     params: QuoteRequestQuery,
-    jwt: string,
   ): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
-    return this._getQuote(params, jwt, 'out')
+    return this._getQuote(params, 'out')
   }
 
   /**
@@ -131,16 +200,15 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async addKyc(
     params: AddKycParams,
-    jwt: string,
   ): Promise<Result<KycStatusResponse, ErrorResponse>> {
     try {
+      await this._ensureLogin()
       const response = await fetch(
         `${this.config.baseUrl}/kyc/${params.kycSchemaName}`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer: ${jwt}`,
           },
           body: JSON.stringify(params.data),
         },
@@ -160,14 +228,13 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async deleteKyc(
     params: KycRequestParams,
-    jwt: string,
   ): Promise<Result<void, ErrorResponse>> {
     try {
+      await this._ensureLogin()
       const response = await fetch(
         `${this.config.baseUrl}/kyc/${params.kycSchema}`,
         {
           method: 'DELETE',
-          headers: { Authorization: `Bearer: ${jwt}` },
         },
       )
       const data = await response.json()
@@ -185,14 +252,13 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async getKycStatus(
     params: KycRequestParams,
-    jwt: string,
   ): Promise<Result<KycStatusResponse, ErrorResponse>> {
     try {
+      await this._ensureLogin()
       const response = await fetch(
         `${this.config.baseUrl}/kyc/${params.kycSchema}`,
         {
           method: 'GET',
-          headers: { Authorization: `Bearer: ${jwt}` },
         },
       )
       const data = await response.json()
@@ -210,16 +276,15 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async addFiatAccount(
     params: AddFiatAccountParams,
-    jwt: string,
   ): Promise<Result<AddFiatAccountResponse, ErrorResponse>> {
     try {
+      await this._ensureLogin()
       const response = await fetch(
         `${this.config.baseUrl}/accounts/${params.fiatAccountSchemaName}`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer: ${jwt}`,
           },
           body: JSON.stringify(params.data),
         },
@@ -237,13 +302,13 @@ export default class FiatConnectClient implements FiatConectApiClient {
   /**
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3332-get-accounts
    */
-  async getFiatAccounts(
-    jwt: string,
-  ): Promise<Result<GetFiatAccountsResponse, ErrorResponse>> {
+  async getFiatAccounts(): Promise<
+    Result<GetFiatAccountsResponse, ErrorResponse>
+  > {
     try {
+      await this._ensureLogin()
       const response = await fetch(`${this.config.baseUrl}/accounts`, {
         method: 'GET',
-        headers: { Authorization: `Bearer: ${jwt}` },
       })
       const data = await response.json()
       if (!response.ok) {
@@ -260,14 +325,13 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async deleteFiatAccount(
     params: DeleteFiatAccountRequestParams,
-    jwt: string,
   ): Promise<Result<void, ErrorResponse>> {
     try {
+      await this._ensureLogin()
       const response = await fetch(
         `${this.config.baseUrl}/accounts/${params.fiatAccountId}`,
         {
           method: 'DELETE',
-          headers: { Authorization: `Bearer: ${jwt}` },
         },
       )
       const data = await response.json()
@@ -285,14 +349,13 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async transferIn(
     params: TransferRequestParams,
-    jwt: string,
   ): Promise<Result<TransferResponse, ErrorResponse>> {
     try {
+      await this._ensureLogin()
       const response = await fetch(`${this.config.baseUrl}/transfer/in`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer: ${jwt}`,
           'Idempotency-Key': params.idempotencyKey,
         },
         body: JSON.stringify(params.data),
@@ -312,14 +375,13 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async transferOut(
     params: TransferRequestParams,
-    jwt: string,
   ): Promise<Result<TransferResponse, ErrorResponse>> {
     try {
+      await this._ensureLogin()
       const response = await fetch(`${this.config.baseUrl}/transfer/out`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer: ${jwt}`,
           'Idempotency-Key': params.idempotencyKey,
         },
         body: JSON.stringify(params.data),
@@ -339,14 +401,13 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async getTransferStatus(
     params: TransferStatusRequestParams,
-    jwt: string,
   ): Promise<Result<TransferStatusResponse, ErrorResponse>> {
     try {
+      await this._ensureLogin()
       const response = await fetch(
         `${this.config.baseUrl}/transfer/${params.transferId}/status`,
         {
           method: 'GET',
-          headers: { Authorization: `Bearer: ${jwt}` },
         },
       )
       const data = await response.json()

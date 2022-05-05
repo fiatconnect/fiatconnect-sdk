@@ -8,6 +8,7 @@ import {
   KycRequestParams,
   KycSchema,
   KycStatusResponse,
+  Network,
   PersonalDataAndDocumentsKyc,
   QuoteErrorResponse,
   QuoteRequestQuery,
@@ -86,6 +87,8 @@ export interface FiatConnectClientConfig {
   baseUrl: string
   providerName: string
   iconUrl: string
+  network: Network
+  accountAddress: string
 }
 
 export interface ErrorResponse {
