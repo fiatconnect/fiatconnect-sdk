@@ -174,6 +174,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
     try {
       const response = await fetch(`${this.config.baseUrl}/clock`, {
         method: 'GET',
+        headers: this._getAuthHeader(),
       })
       const data = await response.json()
       if (!response.ok) {
@@ -296,6 +297,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            ...this._getAuthHeader(),
           },
           body: JSON.stringify(params.data),
         },
@@ -345,6 +347,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
         {
           method: 'DELETE',
           headers: this._getAuthHeader(),
+          ...this._getAuthHeader(),
         },
       )
       const data = await response.json()
@@ -370,6 +373,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
         headers: {
           'Content-Type': 'application/json',
           'Idempotency-Key': params.idempotencyKey,
+          ...this._getAuthHeader(),
         },
         body: JSON.stringify(params.data),
       })
@@ -396,6 +400,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
         headers: {
           'Content-Type': 'application/json',
           'Idempotency-Key': params.idempotencyKey,
+          ...this._getAuthHeader(),
         },
         body: JSON.stringify(params.data),
       })
