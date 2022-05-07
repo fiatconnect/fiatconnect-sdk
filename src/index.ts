@@ -347,7 +347,6 @@ export default class FiatConnectClient implements FiatConectApiClient {
         {
           method: 'DELETE',
           headers: this._getAuthHeader(),
-          ...this._getAuthHeader(),
         },
       )
       const data = await response.json()
