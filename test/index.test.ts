@@ -181,9 +181,11 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toEqual('success')
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('returns error if login returns error response', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
       fetchMock.mockResponseOnce('{"error": "InvalidParameters"}', {
         status: 400,
       })
@@ -204,7 +206,7 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/auth/login',
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer api-key' },
           body: JSON.stringify({
             message: expectedSiweMessage.prepareMessage(),
             signature: 'signed message',
@@ -213,6 +215,7 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.ok).toBeFalsy()
       expect(response.val).toEqual({ error: 'InvalidParameters' })
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('returns error if login throws', async () => {
       signingFunction.mockRejectedValueOnce('sign error')
@@ -220,6 +223,7 @@ describe('FiatConnect SDK', () => {
 
       expect(response.ok).toBeFalsy()
       expect(response.val).toEqual({ error: 'sign error' })
+      expect(getHeadersMock).not.toHaveBeenCalled()
     })
   })
   describe('_ensureLogin', () => {
