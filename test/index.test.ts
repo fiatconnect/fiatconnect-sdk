@@ -146,7 +146,7 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('login', () => {
-    it('calls /auth/login if sessionExpiry is not set', async () => {
+    it('calls /auth/login', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
       fetchMock.mockResponseOnce('', {
         headers: { 'set-cookie': 'session=session-val' },
@@ -175,47 +175,6 @@ describe('FiatConnect SDK', () => {
           }),
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toEqual('success')
-    })
-    it('calls /auth/login if sessionExpiry is in the past', async () => {
-      client._sessionExpiry = new Date('2022-04-30T23:00:00Z')
-      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
-      fetchMock.mockResponseOnce('', {
-        headers: { 'set-cookie': 'session=session-val' },
-      })
-
-      const response = await client.login()
-
-      const expectedSiweMessage = new siwe.SiweMessage({
-        domain: 'fiat-connect-api.com',
-        address: accountAddress,
-        statement: 'Sign in with Ethereum',
-        uri: 'https://fiat-connect-api.com/auth/login',
-        nonce: '12345678',
-        expirationTime: '2022-05-01T04:00:00.000Z',
-        version: '1',
-        chainId: 44787,
-      })
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/auth/login',
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: expectedSiweMessage.prepareMessage(),
-            signature: 'signed message',
-          }),
-        }),
-      )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toEqual('success')
-    })
-    it('skips login if session expiry is in the future', async () => {
-      client._sessionExpiry = new Date('2022-05-01T03:00:00Z')
-      const response = await client.login()
-
-      expect(fetchMock).not.toHaveBeenCalled()
       expect(response.ok).toBeTruthy()
       expect(response.val).toEqual('success')
     })
@@ -260,17 +219,29 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('_ensureLogin', () => {
-    it('succeeds if login succeeds', async () => {
-      jest.spyOn(client, 'login').mockResolvedValueOnce(Ok('success'))
+    const mockLogin = jest.spyOn(client, 'login')
+    it('calls login and returns successfully if sessionExpiry is not set', async () => {
+      mockLogin.mockResolvedValueOnce(Ok('success'))
       await client._ensureLogin()
+      expect(mockLogin).toHaveBeenCalledTimes(1)
+    })
+    it('calls login and returns successfully if sessionExpiry is in the past', async () => {
+      client._sessionExpiry = new Date('2022-04-30T23:00:00Z')
+      mockLogin.mockResolvedValueOnce(Ok('success'))
+      await client._ensureLogin()
+      expect(mockLogin).toHaveBeenCalledTimes(1)
+    })
+    it('skips login if session expiry is in the future', async () => {
+      client._sessionExpiry = new Date('2022-05-01T03:00:00Z')
+      await client._ensureLogin()
+      expect(mockLogin).not.toHaveBeenCalled()
     })
     it('throws error if login fails', async () => {
-      jest
-        .spyOn(client, 'login')
-        .mockResolvedValueOnce(Err({ error: 'invalid login' }))
+      mockLogin.mockResolvedValueOnce(Err({ error: 'invalid login' }))
       await expect(async () => {
         await client._ensureLogin()
       }).rejects.toThrow('Login failed: invalid login')
+      expect(mockLogin).toHaveBeenCalledTimes(1)
     })
   })
   describe('getQuoteIn', () => {

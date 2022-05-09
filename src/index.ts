@@ -33,6 +33,7 @@ const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
   [Network.Mainnet]: 42220,
 }
+const SESSION_DURATION_MS = 14400000 // 4 hours
 
 const fetch = fetchCookie(nodeFetch)
 
@@ -50,6 +51,9 @@ export default class FiatConnectClient implements FiatConectApiClient {
   }
 
   async _ensureLogin() {
+    if (this._sessionExpiry && this._sessionExpiry > new Date()) {
+      return
+    }
     const loginResult = await this.login()
     if (!loginResult.ok) {
       throw new Error(`Login failed: ${loginResult.val.error}`)
@@ -64,10 +68,7 @@ export default class FiatConnectClient implements FiatConectApiClient {
    */
   async login(): Promise<Result<'success', ErrorResponse>> {
     try {
-      if (this._sessionExpiry && this._sessionExpiry > new Date()) {
-        return Ok('success')
-      }
-      const expirationDate = new Date(Date.now() + 14400000) // 4 hours from now
+      const expirationDate = new Date(Date.now() + SESSION_DURATION_MS)
       const siweMessage = new SiweMessage({
         domain: new URL(this.config.baseUrl).hostname,
         address: this.config.accountAddress,
