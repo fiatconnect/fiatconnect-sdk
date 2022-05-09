@@ -50,10 +50,12 @@ describe('FiatConnect SDK', () => {
     },
     signingFunction,
   )
+  const getHeadersMock = jest.spyOn(client, '_getAuthHeader')
 
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(new Date('2022-05-01T00:00:00Z'))
     fetchMock.resetMocks()
+    getHeadersMock.mockReset()
     jest.clearAllMocks()
     client._sessionExpiry = undefined
   })
@@ -69,10 +71,12 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/clock',
         expect.objectContaining({
           method: 'GET',
+          headers: undefined,
         }),
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockClockResponse)
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
@@ -177,9 +181,11 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toEqual('success')
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('returns error if login returns error response', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
       fetchMock.mockResponseOnce('{"error": "InvalidParameters"}', {
         status: 400,
       })
@@ -200,7 +206,7 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/auth/login',
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer api-key' },
           body: JSON.stringify({
             message: expectedSiweMessage.prepareMessage(),
             signature: 'signed message',
@@ -209,6 +215,7 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.ok).toBeFalsy()
       expect(response.val).toEqual({ error: 'InvalidParameters' })
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('returns error if login throws', async () => {
       signingFunction.mockRejectedValueOnce('sign error')
@@ -216,6 +223,7 @@ describe('FiatConnect SDK', () => {
 
       expect(response.ok).toBeFalsy()
       expect(response.val).toEqual({ error: 'sign error' })
+      expect(getHeadersMock).not.toHaveBeenCalled()
     })
   })
   describe('_ensureLogin', () => {
@@ -244,16 +252,38 @@ describe('FiatConnect SDK', () => {
       expect(mockLogin).toHaveBeenCalledTimes(1)
     })
   })
+  describe('_getAuthHeader', () => {
+    it('returns auth header if client key is set', () => {
+      const clientWithApiKey = new FiatConnectClient(
+        {
+          baseUrl: 'https://fiat-connect-api.com',
+          providerName: exampleProviderName,
+          iconUrl: exampleIconUrl,
+          network: Network.Alfajores,
+          accountAddress,
+          apiKey: 'some-api-key',
+        },
+        signingFunction,
+      )
+      expect(clientWithApiKey._getAuthHeader()).toEqual({
+        Authorization: 'Bearer some-api-key',
+      })
+    })
+    it('returns undefined if client key is not set', () => {
+      expect(client._getAuthHeader()).toBeUndefined()
+    })
+  })
   describe('getQuoteIn', () => {
     it('calls /quote/in and returns QuoteResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
       const response = await client.getQuoteIn(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/quote/in?fiatType=USD&cryptoType=cUSD&country=DE',
-        expect.objectContaining({ method: 'GET' }),
+        expect.objectContaining({ method: 'GET', headers: undefined }),
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockQuoteResponse)
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
@@ -280,10 +310,11 @@ describe('FiatConnect SDK', () => {
       const response = await client.getQuoteOut(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/quote/out?fiatType=USD&cryptoType=cUSD&country=DE',
-        expect.objectContaining({ method: 'GET' }),
+        expect.objectContaining({ method: 'GET', headers: undefined }),
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockQuoteResponse)
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
@@ -316,11 +347,37 @@ describe('FiatConnect SDK', () => {
       })
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/kyc/PersonalDataAndDocuments',
-        expect.objectContaining({ method: 'POST' }),
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }),
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockKycStatusResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
+    })
+    it('calls POST /kyc/${params.kycSchemaName} with auth header and returns KycStatusResponse', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(mockKycStatusResponse))
+      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
+      const response = await client.addKyc({
+        kycSchemaName: KycSchema.PersonalDataAndDocuments,
+        data: mockKycSchemaData,
+      })
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://fiat-connect-api.com/kyc/PersonalDataAndDocuments',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer api-key',
+          },
+        }),
+      )
+      expect(response.ok).toBeTruthy()
+      expect(response.val).toMatchObject(mockKycStatusResponse)
+      expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorResponse = { error: FiatConnectError.ResourceExists }
@@ -362,6 +419,7 @@ describe('FiatConnect SDK', () => {
       expect(response.ok).toBeTruthy()
       expect(response.val).toBeUndefined()
       expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorResponse = { error: FiatConnectError.ResourceNotFound }
@@ -396,11 +454,12 @@ describe('FiatConnect SDK', () => {
       })
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/kyc/PersonalDataAndDocuments',
-        expect.objectContaining({ method: 'GET' }),
+        expect.objectContaining({ method: 'GET', headers: undefined }),
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockKycStatusResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorResponse = { error: FiatConnectError.ResourceNotFound }
@@ -436,11 +495,37 @@ describe('FiatConnect SDK', () => {
       })
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/accounts/AccountNumber',
-        expect.objectContaining({ method: 'POST' }),
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }),
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockAddFiatAccountResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
+    })
+    it('calls POST /accounts/${params.fiatAccountSchemaName} and returns AddFiatAccountResponse', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(mockAddFiatAccountResponse))
+      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
+      const response = await client.addFiatAccount({
+        fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
+        data: mockFiatAccountSchemaData,
+      })
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://fiat-connect-api.com/accounts/AccountNumber',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer api-key',
+          },
+        }),
+      )
+      expect(response.ok).toBeTruthy()
+      expect(response.val).toMatchObject(mockAddFiatAccountResponse)
+      expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorResponse = { error: FiatConnectError.ResourceExists }
@@ -475,11 +560,12 @@ describe('FiatConnect SDK', () => {
       const response = await client.getFiatAccounts()
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/accounts',
-        expect.objectContaining({ method: 'GET' }),
+        expect.objectContaining({ method: 'GET', headers: undefined }),
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockGetFiatAccountsResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorResponse = { error: FiatConnectError.ResourceNotFound }
@@ -510,11 +596,12 @@ describe('FiatConnect SDK', () => {
       )
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/accounts/12358',
-        expect.objectContaining({ method: 'DELETE' }),
+        expect.objectContaining({ method: 'DELETE', headers: undefined }),
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toBeUndefined()
       expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorResponse = { error: FiatConnectError.ResourceNotFound }
@@ -557,6 +644,26 @@ describe('FiatConnect SDK', () => {
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockTransferResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
+    })
+    it('calls POST /transfer/in with auth header and returns TransferResponse', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(mockTransferResponse))
+      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
+      const response = await client.transferIn(mockTransferRequestParams)
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://fiat-connect-api.com/transfer/in',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Idempotency-Key': mockTransferRequestParams.idempotencyKey,
+            Authorization: 'Bearer api-key',
+          }),
+        }),
+      )
+      expect(response.ok).toBeTruthy()
+      expect(response.val).toMatchObject(mockTransferResponse)
+      expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorResponse = { error: FiatConnectError.ResourceNotFound }
@@ -596,6 +703,26 @@ describe('FiatConnect SDK', () => {
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockTransferResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
+    })
+    it('calls POST /transfer/out with auth header and returns TransferResponse', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(mockTransferResponse))
+      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
+      const response = await client.transferOut(mockTransferRequestParams)
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://fiat-connect-api.com/transfer/out',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Idempotency-Key': mockTransferRequestParams.idempotencyKey,
+            Authorization: 'Bearer api-key',
+          }),
+        }),
+      )
+      expect(response.ok).toBeTruthy()
+      expect(response.val).toMatchObject(mockTransferResponse)
+      expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorResponse = { error: FiatConnectError.ResourceNotFound }
@@ -627,11 +754,12 @@ describe('FiatConnect SDK', () => {
       )
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/transfer/82938/status',
-        expect.objectContaining({ method: 'GET' }),
+        expect.objectContaining({ method: 'GET', headers: undefined }),
       )
       expect(response.ok).toBeTruthy()
       expect(response.val).toMatchObject(mockTransferStatusResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
+      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorResponse = { error: FiatConnectError.ResourceNotFound }
