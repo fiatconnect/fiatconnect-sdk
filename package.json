@@ -1,12 +1,12 @@
 {
-  "name": "fiatconnect-sdk",
-  "version": "1.0.0",
+  "name": "@fiatconnect/fiatconnect-sdk",
+  "version": "0.1.0",
   "description": "A helper libary for wallets to integrate with FiatConnect APIs",
   "scripts": {
     "format": "prettier --loglevel error --write \"./**/*.ts\"",
     "prepublish": "tsc",
     "lint": "eslint --ext=.ts src/",
-    "release": "standard-version",
+    "release": "standard-version --skip.tag",
     "test": "jest",
     "prepare": "husky install"
   },
@@ -18,12 +18,15 @@
     "celo"
   ],
   "main": "dist/index.js",
-  "repository": "https://github.com/fiatconnect/fiatconnect-sdk",
+  "types": "dist/types.d.ts",
+  "repository": "git@github.com:fiatconnect/fiatconnect-sdk.git",
   "author": "Jacob Waterman <jacob.waterman@valoraapp.com>",
   "bugs": {
     "url": "https://github.com/fiatconnect/fiatconnect-sdk/issues"
   },
+  "homepage": "https://github.com/fiatconnect/fiatconnect-sdk#readme",
   "license": "MIT",
+  "private": false,
   "devDependencies": {
     "@types/jest": "^27.4.1",
     "@types/node-fetch": "^2.6.1",
