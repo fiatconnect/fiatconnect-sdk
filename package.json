@@ -1,6 +1,6 @@
 {
   "name": "@fiatconnect/fiatconnect-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A helper libary for wallets to integrate with FiatConnect APIs",
   "scripts": {
     "format": "prettier --loglevel error --write \"./**/*.ts\"",
