@@ -29,7 +29,3 @@ cc https://app.zenhub.com/workspaces/acquisition-squad-sprint-board-6010683afabe
 
 * added provider name and icon url to config ([#7](https://github.com/fiatconnect/fiatconnect-sdk/issues/7)) ([ec3e1f2](https://github.com/fiatconnect/fiatconnect-sdk/commit/ec3e1f2cc72e4fa8ea654cf2f4c603fba5b62a77))
 * updated types ([#8](https://github.com/fiatconnect/fiatconnect-sdk/issues/8)) ([4593436](https://github.com/fiatconnect/fiatconnect-sdk/commit/4593436cfa3437cc089d02f509ac6faa0cf60469))
-
-# Changelog
-
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
