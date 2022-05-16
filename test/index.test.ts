@@ -206,7 +206,10 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/auth/login',
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer api-key' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer api-key',
+          },
           body: JSON.stringify({
             message: expectedSiweMessage.prepareMessage(),
             signature: 'signed message',
