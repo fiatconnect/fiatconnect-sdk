@@ -67,10 +67,10 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-  * Checks if a logged in session exists with the provider.
-  *
-  * @returns true if an unexpired session exists with the provider, else false
-  */
+   * Checks if a logged in session exists with the provider.
+   *
+   * @returns true if an unexpired session exists with the provider, else false
+   */
   isLoggedIn(): boolean {
     return !!(this._sessionExpiry && this._sessionExpiry > new Date())
   }
