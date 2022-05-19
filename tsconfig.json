@@ -16,9 +16,9 @@
       "lib": ["es7", "es2017"],
       "skipLibCheck": true,
       "emitDecoratorMetadata": true,
+      "importHelpers": true,
       "experimentalDecorators": true
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules/**/*", "dist"]
   }
-  

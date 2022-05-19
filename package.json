@@ -18,7 +18,7 @@
     "celo"
   ],
   "main": "dist/index.js",
-  "types": "dist/types.d.ts",
+  "types": "dist/index.d.ts",
   "repository": "git@github.com:fiatconnect/fiatconnect-sdk.git",
   "author": "Jacob Waterman <jacob.waterman@valoraapp.com>",
   "bugs": {
@@ -53,6 +53,7 @@
     "fetch-cookie": "^2.0.3",
     "node-fetch": "^2.6.6",
     "siwe": "^1.1.6",
-    "ts-results": "^3.3.0"
+    "ts-results": "^3.3.0",
+    "tslib": "^2.4.0"
   }
 }
