@@ -1,4 +1,4 @@
-import FiatConnectClient from '../src/index'
+import { FiatConnectClient } from '../src/index'
 import {
   mockAddFiatAccountResponse,
   mockDeleteFiatAccountParams,
@@ -227,6 +227,23 @@ describe('FiatConnect SDK', () => {
       expect(response.ok).toBeFalsy()
       expect(response.val).toEqual({ error: 'sign error' })
       expect(getHeadersMock).not.toHaveBeenCalled()
+    })
+  })
+  describe('isLoggedIn', () => {
+    it('returns false when sessionExpiry does not exist', () => {
+      expect(client.isLoggedIn()).toBeFalsy()
+    })
+    it('returns false when sessionExpiry exists but is too old', () => {
+      client._sessionExpiry = new Date('2022-05-01T00:00:00+0000')
+      const mockNow = new Date('2022-05-02T00:00:00+0000').getTime()
+      jest.spyOn(global.Date, 'now').mockReturnValueOnce(mockNow)
+      expect(client.isLoggedIn()).toBeFalsy()
+    })
+    it('returns true when sessionExpiry exists and is not too old', () => {
+      client._sessionExpiry = new Date('2022-05-03T00:00:00+0000')
+      const mockNow = new Date('2022-05-02T00:00:00+0000').getTime()
+      jest.spyOn(global.Date, 'now').mockReturnValueOnce(mockNow)
+      expect(client.isLoggedIn()).toBeTruthy()
     })
   })
   describe('_ensureLogin', () => {
