@@ -39,12 +39,12 @@ const fetch = fetchCookie(nodeFetch)
 
 export class FiatConnectClient implements FiatConnectApiClient {
   config: FiatConnectClientConfig
-  signingFunction: (message: string) => Promise<string>
+  signingFunction?: (message: string) => Promise<string>
   _sessionExpiry?: Date
 
   constructor(
     config: FiatConnectClientConfig,
-    signingFunction: (message: string) => Promise<string>,
+    signingFunction?: (message: string) => Promise<string>,
   ) {
     this.config = config
     this.signingFunction = signingFunction
@@ -83,6 +83,15 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async login(): Promise<Result<'success', ErrorResponse>> {
     try {
+      if(!this.config.accountAddress) {
+        throw new Error('Missing the accountAddress field in the FiatConnectClient constructor')
+      }
+      if(!this.config.network) {
+        throw new Error('Missing the network field in the FiatConnectClient constructor')
+      }
+      if(!this.signingFunction) {
+        throw new Error('Missing the signingFunction in the FiatConnectClient constructor')
+      }
       const expirationDate = new Date(Date.now() + SESSION_DURATION_MS)
       const siweMessage = new SiweMessage({
         domain: new URL(this.config.baseUrl).hostname,

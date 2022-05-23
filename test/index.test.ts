@@ -35,16 +35,11 @@ jest.mock('siwe', () => ({
 }))
 
 describe('FiatConnect SDK', () => {
-  const exampleIconUrl =
-    'https://storage.googleapis.com/celo-mobile-mainnet.appspot.com/images/valora-icon.png'
-  const exampleProviderName = 'Example Provider'
   const accountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
   const signingFunction = jest.fn(() => Promise.resolve('signed message'))
   const client = new FiatConnectClient(
     {
       baseUrl: 'https://fiat-connect-api.com',
-      providerName: exampleProviderName,
-      iconUrl: exampleIconUrl,
       network: Network.Alfajores,
       accountAddress,
     },
@@ -58,10 +53,6 @@ describe('FiatConnect SDK', () => {
     getHeadersMock.mockReset()
     jest.clearAllMocks()
     client._sessionExpiry = undefined
-  })
-  it('Provider name and icon can be accessed', () => {
-    expect(client.config.providerName).toEqual(exampleProviderName)
-    expect(client.config.iconUrl).toEqual(exampleIconUrl)
   })
   describe('getClock', () => {
     it('gets the server clock', async () => {
@@ -228,6 +219,45 @@ describe('FiatConnect SDK', () => {
       expect(response.val).toEqual({ error: 'sign error' })
       expect(getHeadersMock).not.toHaveBeenCalled()
     })
+    it('returns error if network is not in the config', async () => {
+      const noNetworkClient = new FiatConnectClient(
+        {
+          baseUrl: 'https://fiat-connect-api.com',
+          accountAddress,
+        },
+        signingFunction,
+      )
+      const response = await noNetworkClient.login()
+
+      expect(response.ok).toBeFalsy()
+      expect(response.val).toEqual({ error: 'Missing the network field in the FiatConnectClient constructor' })
+    })
+    it('returns error if accountAddress is not in the config', async () => {
+      const noAddressClient = new FiatConnectClient(
+        {
+          baseUrl: 'https://fiat-connect-api.com',
+          network: Network.Alfajores,
+        },
+        signingFunction,
+      )
+      const response = await noAddressClient.login()
+
+      expect(response.ok).toBeFalsy()
+      expect(response.val).toEqual({ error: 'Missing the accountAddress field in the FiatConnectClient constructor' })
+    })
+    it('returns error if signingFunction is not in the config', async () => {
+      const noSigningFunctionClient = new FiatConnectClient(
+        {
+          baseUrl: 'https://fiat-connect-api.com',
+          network: Network.Alfajores,
+          accountAddress
+        }
+      )
+      const response = await noSigningFunctionClient.login()
+
+      expect(response.ok).toBeFalsy()
+      expect(response.val).toEqual({ error: 'Missing the signingFunction in the FiatConnectClient constructor' })
+    })
   })
   describe('isLoggedIn', () => {
     it('returns false when sessionExpiry does not exist', () => {
@@ -272,8 +302,6 @@ describe('FiatConnect SDK', () => {
       const clientWithApiKey = new FiatConnectClient(
         {
           baseUrl: 'https://fiat-connect-api.com',
-          providerName: exampleProviderName,
-          iconUrl: exampleIconUrl,
           network: Network.Alfajores,
           accountAddress,
           apiKey: 'some-api-key',
