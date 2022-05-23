@@ -83,14 +83,20 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async login(): Promise<Result<'success', ErrorResponse>> {
     try {
-      if(!this.config.accountAddress) {
-        throw new Error('Missing the accountAddress field in the FiatConnectClient constructor')
+      if (!this.config.accountAddress) {
+        throw new Error(
+          'Missing the accountAddress field in the FiatConnectClient constructor',
+        )
       }
-      if(!this.config.network) {
-        throw new Error('Missing the network field in the FiatConnectClient constructor')
+      if (!this.config.network) {
+        throw new Error(
+          'Missing the network field in the FiatConnectClient constructor',
+        )
       }
-      if(!this.signingFunction) {
-        throw new Error('Missing the signingFunction in the FiatConnectClient constructor')
+      if (!this.signingFunction) {
+        throw new Error(
+          'Missing the signingFunction in the FiatConnectClient constructor',
+        )
       }
       const expirationDate = new Date(Date.now() + SESSION_DURATION_MS)
       const siweMessage = new SiweMessage({

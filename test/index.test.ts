@@ -230,7 +230,9 @@ describe('FiatConnect SDK', () => {
       const response = await noNetworkClient.login()
 
       expect(response.ok).toBeFalsy()
-      expect(response.val).toEqual({ error: 'Missing the network field in the FiatConnectClient constructor' })
+      expect(response.val).toEqual({
+        error: 'Missing the network field in the FiatConnectClient constructor',
+      })
     })
     it('returns error if accountAddress is not in the config', async () => {
       const noAddressClient = new FiatConnectClient(
@@ -243,20 +245,24 @@ describe('FiatConnect SDK', () => {
       const response = await noAddressClient.login()
 
       expect(response.ok).toBeFalsy()
-      expect(response.val).toEqual({ error: 'Missing the accountAddress field in the FiatConnectClient constructor' })
+      expect(response.val).toEqual({
+        error:
+          'Missing the accountAddress field in the FiatConnectClient constructor',
+      })
     })
     it('returns error if signingFunction is not in the config', async () => {
-      const noSigningFunctionClient = new FiatConnectClient(
-        {
-          baseUrl: 'https://fiat-connect-api.com',
-          network: Network.Alfajores,
-          accountAddress
-        }
-      )
+      const noSigningFunctionClient = new FiatConnectClient({
+        baseUrl: 'https://fiat-connect-api.com',
+        network: Network.Alfajores,
+        accountAddress,
+      })
       const response = await noSigningFunctionClient.login()
 
       expect(response.ok).toBeFalsy()
-      expect(response.val).toEqual({ error: 'Missing the signingFunction in the FiatConnectClient constructor' })
+      expect(response.val).toEqual({
+        error:
+          'Missing the signingFunction in the FiatConnectClient constructor',
+      })
     })
   })
   describe('isLoggedIn', () => {
