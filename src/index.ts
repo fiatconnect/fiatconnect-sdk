@@ -22,7 +22,7 @@ import {
   AddFiatAccountParams,
   AddKycParams,
   ErrorResponse,
-  FiatConectApiClient,
+  FiatConnectApiClient,
   FiatConnectClientConfig,
   TransferRequestParams,
   ClockDiffParams,
@@ -37,7 +37,7 @@ const SESSION_DURATION_MS = 14400000 // 4 hours
 
 const fetch = fetchCookie(nodeFetch)
 
-export default class FiatConnectClient implements FiatConectApiClient {
+export default class FiatConnectClient implements FiatConnectApiClient {
   config: FiatConnectClientConfig
   signingFunction: (message: string) => Promise<string>
   _sessionExpiry?: Date
@@ -57,13 +57,22 @@ export default class FiatConnectClient implements FiatConectApiClient {
   }
 
   async _ensureLogin() {
-    if (this._sessionExpiry && this._sessionExpiry > new Date()) {
+    if (this.isLoggedIn()) {
       return
     }
     const loginResult = await this.login()
     if (!loginResult.ok) {
       throw new Error(`Login failed: ${loginResult.val.error}`)
     }
+  }
+
+  /**
+   * Checks if a logged in session exists with the provider.
+   *
+   * @returns true if an unexpired session exists with the provider, else false
+   */
+  isLoggedIn(): boolean {
+    return !!(this._sessionExpiry && this._sessionExpiry > new Date())
   }
 
   /**

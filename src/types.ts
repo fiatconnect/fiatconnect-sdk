@@ -21,9 +21,11 @@ import {
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from 'ts-results'
 
-export interface FiatConectApiClient {
+export interface FiatConnectApiClient {
   getClockDiffApprox(): Promise<Result<ClockDiffResult, ErrorResponse>>
   getClock(): Promise<Result<ClockResponse, ErrorResponse>>
+  login(): Promise<Result<'success', ErrorResponse>>
+  isLoggedIn(): boolean
   getQuoteIn(
     params: QuoteRequestQuery,
     jwt: string,
