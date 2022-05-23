@@ -1,4 +1,4 @@
-import FiatConnectClient from '../src/index'
+import { FiatConnectClient } from '../src/index'
 import {
   mockAddFiatAccountResponse,
   mockDeleteFiatAccountParams,
