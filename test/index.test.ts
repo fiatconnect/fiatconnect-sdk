@@ -248,11 +248,6 @@ describe('FiatConnect SDK', () => {
   })
   describe('_ensureLogin', () => {
     const mockLogin = jest.spyOn(client, 'login')
-    it('calls login and returns successfully if sessionExpiry is not set', async () => {
-      mockLogin.mockResolvedValueOnce(Ok('success'))
-      await client._ensureLogin()
-      expect(mockLogin).toHaveBeenCalledTimes(1)
-    })
     it('calls login and returns successfully if sessionExpiry is in the past', async () => {
       client._sessionExpiry = new Date('2022-04-30T23:00:00Z')
       mockLogin.mockResolvedValueOnce(Ok('success'))
