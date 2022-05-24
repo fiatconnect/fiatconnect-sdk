@@ -117,9 +117,6 @@ export const mockDeleteFiatAccountParams: DeleteFiatAccountRequestParams = {
 export const mockTransferRequestParams: TransferRequestParams = {
   idempotencyKey: '94d3fa9e-000b-4523-95e0-e9b6f7fcf849',
   data: {
-    fiatType: FiatType.USD,
-    cryptoType: CryptoType.cUSD,
-    amount: '5.0',
     fiatAccountId: '12358',
     quoteId: 'mock_quote_id',
   },
