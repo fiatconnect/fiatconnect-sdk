@@ -127,7 +127,7 @@ export const mockTransferRequestParams: TransferRequestParams = {
 
 export const mockTransferResponse: TransferResponse = {
   transferId: '82938',
-  transferStatus: TransferStatus.TransferPending,
+  transferStatus: TransferStatus.TransferReadyForUserToSendCryptoFunds,
   transferAddress: '0xCC6DDE7638B2409e120e915adD948069CA619e10',
 }
 
