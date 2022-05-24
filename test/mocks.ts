@@ -143,6 +143,8 @@ export const mockTransferStatusResponse: TransferStatusResponse = {
   amountProvided: '5.0',
   amountReceived: '5.0',
   fiatAccountId: '12358',
+  transferId: '82938',
+  transferAddress: '0xCC6DDE7638B2409e120e915adD948069CA619e10',
 }
 
 export const mockClockResponse: ClockResponse = {

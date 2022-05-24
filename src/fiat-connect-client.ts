@@ -424,7 +424,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3343-get-transfertransferidstatus
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3443-get-transfertransferidstatus
    */
   async getTransferStatus(
     params: TransferStatusRequestParams,
