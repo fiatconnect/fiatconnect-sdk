@@ -1,5 +1,7 @@
 import {
   AccountNumber,
+  DuniaWallet,
+  MobileMoney,
   AddFiatAccountResponse,
   DeleteFiatAccountRequestParams,
   FiatAccountSchema,
@@ -73,7 +75,7 @@ export interface FiatConnectApiClient {
 
 // These must be manually updated as more KYC and FiatAccount types become standardized
 export type KycSchemaData = PersonalDataAndDocumentsKyc // in the future this will be the union of all KYC schema types (currently there is just one)
-export type FiatAccountSchemaData = AccountNumber // similarly, this will be the union of all fiat account schema types
+export type FiatAccountSchemaData = AccountNumber | MobileMoney | DuniaWallet // similarly, this will be the union of all fiat account schema types
 
 export interface AddKycParams {
   kycSchemaName: KycSchema
