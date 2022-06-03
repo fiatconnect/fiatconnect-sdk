@@ -1,4 +1,4 @@
-import { FiatConnectClient } from '../src/index'
+import { FiatConnectClient, ResponseError } from '../src/index'
 import {
   mockAddFiatAccountResponse,
   mockDeleteFiatAccountParams,
@@ -23,9 +23,9 @@ import {
   Network,
 } from '@fiatconnect/fiatconnect-types'
 import * as siwe from 'siwe'
-import { Err, Ok } from 'ts-results'
+import { Result } from '@badrap/result'
 
-// Work around from
+// work around from
 // https://github.com/aelbore/esbuild-jest/issues/26#issuecomment-968853688 for
 // mocking siwe packages
 jest.mock('siwe', () => ({
@@ -74,18 +74,18 @@ describe('FiatConnect SDK', () => {
           headers: undefined,
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockClockResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockClockResponse)
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.getClock()
 
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('_calculateClockDiff', () => {
@@ -120,7 +120,7 @@ describe('FiatConnect SDK', () => {
         .mockReturnValueOnce(t3)
       jest
         .spyOn(client, 'getClock')
-        .mockResolvedValueOnce(Ok(mockClockResponse))
+        .mockResolvedValueOnce(Result.ok(mockClockResponse))
       const expectedClockDiffResult = {
         diff: 1000,
         maxError: 500,
@@ -130,8 +130,8 @@ describe('FiatConnect SDK', () => {
         .mockReturnValueOnce(expectedClockDiffResult)
 
       const actualClockDiffResult = await client.getClockDiffApprox()
-      expect(actualClockDiffResult.ok).toBeTruthy()
-      expect(actualClockDiffResult.val).toEqual(expectedClockDiffResult)
+      expect(actualClockDiffResult.isOk).toBeTruthy()
+      expect(actualClockDiffResult.unwrap()).toEqual(expectedClockDiffResult)
       expect(client._calculateClockDiff).toHaveBeenCalledWith({
         t0,
         t1,
@@ -143,10 +143,10 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.getClockDiffApprox()
 
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('login', () => {
@@ -179,8 +179,8 @@ describe('FiatConnect SDK', () => {
           }),
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toEqual('success')
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('returns error if login returns error response', async () => {
@@ -216,16 +216,22 @@ describe('FiatConnect SDK', () => {
           }),
         }),
       )
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toEqual({ error: 'InvalidParameters' })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', {
+          error: FiatConnectError.InvalidParameters,
+        }),
+      )
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('returns error if login throws', async () => {
-      signingFunction.mockRejectedValueOnce('sign error')
+      signingFunction.mockRejectedValueOnce(new Error('some error'))
       const response = await client.login()
 
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toEqual({ error: 'sign error' })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('some error', undefined),
+      )
       expect(getHeadersMock).not.toHaveBeenCalled()
     })
   })
@@ -250,7 +256,7 @@ describe('FiatConnect SDK', () => {
     const mockLogin = jest.spyOn(client, 'login')
     it('calls login and returns successfully if sessionExpiry is in the past', async () => {
       client._sessionExpiry = new Date('2022-04-30T23:00:00Z')
-      mockLogin.mockResolvedValueOnce(Ok('success'))
+      mockLogin.mockResolvedValueOnce(Result.ok('success'))
       await client._ensureLogin()
       expect(mockLogin).toHaveBeenCalledTimes(1)
     })
@@ -260,10 +266,12 @@ describe('FiatConnect SDK', () => {
       expect(mockLogin).not.toHaveBeenCalled()
     })
     it('throws error if login fails', async () => {
-      mockLogin.mockResolvedValueOnce(Err({ error: 'invalid login' }))
+      mockLogin.mockResolvedValueOnce(
+        Result.err(new ResponseError('some error', undefined)),
+      )
       await expect(async () => {
         await client._ensureLogin()
-      }).rejects.toThrow('Login failed: invalid login')
+      }).rejects.toThrow(new ResponseError('some error', undefined))
       expect(mockLogin).toHaveBeenCalledTimes(1)
     })
   })
@@ -296,8 +304,8 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/quote/in?fiatType=USD&cryptoType=cUSD&country=DE',
         expect.objectContaining({ method: 'GET', headers: undefined }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockQuoteResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockQuoteResponse)
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -306,17 +314,19 @@ describe('FiatConnect SDK', () => {
       })
       const response = await client.getQuoteIn(mockQuoteRequestQuery)
 
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(mockQuoteErrorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', mockQuoteErrorResponse),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.getQuoteIn(mockQuoteRequestQuery)
 
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('getQuoteOut', () => {
@@ -327,8 +337,8 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/quote/out?fiatType=USD&cryptoType=cUSD&country=DE',
         expect.objectContaining({ method: 'GET', headers: undefined }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockQuoteResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockQuoteResponse)
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -337,17 +347,19 @@ describe('FiatConnect SDK', () => {
       })
       const response = await client.getQuoteOut(mockQuoteRequestQuery)
 
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(mockQuoteErrorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', mockQuoteErrorResponse),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.getQuoteOut(mockQuoteRequestQuery)
 
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('addKyc', () => {
@@ -367,8 +379,8 @@ describe('FiatConnect SDK', () => {
           headers: { 'Content-Type': 'application/json' },
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockKycStatusResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockKycStatusResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
@@ -389,22 +401,24 @@ describe('FiatConnect SDK', () => {
           },
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockKycStatusResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockKycStatusResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
-      const errorResponse = { error: FiatConnectError.ResourceExists }
-      fetchMock.mockResponseOnce(JSON.stringify(errorResponse), {
+      const errorData = { error: FiatConnectError.ResourceExists }
+      fetchMock.mockResponseOnce(JSON.stringify(errorData), {
         status: 409,
       })
       const response = await client.addKyc({
         kycSchemaName: KycSchema.PersonalDataAndDocuments,
         data: mockKycSchemaData,
       })
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(errorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', errorData),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
@@ -412,10 +426,10 @@ describe('FiatConnect SDK', () => {
         kycSchemaName: KycSchema.PersonalDataAndDocuments,
         data: mockKycSchemaData,
       })
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('deleteKyc', () => {
@@ -431,31 +445,33 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/kyc/PersonalDataAndDocuments',
         expect.objectContaining({ method: 'DELETE' }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toBeUndefined()
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toBeUndefined()
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
-      const errorResponse = { error: FiatConnectError.ResourceNotFound }
-      fetchMock.mockResponseOnce(JSON.stringify(errorResponse), {
+      const errorData = { error: FiatConnectError.ResourceNotFound }
+      fetchMock.mockResponseOnce(JSON.stringify(errorData), {
         status: 404,
       })
       const response = await client.deleteKyc({
         kycSchema: KycSchema.PersonalDataAndDocuments,
       })
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(errorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', errorData),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.deleteKyc({
         kycSchema: KycSchema.PersonalDataAndDocuments,
       })
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('getKycStatus', () => {
@@ -471,31 +487,33 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/kyc/PersonalDataAndDocuments',
         expect.objectContaining({ method: 'GET', headers: undefined }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockKycStatusResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockKycStatusResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
-      const errorResponse = { error: FiatConnectError.ResourceNotFound }
-      fetchMock.mockResponseOnce(JSON.stringify(errorResponse), {
+      const errorData = { error: FiatConnectError.ResourceNotFound }
+      fetchMock.mockResponseOnce(JSON.stringify(errorData), {
         status: 404,
       })
       const response = await client.getKycStatus({
         kycSchema: KycSchema.PersonalDataAndDocuments,
       })
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(errorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', errorData),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.getKycStatus({
         kycSchema: KycSchema.PersonalDataAndDocuments,
       })
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('addFiatAccount', () => {
@@ -515,8 +533,8 @@ describe('FiatConnect SDK', () => {
           headers: { 'Content-Type': 'application/json' },
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockAddFiatAccountResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockAddFiatAccountResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
@@ -537,22 +555,24 @@ describe('FiatConnect SDK', () => {
           },
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockAddFiatAccountResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockAddFiatAccountResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
-      const errorResponse = { error: FiatConnectError.ResourceExists }
-      fetchMock.mockResponseOnce(JSON.stringify(errorResponse), {
+      const errorData = { error: FiatConnectError.ResourceExists }
+      fetchMock.mockResponseOnce(JSON.stringify(errorData), {
         status: 409,
       })
       const response = await client.addFiatAccount({
         fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
         data: mockFiatAccountSchemaData,
       })
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(errorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', errorData),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
@@ -560,10 +580,10 @@ describe('FiatConnect SDK', () => {
         fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
         data: mockFiatAccountSchemaData,
       })
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('getFiatAccounts', () => {
@@ -577,27 +597,29 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/accounts',
         expect.objectContaining({ method: 'GET', headers: undefined }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockGetFiatAccountsResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockGetFiatAccountsResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
-      const errorResponse = { error: FiatConnectError.ResourceNotFound }
-      fetchMock.mockResponseOnce(JSON.stringify(errorResponse), {
+      const errorData = { error: FiatConnectError.ResourceNotFound }
+      fetchMock.mockResponseOnce(JSON.stringify(errorData), {
         status: 404,
       })
       const response = await client.getFiatAccounts()
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(errorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', errorData),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.getFiatAccounts()
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('deleteFiatAccount', () => {
@@ -613,31 +635,33 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/accounts/12358',
         expect.objectContaining({ method: 'DELETE', headers: undefined }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toBeUndefined()
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toBeUndefined()
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
-      const errorResponse = { error: FiatConnectError.ResourceNotFound }
-      fetchMock.mockResponseOnce(JSON.stringify(errorResponse), {
+      const errorData = { error: FiatConnectError.ResourceNotFound }
+      fetchMock.mockResponseOnce(JSON.stringify(errorData), {
         status: 404,
       })
       const response = await client.deleteFiatAccount(
         mockDeleteFiatAccountParams,
       )
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(errorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', errorData),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.deleteFiatAccount(
         mockDeleteFiatAccountParams,
       )
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
   describe('transferIn', () => {
@@ -656,8 +680,8 @@ describe('FiatConnect SDK', () => {
           }),
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockTransferResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockTransferResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
@@ -675,27 +699,29 @@ describe('FiatConnect SDK', () => {
           }),
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockTransferResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockTransferResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
-      const errorResponse = { error: FiatConnectError.ResourceNotFound }
-      fetchMock.mockResponseOnce(JSON.stringify(errorResponse), {
+      const errorData = { error: FiatConnectError.ResourceNotFound }
+      fetchMock.mockResponseOnce(JSON.stringify(errorData), {
         status: 404,
       })
       const response = await client.transferIn(mockTransferRequestParams)
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(errorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', errorData),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.transferIn(mockTransferRequestParams)
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
 
@@ -715,8 +741,8 @@ describe('FiatConnect SDK', () => {
           }),
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockTransferResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockTransferResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
@@ -734,27 +760,29 @@ describe('FiatConnect SDK', () => {
           }),
         }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockTransferResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockTransferResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
-      const errorResponse = { error: FiatConnectError.ResourceNotFound }
-      fetchMock.mockResponseOnce(JSON.stringify(errorResponse), {
+      const errorData = { error: FiatConnectError.ResourceNotFound }
+      fetchMock.mockResponseOnce(JSON.stringify(errorData), {
         status: 404,
       })
       const response = await client.transferOut(mockTransferRequestParams)
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(errorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', errorData),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.transferOut(mockTransferRequestParams)
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
 
@@ -771,31 +799,33 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/transfer/82938/status',
         expect.objectContaining({ method: 'GET', headers: undefined }),
       )
-      expect(response.ok).toBeTruthy()
-      expect(response.val).toMatchObject(mockTransferStatusResponse)
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockTransferStatusResponse)
       expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
-      const errorResponse = { error: FiatConnectError.ResourceNotFound }
-      fetchMock.mockResponseOnce(JSON.stringify(errorResponse), {
+      const errorData = { error: FiatConnectError.ResourceNotFound }
+      fetchMock.mockResponseOnce(JSON.stringify(errorData), {
         status: 404,
       })
       const response = await client.getTransferStatus(
         mockTransferStatusRequestParams,
       )
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject(errorResponse)
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('FiatConnect API Error', errorData),
+      )
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.getTransferStatus(
         mockTransferStatusRequestParams,
       )
-      expect(response.ok).toBeFalsy()
-      expect(response.val).toMatchObject({
-        error: 'fake error message',
-      })
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('fake error message', undefined),
+      )
     })
   })
 })
