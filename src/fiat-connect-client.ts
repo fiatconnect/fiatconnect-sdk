@@ -451,13 +451,14 @@ export class FiatConnectClient implements FiatConnectApiClient {
 
 /**
  * handleError accepts three types of inputs:
- *  * an ResponseError object
+ *  * a ResponseError object
  *  * a built-in Error object
- *  * A JSON payload from a failed FiatConnect API call
+ *  * A JSON payload from a non-200 FiatConnect API call
  *
  * handleError converts all of these into ResponseError objects wrapped
  * in a Result.err. If handleError is given data of a type not listed above,
- * it attempts to cast it to a string and return a generic ResponseError with it.
+ * it attempts to cast it to a string, put it in a ResponseError object, and
+ * wrap it in a Result.err.
  **/
 function handleError(error: unknown): Result<any, ResponseError> {
   if (error instanceof ResponseError) {
