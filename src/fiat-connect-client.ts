@@ -460,11 +460,11 @@ export class FiatConnectClient implements FiatConnectApiClient {
  * it attempts to cast it to a string, put it in a ResponseError object, and
  * wrap it in a Result.err.
  **/
-function handleError(error: unknown): Result<any, ResponseError> {
+function handleError<T>(error: unknown): Result<T, ResponseError> {
   if (error instanceof ResponseError) {
     return Result.err(error)
   } else if (error instanceof Error) {
-    return Result.err(new ResponseError(error.message, undefined))
+    return Result.err(new ResponseError(error.message))
   } else if (error instanceof Object) {
     // We cast to QuoteErrorResponse here since it is a strict superset of all other
     // error response objects, allowing us to access all possible error-related fields.
@@ -472,5 +472,5 @@ function handleError(error: unknown): Result<any, ResponseError> {
       new ResponseError('FiatConnect API Error', error as QuoteErrorResponse),
     )
   }
-  return Result.err(new ResponseError(String(error), undefined))
+  return Result.err(new ResponseError(String(error)))
 }

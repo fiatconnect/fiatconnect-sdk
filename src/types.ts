@@ -117,26 +117,24 @@ export interface ClockDiffResult {
 // as well as contain details about a FiatConnect-specific error from
 // an API.
 export class ResponseError extends Error {
-  fiatConnectError: FiatConnectError | undefined
+  fiatConnectError?: FiatConnectError
 
-  minimumFiatAmount: string | undefined
-  maximumFiatAmount: string | undefined
-  minimumCryptoAmount: string | undefined
-  maximumCryptoAmount: string | undefined
+  minimumFiatAmount?: string
+  maximumFiatAmount?: string
+  minimumCryptoAmount?: string
+  maximumCryptoAmount?: string
 
   // Because QuoteErrorResponse contains the `error` field (the only field returned
   // by all other endpoints on error) as well as additional quote-specific error
   // fields, we use it as the data type here.
-  constructor(message: string, data: QuoteErrorResponse | undefined) {
+  constructor(message: string, data?: QuoteErrorResponse) {
     super(message)
     Object.setPrototypeOf(this, ResponseError.prototype)
 
-    if (data) {
-      this.fiatConnectError = data?.error
-      this.minimumFiatAmount = data?.minimumFiatAmount
-      this.maximumFiatAmount = data?.maximumFiatAmount
-      this.minimumCryptoAmount = data?.minimumCryptoAmount
-      this.maximumCryptoAmount = data?.maximumCryptoAmount
-    }
+    this.fiatConnectError = data?.error
+    this.minimumFiatAmount = data?.minimumFiatAmount
+    this.maximumFiatAmount = data?.maximumFiatAmount
+    this.minimumCryptoAmount = data?.minimumCryptoAmount
+    this.maximumCryptoAmount = data?.maximumCryptoAmount
   }
 }
