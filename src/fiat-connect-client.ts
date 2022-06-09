@@ -461,6 +461,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
  * wrap it in a Result.err.
  **/
 function handleError<T>(error: unknown): Result<T, ResponseError> {
+  // TODO: expose trace to make these errors more useful for clients
   if (error instanceof ResponseError) {
     return Result.err(error)
   } else if (error instanceof Error) {
