@@ -17,11 +17,11 @@ import {
 import fetchCookie from 'fetch-cookie'
 import nodeFetch from 'node-fetch'
 import { generateNonce, SiweMessage } from 'siwe'
-import { Ok, Err, Result } from 'ts-results'
+import { Result } from '@badrap/result'
 import {
   AddFiatAccountParams,
   AddKycParams,
-  ErrorResponse,
+  ResponseError,
   FiatConnectApiClient,
   FiatConnectClientConfig,
   TransferRequestParams,
@@ -61,8 +61,8 @@ export class FiatConnectClient implements FiatConnectApiClient {
       return
     }
     const loginResult = await this.login()
-    if (!loginResult.ok) {
-      throw new Error(`Login failed: ${loginResult.val.error}`)
+    if (loginResult.isErr) {
+      throw loginResult.error
     }
   }
 
@@ -81,7 +81,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    * @returns a Promise resolving to the literal string 'success' on a
    * successful login or an Error response.
    */
-  async login(): Promise<Result<'success', ErrorResponse>> {
+  async login(): Promise<Result<'success', ResponseError>> {
     try {
       const expirationDate = new Date(Date.now() + SESSION_DURATION_MS)
       const siweMessage = new SiweMessage({
@@ -112,11 +112,11 @@ export class FiatConnectClient implements FiatConnectApiClient {
       if (!response.ok) {
         // On a non 200 response, the response should be a JSON including an error field.
         const data = await response.json()
-        return Err(data as ErrorResponse)
+        return handleError(data)
       }
 
       this._sessionExpiry = expirationDate
-      return Ok('success')
+      return Result.ok('success')
     } catch (error) {
       return handleError(error)
     }
@@ -125,7 +125,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   async _getQuote(
     params: QuoteRequestQuery,
     inOrOut: 'in' | 'out',
-  ): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
+  ): Promise<Result<QuoteResponse, ResponseError>> {
     try {
       const queryParams = new URLSearchParams(params).toString()
       const response = await fetch(
@@ -137,9 +137,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       )
       const data = await response.json()
       if (!response.ok) {
-        return Err(data as QuoteErrorResponse)
+        return handleError(data)
       }
-      return Ok(data as QuoteResponse)
+      return Result.ok(data as QuoteResponse)
     } catch (error) {
       return handleError(error)
     }
@@ -162,25 +162,25 @@ export class FiatConnectClient implements FiatConnectApiClient {
   /**
    * Convenience method to calculate the approximate difference between server and client clocks.
    */
-  async getClockDiffApprox(): Promise<Result<ClockDiffResult, ErrorResponse>> {
+  async getClockDiffApprox(): Promise<Result<ClockDiffResult, ResponseError>> {
     const t0 = Date.now()
     const clockResponse = await this.getClock()
     const t3 = Date.now()
 
-    if (!clockResponse.ok) {
-      return clockResponse
+    if (!clockResponse.isOk) {
+      return Result.err(clockResponse.error)
     }
 
-    const t1 = new Date(clockResponse.val.time).getTime()
+    const t1 = new Date(clockResponse.value.time).getTime()
     // We can assume that t1 and t2 are sufficiently close to each other
     const t2 = t1
-    return Ok(this._calculateClockDiff({ t0, t1, t2, t3 }))
+    return Result.ok(this._calculateClockDiff({ t0, t1, t2, t3 }))
   }
 
   /**
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#321-get-clock
    */
-  async getClock(): Promise<Result<ClockResponse, ErrorResponse>> {
+  async getClock(): Promise<Result<ClockResponse, ResponseError>> {
     try {
       const response = await fetch(`${this.config.baseUrl}/clock`, {
         method: 'GET',
@@ -188,9 +188,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       })
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(data)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
@@ -201,7 +201,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async getQuoteIn(
     params: QuoteRequestQuery,
-  ): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
+  ): Promise<Result<QuoteResponse, ResponseError>> {
     return this._getQuote(params, 'in')
   }
 
@@ -210,7 +210,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async getQuoteOut(
     params: QuoteRequestQuery,
-  ): Promise<Result<QuoteResponse, QuoteErrorResponse | ErrorResponse>> {
+  ): Promise<Result<QuoteResponse, ResponseError>> {
     return this._getQuote(params, 'out')
   }
 
@@ -219,7 +219,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async addKyc(
     params: AddKycParams,
-  ): Promise<Result<KycStatusResponse, ErrorResponse>> {
+  ): Promise<Result<KycStatusResponse, ResponseError>> {
     try {
       await this._ensureLogin()
       const response = await fetch(
@@ -235,9 +235,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       )
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(data)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
@@ -248,7 +248,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async deleteKyc(
     params: KycRequestParams,
-  ): Promise<Result<void, ErrorResponse>> {
+  ): Promise<Result<void, ResponseError>> {
     try {
       await this._ensureLogin()
       const response = await fetch(
@@ -260,9 +260,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       )
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(undefined)
+      return Result.ok(undefined)
     } catch (error) {
       return handleError(error)
     }
@@ -273,7 +273,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async getKycStatus(
     params: KycRequestParams,
-  ): Promise<Result<KycStatusResponse, ErrorResponse>> {
+  ): Promise<Result<KycStatusResponse, ResponseError>> {
     try {
       await this._ensureLogin()
       const response = await fetch(
@@ -285,9 +285,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       )
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(data)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
@@ -298,7 +298,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async addFiatAccount(
     params: AddFiatAccountParams,
-  ): Promise<Result<AddFiatAccountResponse, ErrorResponse>> {
+  ): Promise<Result<AddFiatAccountResponse, ResponseError>> {
     try {
       await this._ensureLogin()
       const response = await fetch(
@@ -314,9 +314,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       )
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(data)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
@@ -326,7 +326,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3332-get-accounts
    */
   async getFiatAccounts(): Promise<
-    Result<GetFiatAccountsResponse, ErrorResponse>
+    Result<GetFiatAccountsResponse, ResponseError>
   > {
     try {
       await this._ensureLogin()
@@ -336,9 +336,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       })
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(data)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
@@ -349,7 +349,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async deleteFiatAccount(
     params: DeleteFiatAccountRequestParams,
-  ): Promise<Result<void, ErrorResponse>> {
+  ): Promise<Result<void, ResponseError>> {
     try {
       await this._ensureLogin()
       const response = await fetch(
@@ -361,9 +361,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       )
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(undefined)
+      return Result.ok(undefined)
     } catch (error) {
       return handleError(error)
     }
@@ -374,7 +374,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async transferIn(
     params: TransferRequestParams,
-  ): Promise<Result<TransferResponse, ErrorResponse>> {
+  ): Promise<Result<TransferResponse, ResponseError>> {
     try {
       await this._ensureLogin()
       const response = await fetch(`${this.config.baseUrl}/transfer/in`, {
@@ -388,9 +388,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       })
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(data)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
@@ -401,7 +401,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async transferOut(
     params: TransferRequestParams,
-  ): Promise<Result<TransferResponse, ErrorResponse>> {
+  ): Promise<Result<TransferResponse, ResponseError>> {
     try {
       await this._ensureLogin()
       const response = await fetch(`${this.config.baseUrl}/transfer/out`, {
@@ -415,9 +415,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       })
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(data)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
@@ -428,7 +428,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    */
   async getTransferStatus(
     params: TransferStatusRequestParams,
-  ): Promise<Result<TransferStatusResponse, ErrorResponse>> {
+  ): Promise<Result<TransferStatusResponse, ResponseError>> {
     try {
       await this._ensureLogin()
       const response = await fetch(
@@ -440,18 +440,38 @@ export class FiatConnectClient implements FiatConnectApiClient {
       )
       const data = await response.json()
       if (!response.ok) {
-        return Err(data)
+        return handleError(data)
       }
-      return Ok(data)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
   }
 }
 
-function handleError(error: unknown): Err<ErrorResponse> {
-  if (error instanceof Error) {
-    return Err({ ...error, error: error.message })
+/**
+ * handleError accepts three types of inputs:
+ *  * a ResponseError object
+ *  * a built-in Error object
+ *  * A JSON payload from a non-200 FiatConnect API call
+ *
+ * handleError converts all of these into ResponseError objects wrapped
+ * in a Result.err. If handleError is given data of a type not listed above,
+ * it attempts to cast it to a string, put it in a ResponseError object, and
+ * wrap it in a Result.err.
+ **/
+function handleError<T>(error: unknown): Result<T, ResponseError> {
+  // TODO: expose trace to make these errors more useful for clients
+  if (error instanceof ResponseError) {
+    return Result.err(error)
+  } else if (error instanceof Error) {
+    return Result.err(new ResponseError(error.message))
+  } else if (error instanceof Object) {
+    // We cast to QuoteErrorResponse here since it is a strict superset of all other
+    // error response objects, allowing us to access all possible error-related fields.
+    return Result.err(
+      new ResponseError('FiatConnect API Error', error as QuoteErrorResponse),
+    )
   }
-  return Err({ error: String(error) })
+  return Result.err(new ResponseError(String(error)))
 }
