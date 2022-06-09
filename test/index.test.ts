@@ -145,7 +145,7 @@ describe('FiatConnect SDK', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -230,7 +230,7 @@ describe('FiatConnect SDK', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('some error', undefined),
+        new ResponseError('some error'),
       )
       expect(getHeadersMock).not.toHaveBeenCalled()
     })
@@ -267,11 +267,11 @@ describe('FiatConnect SDK', () => {
     })
     it('throws error if login fails', async () => {
       mockLogin.mockResolvedValueOnce(
-        Result.err(new ResponseError('some error', undefined)),
+        Result.err(new ResponseError('some error')),
       )
       await expect(async () => {
         await client._ensureLogin()
-      }).rejects.toThrow(new ResponseError('some error', undefined))
+      }).rejects.toThrow(new ResponseError('some error'))
       expect(mockLogin).toHaveBeenCalledTimes(1)
     })
   })
@@ -325,7 +325,7 @@ describe('FiatConnect SDK', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -358,7 +358,7 @@ describe('FiatConnect SDK', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -428,7 +428,7 @@ describe('FiatConnect SDK', () => {
       })
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -470,7 +470,7 @@ describe('FiatConnect SDK', () => {
       })
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -512,7 +512,7 @@ describe('FiatConnect SDK', () => {
       })
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -582,7 +582,7 @@ describe('FiatConnect SDK', () => {
       })
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -618,7 +618,7 @@ describe('FiatConnect SDK', () => {
       const response = await client.getFiatAccounts()
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -660,7 +660,7 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -720,7 +720,7 @@ describe('FiatConnect SDK', () => {
       const response = await client.transferIn(mockTransferRequestParams)
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -781,7 +781,7 @@ describe('FiatConnect SDK', () => {
       const response = await client.transferOut(mockTransferRequestParams)
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
@@ -824,7 +824,7 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message', undefined),
+        new ResponseError('fake error message'),
       )
     })
   })
