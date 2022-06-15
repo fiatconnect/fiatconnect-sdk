@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.0](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.2.3...v0.3.0) (2022-06-15)
+
+
+### Features
+
+* **fiat account types:** Version bumped @fiatconnect/fiatconnect-types and updated FiatAccountSchemaData to include the latest fiat account types
+* **drop unused fields:** from FiatConnectClient
+
 ### [0.2.3](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.2.2...v0.2.3) (2022-06-15)
 
 
