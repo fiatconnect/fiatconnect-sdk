@@ -87,9 +87,9 @@ export class FiatConnectClient implements FiatConnectApiClient {
       const expirationDate = new Date(Date.now() + SESSION_DURATION_MS)
       const siweMessage = new SiweMessage({
         domain: new URL(this.config.baseUrl).hostname,
-	// Some SIWE validators compare this against the checksummed signing address,
-	// and thus will always fail if this address is not checksummed. This coerces
-	// non-checksummed addresses to be checksummed.
+        // Some SIWE validators compare this against the checksummed signing address,
+        // and thus will always fail if this address is not checksummed. This coerces
+        // non-checksummed addresses to be checksummed.
         address: ethers.utils.getAddress(this.config.accountAddress),
         statement: 'Sign in with Ethereum',
         uri: `${this.config.baseUrl}/auth/login`,
