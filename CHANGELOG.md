@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.3](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.2.2...v0.2.3) (2022-06-15)
+
+
+### Bug Fixes
+
+* **siwe:** Convert account address to checksum address ([#26](https://github.com/fiatconnect/fiatconnect-sdk/issues/26)) ([0342df0](https://github.com/fiatconnect/fiatconnect-sdk/commit/0342df03c4ad7aa0493275eec7d2bb87823aaeb5))
+
 ### [0.2.2](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.2.1...v0.2.2) (2022-06-09)
 
 
