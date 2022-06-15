@@ -87,8 +87,8 @@ export interface AddFiatAccountParams {
 
 export interface FiatConnectClientConfig {
   baseUrl: string
-  network?: Network
-  accountAddress?: string
+  network: Network
+  accountAddress: string
   apiKey?: string
 }
 
