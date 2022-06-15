@@ -20,6 +20,8 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
   ClockResponse,
+  IBANNumber,
+  IFSCAccount,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
 
@@ -75,7 +77,8 @@ export interface FiatConnectApiClient {
 
 // These must be manually updated as more KYC and FiatAccount types become standardized
 export type KycSchemaData = PersonalDataAndDocumentsKyc // in the future this will be the union of all KYC schema types (currently there is just one)
-export type FiatAccountSchemaData = AccountNumber | MobileMoney | DuniaWallet // similarly, this will be the union of all fiat account schema types
+export type FiatAccountSchemaData = // similarly, this will be the union of all fiat account schema types
+  AccountNumber | MobileMoney | DuniaWallet | IBANNumber | IFSCAccount
 
 export interface AddKycParams {
   kycSchemaName: KycSchema
