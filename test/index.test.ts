@@ -38,7 +38,8 @@ describe('FiatConnect SDK', () => {
   const exampleIconUrl =
     'https://storage.googleapis.com/celo-mobile-mainnet.appspot.com/images/valora-icon.png'
   const exampleProviderName = 'Example Provider'
-  const accountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
+  const accountAddress = '0x0d8e461687b7d06f86ec348e0c270b0f279855f0'
+  const checksummedAccountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
   const signingFunction = jest.fn(() => Promise.resolve('signed message'))
   const client = new FiatConnectClient(
     {
@@ -160,7 +161,7 @@ describe('FiatConnect SDK', () => {
 
       const expectedSiweMessage = new siwe.SiweMessage({
         domain: 'fiat-connect-api.com',
-        address: accountAddress,
+        address: checksummedAccountAddress,
         statement: 'Sign in with Ethereum',
         uri: 'https://fiat-connect-api.com/auth/login',
         nonce: '12345678',
@@ -194,7 +195,7 @@ describe('FiatConnect SDK', () => {
 
       const expectedSiweMessage = new siwe.SiweMessage({
         domain: 'fiat-connect-api.com',
-        address: accountAddress,
+        address: checksummedAccountAddress,
         statement: 'Sign in with Ethereum',
         uri: 'https://fiat-connect-api.com/auth/login',
         nonce: '12345678',
