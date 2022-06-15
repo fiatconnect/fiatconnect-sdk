@@ -1,6 +1,6 @@
 {
   "name": "@fiatconnect/fiatconnect-sdk",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "A helper libary for wallets to integrate with FiatConnect APIs",
   "scripts": {
     "format": "prettier --loglevel error --write \"./**/*.ts\"",
@@ -48,12 +48,12 @@
     "typescript": "^4.6.2"
   },
   "dependencies": {
-    "@fiatconnect/fiatconnect-types": "^3.2.0",
+    "@badrap/result": "^0.2.12",
+    "@fiatconnect/fiatconnect-types": "^4.1.0",
     "ethers": "^5.6.4",
     "fetch-cookie": "^2.0.3",
     "node-fetch": "^2.6.6",
     "siwe": "^1.1.6",
-    "ts-results": "^3.3.0",
     "tslib": "^2.4.0"
   }
 }
