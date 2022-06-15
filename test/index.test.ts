@@ -35,17 +35,12 @@ jest.mock('siwe', () => ({
 }))
 
 describe('FiatConnect SDK', () => {
-  const exampleIconUrl =
-    'https://storage.googleapis.com/celo-mobile-mainnet.appspot.com/images/valora-icon.png'
-  const exampleProviderName = 'Example Provider'
   const accountAddress = '0x0d8e461687b7d06f86ec348e0c270b0f279855f0'
   const checksummedAccountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
   const signingFunction = jest.fn(() => Promise.resolve('signed message'))
   const client = new FiatConnectClient(
     {
       baseUrl: 'https://fiat-connect-api.com',
-      providerName: exampleProviderName,
-      iconUrl: exampleIconUrl,
       network: Network.Alfajores,
       accountAddress,
     },
@@ -59,10 +54,6 @@ describe('FiatConnect SDK', () => {
     getHeadersMock.mockReset()
     jest.clearAllMocks()
     client._sessionExpiry = undefined
-  })
-  it('Provider name and icon can be accessed', () => {
-    expect(client.config.providerName).toEqual(exampleProviderName)
-    expect(client.config.iconUrl).toEqual(exampleIconUrl)
   })
   describe('getClock', () => {
     it('gets the server clock', async () => {
@@ -281,8 +272,6 @@ describe('FiatConnect SDK', () => {
       const clientWithApiKey = new FiatConnectClient(
         {
           baseUrl: 'https://fiat-connect-api.com',
-          providerName: exampleProviderName,
-          iconUrl: exampleIconUrl,
           network: Network.Alfajores,
           accountAddress,
           apiKey: 'some-api-key',
