@@ -35,8 +35,6 @@ jest.mock('siwe', () => ({
 }))
 
 describe('FiatConnect SDK', () => {
-    'https://storage.googleapis.com/celo-mobile-mainnet.appspot.com/images/valora-icon.png'
-  const exampleProviderName = 'Example Provider'
   const accountAddress = '0x0d8e461687b7d06f86ec348e0c270b0f279855f0'
   const checksummedAccountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
   const signingFunction = jest.fn(() => Promise.resolve('signed message'))
