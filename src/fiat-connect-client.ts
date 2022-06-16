@@ -27,6 +27,7 @@ import {
   TransferRequestParams,
   ClockDiffParams,
   ClockDiffResult,
+  LoginParams,
 } from './types'
 import { ethers } from 'ethers'
 
@@ -61,7 +62,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
     if (this.isLoggedIn()) {
       return
     }
-    const loginResult = await this.login()
+    const loginResult = await this.login({})
     if (loginResult.isErr) {
       throw loginResult.error
     }
@@ -82,9 +83,20 @@ export class FiatConnectClient implements FiatConnectApiClient {
    * @returns a Promise resolving to the literal string 'success' on a
    * successful login or an Error response.
    */
-  async login(): Promise<Result<'success', ResponseError>> {
+  async login(params: LoginParams): Promise<Result<'success', ResponseError>> {
     try {
-      const expirationDate = new Date(Date.now() + SESSION_DURATION_MS)
+      // Prefer param expiration time > diff-based exp. time > client-based exp. time
+      let expirationDate: Date
+      if (params.expirationDate) {
+        expirationDate = params.expirationDate
+      } else {
+        const maxLoginTimeResult = await this.getMaximumSafeLoginTime()
+        if (maxLoginTimeResult.isOk) {
+          expirationDate = maxLoginTimeResult.value
+        } else {
+          expirationDate = new Date(Date.now() + SESSION_DURATION_MS)
+        }
+      }
       const siweMessage = new SiweMessage({
         domain: new URL(this.config.baseUrl).hostname,
         // Some SIWE validators compare this against the checksummed signing address,
@@ -161,6 +173,26 @@ export class FiatConnectClient implements FiatConnectApiClient {
       diff: Math.floor((t1 - t0 + (t2 - t3)) / 2),
       maxError: Math.floor((t3 - t0) / 2),
     }
+  }
+
+  /**
+   * Returns the server time that represents a the longest possible session duration
+   * if a session were to be created immediately, taking into account clock differences
+   * between client and server.
+   */
+  async getMaximumSafeLoginTime(): Promise<Result<Date, ResponseError>> {
+    const clockDiffResponse = await this.getClockDiffApprox()
+    if (!clockDiffResponse.isOk) {
+      return Result.err(clockDiffResponse.error)
+    }
+    return Result.ok(
+      new Date(
+        Date.now() +
+          clockDiffResponse.value.diff -
+          clockDiffResponse.value.maxError +
+          SESSION_DURATION_MS,
+      ),
+    )
   }
 
   /**

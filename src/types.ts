@@ -26,9 +26,10 @@ import {
 import { Result } from '@badrap/result'
 
 export interface FiatConnectApiClient {
+  getMaximumSafeLoginTime(): Promise<Result<Date, ResponseError>>
   getClockDiffApprox(): Promise<Result<ClockDiffResult, ResponseError>>
   getClock(): Promise<Result<ClockResponse, ResponseError>>
-  login(): Promise<Result<'success', ResponseError>>
+  login(params: LoginParams): Promise<Result<'success', ResponseError>>
   isLoggedIn(): boolean
   getQuoteIn(
     params: QuoteRequestQuery,
@@ -79,6 +80,10 @@ export interface FiatConnectApiClient {
 export type KycSchemaData = PersonalDataAndDocumentsKyc // in the future this will be the union of all KYC schema types (currently there is just one)
 export type FiatAccountSchemaData = // similarly, this will be the union of all fiat account schema types
   AccountNumber | MobileMoney | DuniaWallet | IBANNumber | IFSCAccount
+
+export interface LoginParams {
+  expirationDate?: Date
+}
 
 export interface AddKycParams {
   kycSchemaName: KycSchema
