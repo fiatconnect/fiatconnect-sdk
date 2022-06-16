@@ -86,10 +86,8 @@ export class FiatConnectClient implements FiatConnectApiClient {
   async login(params: LoginParams): Promise<Result<'success', ResponseError>> {
     try {
       // Prefer param expiration time > diff-based exp. time > client-based exp. time
-      let expirationDate: Date
-      if (params.expirationDate) {
-        expirationDate = params.expirationDate
-      } else {
+      let expirationDate = params?.expirationDate
+      if (!expirationDate) {
         const maxLoginTimeResult = await this.getMaximumSafeLoginTime()
         if (maxLoginTimeResult.isOk) {
           expirationDate = maxLoginTimeResult.value
