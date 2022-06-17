@@ -1,17 +1,14 @@
 import {
-  AccountNumber,
-  DuniaWallet,
-  MobileMoney,
-  AddFiatAccountResponse,
   DeleteFiatAccountRequestParams,
-  FiatAccountSchema,
   FiatConnectError,
   GetFiatAccountsResponse,
   KycRequestParams,
   KycSchema,
+  KycSchemas,
   KycStatusResponse,
   Network,
-  PersonalDataAndDocumentsKyc,
+  PostFiatAccountRequestBody,
+  PostFiatAccountResponse,
   QuoteErrorResponse,
   QuoteRequestQuery,
   QuoteResponse,
@@ -20,8 +17,7 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
   ClockResponse,
-  IBANNumber,
-  IFSCAccount,
+  FiatAccountSchema,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
 
@@ -38,8 +34,8 @@ export interface FiatConnectApiClient {
     params: QuoteRequestQuery,
     jwt: string,
   ): Promise<Result<QuoteResponse, ResponseError>>
-  addKyc(
-    params: AddKycParams,
+  addKyc<T extends KycSchema>(
+    params: AddKycParams<T>,
     jwt: string,
   ): Promise<Result<KycStatusResponse, ResponseError>>
   deleteKyc(
@@ -50,10 +46,10 @@ export interface FiatConnectApiClient {
     params: KycRequestParams,
     jwt: string,
   ): Promise<Result<KycStatusResponse, ResponseError>>
-  addFiatAccount(
-    params: AddFiatAccountParams,
+  addFiatAccount<T extends FiatAccountSchema>(
+    params: PostFiatAccountRequestBody<T>,
     jwt: string,
-  ): Promise<Result<AddFiatAccountResponse, ResponseError>>
+  ): Promise<Result<PostFiatAccountResponse, ResponseError>>
   getFiatAccounts(
     jwt: string,
   ): Promise<Result<GetFiatAccountsResponse, ResponseError>>
@@ -75,19 +71,9 @@ export interface FiatConnectApiClient {
   ): Promise<Result<TransferStatusResponse, ResponseError>>
 }
 
-// These must be manually updated as more KYC and FiatAccount types become standardized
-export type KycSchemaData = PersonalDataAndDocumentsKyc // in the future this will be the union of all KYC schema types (currently there is just one)
-export type FiatAccountSchemaData = // similarly, this will be the union of all fiat account schema types
-  AccountNumber | MobileMoney | DuniaWallet | IBANNumber | IFSCAccount
-
-export interface AddKycParams {
-  kycSchemaName: KycSchema
-  data: KycSchemaData
-}
-
-export interface AddFiatAccountParams {
-  fiatAccountSchemaName: FiatAccountSchema
-  data: FiatAccountSchemaData
+export interface AddKycParams<T extends KycSchema> {
+  kycSchemaName: T
+  data: KycSchemas[T]
 }
 
 export interface FiatConnectClientConfig {

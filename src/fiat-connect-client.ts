@@ -1,11 +1,12 @@
 import {
-  AddFiatAccountResponse,
   AuthRequestBody,
   DeleteFiatAccountRequestParams,
   GetFiatAccountsResponse,
   KycRequestParams,
   KycStatusResponse,
   Network,
+  PostFiatAccountRequestBody,
+  PostFiatAccountResponse,
   QuoteErrorResponse,
   QuoteRequestQuery,
   QuoteResponse,
@@ -13,13 +14,14 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
   ClockResponse,
+  FiatAccountSchema,
+  KycSchema,
 } from '@fiatconnect/fiatconnect-types'
 import fetchCookie from 'fetch-cookie'
 import nodeFetch from 'node-fetch'
 import { generateNonce, SiweMessage } from 'siwe'
 import { Result } from '@badrap/result'
 import {
-  AddFiatAccountParams,
   AddKycParams,
   ResponseError,
   FiatConnectApiClient,
@@ -221,8 +223,8 @@ export class FiatConnectClient implements FiatConnectApiClient {
   /**
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3321-post-kyckycschema
    */
-  async addKyc(
-    params: AddKycParams,
+  async addKyc<T extends KycSchema>(
+    params: AddKycParams<T>,
   ): Promise<Result<KycStatusResponse, ResponseError>> {
     try {
       await this._ensureLogin()
@@ -300,22 +302,19 @@ export class FiatConnectClient implements FiatConnectApiClient {
   /**
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3331-post-accountsfiataccountschema
    */
-  async addFiatAccount(
-    params: AddFiatAccountParams,
-  ): Promise<Result<AddFiatAccountResponse, ResponseError>> {
+  async addFiatAccount<T extends FiatAccountSchema>(
+    params: PostFiatAccountRequestBody<T>,
+  ): Promise<Result<PostFiatAccountResponse, ResponseError>> {
     try {
       await this._ensureLogin()
-      const response = await fetch(
-        `${this.config.baseUrl}/accounts/${params.fiatAccountSchemaName}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...this._getAuthHeader(),
-          },
-          body: JSON.stringify(params.data),
+      const response = await fetch(`${this.config.baseUrl}/accounts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this._getAuthHeader(),
         },
-      )
+        body: JSON.stringify(params),
+      })
       const data = await response.json()
       if (!response.ok) {
         return handleError(data)

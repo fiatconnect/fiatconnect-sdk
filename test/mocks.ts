@@ -1,5 +1,4 @@
 import {
-  AddFiatAccountResponse,
   CryptoType,
   DeleteFiatAccountRequestParams,
   FeeType,
@@ -9,8 +8,10 @@ import {
   FiatType,
   GetFiatAccountsResponse,
   KycSchema,
+  KycSchemas,
   KycStatus,
   KycStatusResponse,
+  PostFiatAccountResponse,
   QuoteErrorResponse,
   QuoteRequestQuery,
   QuoteResponse,
@@ -20,12 +21,9 @@ import {
   TransferStatusResponse,
   TransferType,
   ClockResponse,
+  FiatAccountSchemas,
 } from '@fiatconnect/fiatconnect-types'
-import {
-  FiatAccountSchemaData,
-  KycSchemaData,
-  TransferRequestParams,
-} from '../src/types'
+import { TransferRequestParams } from '../src/types'
 
 export const mockQuoteRequestQuery: QuoteRequestQuery = {
   fiatType: FiatType.USD,
@@ -66,40 +64,42 @@ export const mockQuoteErrorResponse: QuoteErrorResponse = {
   error: FiatConnectError.GeoNotSupported,
 }
 
-export const mockKycSchemaData: KycSchemaData = {
-  firstName: 'Jacob',
-  lastName: 'Smith',
-  address: {
-    address1: '943 Hiney Road',
-    city: 'Las Vegas',
-    isoRegionCode: 'NV',
-    postalCode: '89119',
-    isoCountryCode: 'US',
-  },
-  dateOfBirth: {
-    day: '01',
-    month: '05',
-    year: '1992',
-  },
-  phoneNumber: '+13238475509',
-  selfieDocument: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACA', // truncated for brevity
-  identificationDocument:
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABmJLR0QA', // also truncated for brevity
-}
+export const mockKycSchemaData: KycSchemas[KycSchema.PersonalDataAndDocuments] =
+  {
+    firstName: 'Jacob',
+    lastName: 'Smith',
+    address: {
+      address1: '943 Hiney Road',
+      city: 'Las Vegas',
+      isoRegionCode: 'NV',
+      postalCode: '89119',
+      isoCountryCode: 'US',
+    },
+    dateOfBirth: {
+      day: '01',
+      month: '05',
+      year: '1992',
+    },
+    phoneNumber: '+13238475509',
+    selfieDocument: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACA', // truncated for brevity
+    identificationDocument:
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABmJLR0QA', // also truncated for brevity
+  }
 
 export const mockKycStatusResponse: KycStatusResponse = {
   kycStatus: KycStatus.Pending,
 }
 
-export const mockFiatAccountSchemaData: FiatAccountSchemaData = {
-  institutionName: 'Chase',
-  accountName: 'Checking Account',
-  accountNumber: '12533986',
-  country: 'US',
-  fiatAccountType: FiatAccountType.BankAccount,
-}
+export const mockFiatAccountSchemaData: FiatAccountSchemas[FiatAccountSchema.AccountNumber] =
+  {
+    institutionName: 'Chase',
+    accountName: 'Checking Account',
+    accountNumber: '12533986',
+    country: 'US',
+    fiatAccountType: FiatAccountType.BankAccount,
+  }
 
-export const mockAddFiatAccountResponse: AddFiatAccountResponse = {
+export const mockAddFiatAccountResponse: PostFiatAccountResponse = {
   fiatAccountId: '12345',
   accountName: 'Checking Account',
   institutionName: 'Chase',
