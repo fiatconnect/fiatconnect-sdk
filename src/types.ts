@@ -33,46 +33,32 @@ export interface FiatConnectApiClient {
   isLoggedIn(): boolean
   getQuoteIn(
     params: QuoteRequestQuery,
-    jwt: string,
   ): Promise<Result<QuoteResponse, ResponseError>>
   getQuoteOut(
     params: QuoteRequestQuery,
-    jwt: string,
   ): Promise<Result<QuoteResponse, ResponseError>>
   addKyc(
     params: AddKycParams,
-    jwt: string,
   ): Promise<Result<KycStatusResponse, ResponseError>>
-  deleteKyc(
-    params: KycRequestParams,
-    jwt: string,
-  ): Promise<Result<void, ResponseError>>
+  deleteKyc(params: KycRequestParams): Promise<Result<void, ResponseError>>
   getKycStatus(
     params: KycRequestParams,
-    jwt: string,
   ): Promise<Result<KycStatusResponse, ResponseError>>
   addFiatAccount(
     params: AddFiatAccountParams,
-    jwt: string,
   ): Promise<Result<AddFiatAccountResponse, ResponseError>>
-  getFiatAccounts(
-    jwt: string,
-  ): Promise<Result<GetFiatAccountsResponse, ResponseError>>
+  getFiatAccounts(): Promise<Result<GetFiatAccountsResponse, ResponseError>>
   deleteFiatAccount(
     params: DeleteFiatAccountRequestParams,
-    jwt: string,
   ): Promise<Result<void, ResponseError>>
   transferIn(
     params: TransferRequestParams,
-    jwt: string,
   ): Promise<Result<TransferResponse, ResponseError>>
   transferOut(
     params: TransferRequestParams,
-    jwt: string,
   ): Promise<Result<TransferResponse, ResponseError>>
   getTransferStatus(
     params: TransferStatusRequestParams,
-    jwt: string,
   ): Promise<Result<TransferStatusResponse, ResponseError>>
 }
 
