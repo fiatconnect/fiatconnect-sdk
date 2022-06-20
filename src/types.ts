@@ -26,10 +26,10 @@ import {
 import { Result } from '@badrap/result'
 
 export interface FiatConnectApiClient {
-  getMaximumSafeLoginTime(): Promise<Result<Date, ResponseError>>
+  getServerTime(): Promise<Result<Date, ResponseError>>
   getClockDiffApprox(): Promise<Result<ClockDiffResult, ResponseError>>
   getClock(): Promise<Result<ClockResponse, ResponseError>>
-  login(params: LoginParams): Promise<Result<'success', ResponseError>>
+  login(params?: LoginParams): Promise<Result<'success', ResponseError>>
   isLoggedIn(): boolean
   getQuoteIn(
     params: QuoteRequestQuery,
@@ -82,7 +82,7 @@ export type FiatAccountSchemaData = // similarly, this will be the union of all 
   AccountNumber | MobileMoney | DuniaWallet | IBANNumber | IFSCAccount
 
 export interface LoginParams {
-  expirationDate?: Date
+  issuedAt?: Date
 }
 
 export interface AddKycParams {

@@ -62,7 +62,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
     if (this.isLoggedIn()) {
       return
     }
-    const loginResult = await this.login({})
+    const loginResult = await this.login()
     if (loginResult.isErr) {
       throw loginResult.error
     }
@@ -83,18 +83,22 @@ export class FiatConnectClient implements FiatConnectApiClient {
    * @returns a Promise resolving to the literal string 'success' on a
    * successful login or an Error response.
    */
-  async login(params: LoginParams): Promise<Result<'success', ResponseError>> {
+  async login(params?: LoginParams): Promise<Result<'success', ResponseError>> {
     try {
-      // Prefer param expiration time > diff-based exp. time > client-based exp. time
-      let expirationDate = params?.expirationDate
-      if (!expirationDate) {
-        const maxLoginTimeResult = await this.getMaximumSafeLoginTime()
-        if (maxLoginTimeResult.isOk) {
-          expirationDate = maxLoginTimeResult.value
+      // Prefer param issued-at > diff-based issued-at > client-based issued-at
+      let issuedAt = params?.issuedAt
+      if (!issuedAt) {
+        const serverTimeResult = await this.getServerTime()
+        if (serverTimeResult.isOk) {
+          issuedAt = serverTimeResult.value
         } else {
-          expirationDate = new Date(Date.now() + SESSION_DURATION_MS)
+          console.error(
+            `Unable to determine issuedAt time from server timestamp: ${serverTimeResult.error.message}`,
+          )
+          issuedAt = new Date()
         }
       }
+      const expirationTime = new Date(issuedAt.getTime() + SESSION_DURATION_MS)
       const siweMessage = new SiweMessage({
         domain: new URL(this.config.baseUrl).hostname,
         // Some SIWE validators compare this against the checksummed signing address,
@@ -106,7 +110,8 @@ export class FiatConnectClient implements FiatConnectApiClient {
         version: '1',
         chainId: NETWORK_CHAIN_IDS[this.config.network],
         nonce: generateNonce(),
-        expirationTime: expirationDate.toISOString(),
+        issuedAt: issuedAt.toISOString(),
+        expirationTime: expirationTime.toISOString(),
       })
       const message = siweMessage.prepareMessage()
       const body: AuthRequestBody = {
@@ -129,7 +134,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
         return handleError(data)
       }
 
-      this._sessionExpiry = expirationDate
+      this._sessionExpiry = expirationTime
       return Result.ok('success')
     } catch (error) {
       return handleError(error)
@@ -174,11 +179,12 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * Returns the server time that represents a the longest possible session duration
-   * if a session were to be created immediately, taking into account clock differences
-   * between client and server.
+   * Returns an approximation of the current server time, taking into account clock differences
+   * between client and server. Returns the earliest possible server time based on the max error
+   * of the clock diff between client and server, to ensure that sessions created using this time
+   * are not issued in the future with respect to the server clock.
    */
-  async getMaximumSafeLoginTime(): Promise<Result<Date, ResponseError>> {
+  async getServerTime(): Promise<Result<Date, ResponseError>> {
     const clockDiffResponse = await this.getClockDiffApprox()
     if (!clockDiffResponse.isOk) {
       return Result.err(clockDiffResponse.error)
@@ -187,8 +193,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
       new Date(
         Date.now() +
           clockDiffResponse.value.diff -
-          clockDiffResponse.value.maxError +
-          SESSION_DURATION_MS,
+          clockDiffResponse.value.maxError,
       ),
     )
   }

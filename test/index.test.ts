@@ -80,16 +80,16 @@ describe('FiatConnect SDK', () => {
       )
     })
   })
-  describe('getMaximumSafeLoginTime', () => {
-    it('returns the server time representing the maximum session duration', async () => {
+  describe('getServerTime', () => {
+    it('returns the earliest approximation of server time', async () => {
       jest
         .spyOn(client, 'getClockDiffApprox')
         .mockResolvedValueOnce(Result.ok({ diff: 1000, maxError: 500 }))
-      const response = await client.getMaximumSafeLoginTime()
+      const response = await client.getServerTime()
 
       expect(response.isOk).toBeTruthy()
       expect((response.unwrap() as Date).toISOString()).toEqual(
-        '2022-05-01T04:00:00.500Z',
+        '2022-05-01T00:00:00.500Z',
       )
     })
     it('returns an error if clock diff throws', async () => {
@@ -98,7 +98,7 @@ describe('FiatConnect SDK', () => {
         .mockResolvedValueOnce(
           Result.err(new ResponseError('fake error message')),
         )
-      const response = await client.getMaximumSafeLoginTime()
+      const response = await client.getServerTime()
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -175,7 +175,7 @@ describe('FiatConnect SDK', () => {
       })
 
       const response = await client.login({
-        expirationDate: new Date('2022-10-02T22:05:56+0000'),
+        issuedAt: new Date('2022-10-02T10:01:56+0000'),
       })
 
       const expectedSiweMessage = new siwe.SiweMessage({
@@ -184,7 +184,8 @@ describe('FiatConnect SDK', () => {
         statement: 'Sign in with Ethereum',
         uri: 'https://fiat-connect-api.com/auth/login',
         nonce: '12345678',
-        expirationTime: '2022-10-02T22:05:56.000Z',
+        expirationTime: '2022-10-02T14:01:56.000Z',
+        issuedAt: '2022-10-02T10:01:56.000Z',
         version: '1',
         chainId: 44787,
       })
@@ -211,7 +212,7 @@ describe('FiatConnect SDK', () => {
       })
 
       const response = await client.login({
-        expirationDate: new Date('2022-10-02T22:05:56+0000'),
+        issuedAt: new Date('2022-10-02T10:01:56+0000'),
       })
 
       const expectedSiweMessage = new siwe.SiweMessage({
@@ -220,7 +221,8 @@ describe('FiatConnect SDK', () => {
         statement: 'Sign in with Ethereum',
         uri: 'https://fiat-connect-api.com/auth/login',
         nonce: '12345678',
-        expirationTime: '2022-10-02T22:05:56.000Z',
+        expirationTime: '2022-10-02T14:01:56.000Z',
+        issuedAt: '2022-10-02T10:01:56.000Z',
         version: '1',
         chainId: 44787,
       })
@@ -249,7 +251,7 @@ describe('FiatConnect SDK', () => {
     it('returns error if login throws', async () => {
       signingFunction.mockRejectedValueOnce(new Error('some error'))
       const response = await client.login({
-        expirationDate: new Date('2022-10-02T22:05:56+0000'),
+        issuedAt: new Date('2022-10-02T22:01:56+0000'),
       })
 
       expect(response.isOk).toBeFalsy()
@@ -258,13 +260,13 @@ describe('FiatConnect SDK', () => {
       )
       expect(getHeadersMock).not.toHaveBeenCalled()
     })
-    it('defaults to maximum safe session duration if none is provided', async () => {
+    it('defaults to current server time for issued-at if none is provided', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
       jest
-        .spyOn(client, 'getMaximumSafeLoginTime')
-        .mockResolvedValueOnce(Result.ok(new Date('2022-07-02T22:05:56+0000')))
+        .spyOn(client, 'getServerTime')
+        .mockResolvedValueOnce(Result.ok(new Date('2022-07-02T08:01:56+0000')))
 
-      const response = await client.login({})
+      const response = await client.login()
 
       const expectedSiweMessage = new siwe.SiweMessage({
         domain: 'fiat-connect-api.com',
@@ -272,7 +274,8 @@ describe('FiatConnect SDK', () => {
         statement: 'Sign in with Ethereum',
         uri: 'https://fiat-connect-api.com/auth/login',
         nonce: '12345678',
-        expirationTime: '2022-07-02T22:05:56.000Z',
+        expirationTime: '2022-07-02T12:01:56.000Z',
+        issuedAt: '2022-07-02T08:01:56.000Z',
         version: '1',
         chainId: 44787,
       })
@@ -290,15 +293,15 @@ describe('FiatConnect SDK', () => {
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
-      expect(client.getMaximumSafeLoginTime).toHaveBeenCalled()
+      expect(client.getServerTime).toHaveBeenCalled()
     })
     it('falls back to client time if getting clock diff throws', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
       jest
-        .spyOn(client, 'getMaximumSafeLoginTime')
+        .spyOn(client, 'getServerTime')
         .mockResolvedValueOnce(Result.err(new Error()))
 
-      const response = await client.login({})
+      const response = await client.login()
 
       const expectedSiweMessage = new siwe.SiweMessage({
         domain: 'fiat-connect-api.com',
@@ -307,6 +310,7 @@ describe('FiatConnect SDK', () => {
         uri: 'https://fiat-connect-api.com/auth/login',
         nonce: '12345678',
         expirationTime: '2022-05-01T04:00:00.000Z',
+        issuedAt: '2022-05-01T00:00:00.000Z',
         version: '1',
         chainId: 44787,
       })
@@ -324,7 +328,7 @@ describe('FiatConnect SDK', () => {
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
-      expect(client.getMaximumSafeLoginTime).toHaveBeenCalled()
+      expect(client.getServerTime).toHaveBeenCalled()
     })
   })
   describe('isLoggedIn', () => {
