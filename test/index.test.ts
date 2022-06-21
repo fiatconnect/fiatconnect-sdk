@@ -80,12 +80,12 @@ describe('FiatConnect SDK', () => {
       )
     })
   })
-  describe('getServerTime', () => {
+  describe('getServerTimeApprox', () => {
     it('returns the earliest approximation of server time', async () => {
       jest
         .spyOn(client, 'getClockDiffApprox')
         .mockResolvedValueOnce(Result.ok({ diff: 1000, maxError: 500 }))
-      const response = await client.getServerTime()
+      const response = await client.getServerTimeApprox()
 
       expect(response.isOk).toBeTruthy()
       expect((response.unwrap() as Date).toISOString()).toEqual(
@@ -98,7 +98,7 @@ describe('FiatConnect SDK', () => {
         .mockResolvedValueOnce(
           Result.err(new ResponseError('fake error message')),
         )
-      const response = await client.getServerTime()
+      const response = await client.getServerTimeApprox()
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -263,7 +263,7 @@ describe('FiatConnect SDK', () => {
     it('defaults to current server time for issued-at if none is provided', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
       jest
-        .spyOn(client, 'getServerTime')
+        .spyOn(client, 'getServerTimeApprox')
         .mockResolvedValueOnce(Result.ok(new Date('2022-07-02T08:01:56+0000')))
 
       const response = await client.login()
@@ -293,12 +293,12 @@ describe('FiatConnect SDK', () => {
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
-      expect(client.getServerTime).toHaveBeenCalled()
+      expect(client.getServerTimeApprox).toHaveBeenCalled()
     })
     it('falls back to client time if getting clock diff throws', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
       jest
-        .spyOn(client, 'getServerTime')
+        .spyOn(client, 'getServerTimeApprox')
         .mockResolvedValueOnce(Result.err(new Error()))
 
       const response = await client.login()
@@ -328,7 +328,7 @@ describe('FiatConnect SDK', () => {
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
-      expect(client.getServerTime).toHaveBeenCalled()
+      expect(client.getServerTimeApprox).toHaveBeenCalled()
     })
   })
   describe('isLoggedIn', () => {

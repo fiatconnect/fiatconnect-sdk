@@ -26,7 +26,7 @@ import {
 import { Result } from '@badrap/result'
 
 export interface FiatConnectApiClient {
-  getServerTime(): Promise<Result<Date, ResponseError>>
+  getServerTimeApprox(): Promise<Result<Date, ResponseError>>
   getClockDiffApprox(): Promise<Result<ClockDiffResult, ResponseError>>
   getClock(): Promise<Result<ClockResponse, ResponseError>>
   login(params?: LoginParams): Promise<Result<'success', ResponseError>>

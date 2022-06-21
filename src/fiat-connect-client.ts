@@ -80,6 +80,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   /**
    * Logs in with the provider and initializes a session.
    *
+   * @param {LoginParams} params optional object containing params used to log in
    * @returns a Promise resolving to the literal string 'success' on a
    * successful login or an Error response.
    */
@@ -88,7 +89,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
       // Prefer param issued-at > diff-based issued-at > client-based issued-at
       let issuedAt = params?.issuedAt
       if (!issuedAt) {
-        const serverTimeResult = await this.getServerTime()
+        const serverTimeResult = await this.getServerTimeApprox()
         if (serverTimeResult.isOk) {
           issuedAt = serverTimeResult.value
         } else {
@@ -184,7 +185,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
    * of the clock diff between client and server, to ensure that sessions created using this time
    * are not issued in the future with respect to the server clock.
    */
-  async getServerTime(): Promise<Result<Date, ResponseError>> {
+  async getServerTimeApprox(): Promise<Result<Date, ResponseError>> {
     const clockDiffResponse = await this.getClockDiffApprox()
     if (!clockDiffResponse.isOk) {
       return Result.err(clockDiffResponse.error)
