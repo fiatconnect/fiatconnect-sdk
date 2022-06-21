@@ -29,6 +29,7 @@ import {
   TransferRequestParams,
   ClockDiffParams,
   ClockDiffResult,
+  LoginParams,
 } from './types'
 import { ethers } from 'ethers'
 
@@ -81,12 +82,26 @@ export class FiatConnectClient implements FiatConnectApiClient {
   /**
    * Logs in with the provider and initializes a session.
    *
+   * @param {LoginParams} params optional object containing params used to log in
    * @returns a Promise resolving to the literal string 'success' on a
    * successful login or an Error response.
    */
-  async login(): Promise<Result<'success', ResponseError>> {
+  async login(params?: LoginParams): Promise<Result<'success', ResponseError>> {
     try {
-      const expirationDate = new Date(Date.now() + SESSION_DURATION_MS)
+      // Prefer param issued-at > diff-based issued-at > client-based issued-at
+      let issuedAt = params?.issuedAt
+      if (!issuedAt) {
+        const serverTimeResult = await this.getServerTimeApprox()
+        if (serverTimeResult.isOk) {
+          issuedAt = serverTimeResult.value
+        } else {
+          console.error(
+            `Unable to determine issuedAt time from server timestamp: ${serverTimeResult.error.message}`,
+          )
+          issuedAt = new Date()
+        }
+      }
+      const expirationTime = new Date(issuedAt.getTime() + SESSION_DURATION_MS)
       const siweMessage = new SiweMessage({
         domain: new URL(this.config.baseUrl).hostname,
         // Some SIWE validators compare this against the checksummed signing address,
@@ -98,7 +113,8 @@ export class FiatConnectClient implements FiatConnectApiClient {
         version: '1',
         chainId: NETWORK_CHAIN_IDS[this.config.network],
         nonce: generateNonce(),
-        expirationTime: expirationDate.toISOString(),
+        issuedAt: issuedAt.toISOString(),
+        expirationTime: expirationTime.toISOString(),
       })
       const message = siweMessage.prepareMessage()
       const body: AuthRequestBody = {
@@ -121,7 +137,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
         return handleError(data)
       }
 
-      this._sessionExpiry = expirationDate
+      this._sessionExpiry = expirationTime
       return Result.ok('success')
     } catch (error) {
       return handleError(error)
@@ -163,6 +179,26 @@ export class FiatConnectClient implements FiatConnectApiClient {
       diff: Math.floor((t1 - t0 + (t2 - t3)) / 2),
       maxError: Math.floor((t3 - t0) / 2),
     }
+  }
+
+  /**
+   * Returns an approximation of the current server time, taking into account clock differences
+   * between client and server. Returns the earliest possible server time based on the max error
+   * of the clock diff between client and server, to ensure that sessions created using this time
+   * are not issued in the future with respect to the server clock.
+   */
+  async getServerTimeApprox(): Promise<Result<Date, ResponseError>> {
+    const clockDiffResponse = await this.getClockDiffApprox()
+    if (!clockDiffResponse.isOk) {
+      return Result.err(clockDiffResponse.error)
+    }
+    return Result.ok(
+      new Date(
+        Date.now() +
+          clockDiffResponse.value.diff -
+          clockDiffResponse.value.maxError,
+      ),
+    )
   }
 
   /**

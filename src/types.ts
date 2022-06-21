@@ -22,9 +22,10 @@ import {
 import { Result } from '@badrap/result'
 
 export interface FiatConnectApiClient {
+  getServerTimeApprox(): Promise<Result<Date, ResponseError>>
   getClockDiffApprox(): Promise<Result<ClockDiffResult, ResponseError>>
   getClock(): Promise<Result<ClockResponse, ResponseError>>
-  login(): Promise<Result<'success', ResponseError>>
+  login(params?: LoginParams): Promise<Result<'success', ResponseError>>
   isLoggedIn(): boolean
   getQuoteIn(
     params: QuoteRequestQuery,
@@ -55,6 +56,10 @@ export interface FiatConnectApiClient {
   getTransferStatus(
     params: TransferStatusRequestParams,
   ): Promise<Result<TransferStatusResponse, ResponseError>>
+}
+
+export interface LoginParams {
+  issuedAt?: Date
 }
 
 export interface AddKycParams<T extends KycSchema> {
