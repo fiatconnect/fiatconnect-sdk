@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.0...v0.3.1) (2022-06-21)
+
+
+### Features
+
+* **accounts:** update add params to match with spec ([#32](https://github.com/fiatconnect/fiatconnect-sdk/issues/32)) ([1db193d](https://github.com/fiatconnect/fiatconnect-sdk/commit/1db193d217ab371b2507df0f0bee3deab222ea3f))
+* **sessions:** Allow custom issued-at, set reasonable defaults ([#30](https://github.com/fiatconnect/fiatconnect-sdk/issues/30)) ([a90a0ee](https://github.com/fiatconnect/fiatconnect-sdk/commit/a90a0eec9dddfa56a306a183960c32817f677599))
+
 ### [0.3.0](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.2.3...v0.3.0) (2022-06-15)
 
 
