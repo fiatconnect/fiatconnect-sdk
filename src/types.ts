@@ -42,9 +42,7 @@ export interface FiatConnectApiClient {
   addFiatAccount<T extends FiatAccountSchema>(
     params: PostFiatAccountRequestBody<T>,
   ): Promise<Result<PostFiatAccountResponse, ResponseError>>
-  getFiatAccounts(
-    jwt: string,
-  ): Promise<Result<GetFiatAccountsResponse, ResponseError>>
+  getFiatAccounts(): Promise<Result<GetFiatAccountsResponse, ResponseError>>
   deleteFiatAccount(
     params: DeleteFiatAccountRequestParams,
   ): Promise<Result<void, ResponseError>>
