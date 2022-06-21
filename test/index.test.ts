@@ -513,14 +513,18 @@ describe('FiatConnect SDK', () => {
     it('calls POST /accounts/${params.fiatAccountSchemaName} and returns AddFiatAccountResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockAddFiatAccountResponse))
       const response = await client.addFiatAccount({
-        fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
+        fiatAccountSchema: FiatAccountSchema.AccountNumber,
         data: mockFiatAccountSchemaData,
       })
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/accounts/AccountNumber',
+        'https://fiat-connect-api.com/accounts',
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fiatAccountSchema: FiatAccountSchema.AccountNumber,
+            data: mockFiatAccountSchemaData,
+          }),
         }),
       )
       expect(response.isOk).toBeTruthy()
@@ -532,17 +536,21 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockAddFiatAccountResponse))
       getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
       const response = await client.addFiatAccount({
-        fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
+        fiatAccountSchema: FiatAccountSchema.AccountNumber,
         data: mockFiatAccountSchemaData,
       })
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/accounts/AccountNumber',
+        'https://fiat-connect-api.com/accounts',
         expect.objectContaining({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: 'Bearer api-key',
           },
+          body: JSON.stringify({
+            fiatAccountSchema: FiatAccountSchema.AccountNumber,
+            data: mockFiatAccountSchemaData,
+          }),
         }),
       )
       expect(response.isOk).toBeTruthy()
@@ -556,7 +564,7 @@ describe('FiatConnect SDK', () => {
         status: 409,
       })
       const response = await client.addFiatAccount({
-        fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
+        fiatAccountSchema: FiatAccountSchema.AccountNumber,
         data: mockFiatAccountSchemaData,
       })
       expect(response.isOk).toBeFalsy()
@@ -567,7 +575,7 @@ describe('FiatConnect SDK', () => {
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.addFiatAccount({
-        fiatAccountSchemaName: FiatAccountSchema.AccountNumber,
+        fiatAccountSchema: FiatAccountSchema.AccountNumber,
         data: mockFiatAccountSchemaData,
       })
       expect(response.isOk).toBeFalsy()
