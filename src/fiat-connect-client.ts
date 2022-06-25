@@ -145,16 +145,16 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   async _addQuote(
-    params: QuoteRequestBody,
+    body: QuoteRequestBody,
     inOrOut: 'in' | 'out',
   ): Promise<Result<QuoteResponse, ResponseError>> {
     try {
-      const queryParams = new URLSearchParams(params).toString()
       const response = await fetch(
-        `${this.config.baseUrl}/quote/${inOrOut}?${queryParams}`,
+        `${this.config.baseUrl}/quote/${inOrOut}`,
         {
-          method: 'GET',
+          method: 'POST',
           headers: this._getAuthHeader(),
+          body: JSON.stringify(body)
         },
       )
       const data = await response.json()

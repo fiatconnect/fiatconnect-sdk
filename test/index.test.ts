@@ -1,4 +1,4 @@
-import { FiatConnectClient, ResponseError } from '../src/index'
+import { FiatConnectClient, ResponseError } from '../src'
 import {
   mockAddFiatAccountResponse,
   mockDeleteFiatAccountParams,
@@ -395,8 +395,8 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
       const response = await client.addQuoteIn(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/quote/in?fiatType=USD&cryptoType=cUSD&country=DE',
-        expect.objectContaining({ method: 'GET', headers: undefined }),
+        'https://fiat-connect-api.com/quote/in',
+        expect.objectContaining({ method: 'POST', headers: undefined, body: JSON.stringify(mockQuoteRequestQuery) }),
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockQuoteResponse)
@@ -428,8 +428,8 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
       const response = await client.addQuoteOut(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/quote/out?fiatType=USD&cryptoType=cUSD&country=DE',
-        expect.objectContaining({ method: 'GET', headers: undefined }),
+        'https://fiat-connect-api.com/quote/out', // ?fiatType=USD&cryptoType=cUSD&country=DE
+        expect.objectContaining({ method: 'POST', headers: undefined, body: JSON.stringify(mockQuoteRequestQuery) }),
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockQuoteResponse)
