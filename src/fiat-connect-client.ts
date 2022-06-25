@@ -149,14 +149,11 @@ export class FiatConnectClient implements FiatConnectApiClient {
     inOrOut: 'in' | 'out',
   ): Promise<Result<QuoteResponse, ResponseError>> {
     try {
-      const response = await fetch(
-        `${this.config.baseUrl}/quote/${inOrOut}`,
-        {
-          method: 'POST',
-          headers: this._getAuthHeader(),
-          body: JSON.stringify(body)
-        },
-      )
+      const response = await fetch(`${this.config.baseUrl}/quote/${inOrOut}`, {
+        method: 'POST',
+        headers: this._getAuthHeader(),
+        body: JSON.stringify(body),
+      })
       const data = await response.json()
       if (!response.ok) {
         return handleError(data)
