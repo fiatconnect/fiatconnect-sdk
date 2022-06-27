@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.1...v0.3.2) (2022-06-27)
+
+### Features
+
+* **createQuoteIn/Out:** renamed getQuoteIn/Out to createQuoteIn/Out and switched to POST to keep in sync with spec ([733e8fd](https://github.com/fiatconnect/fiatconnect-sdk/commit/733e8fd874dc805a88d96d07472bfdf999ca4c6b))
+
+### Bug Fixes
+
+* **kyc status:** should be GET /kyc/:kycSchema/status (was: GET /kyc/:kycSchema) ([733e8fd](https://github.com/fiatconnect/fiatconnect-sdk/commit/733e8fd874dc805a88d96d07472bfdf999ca4c6b))
+
+
 ### [0.3.1](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.0...v0.3.1) (2022-06-21)
 
 
