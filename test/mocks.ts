@@ -13,7 +13,7 @@ import {
   KycStatusResponse,
   PostFiatAccountResponse,
   QuoteErrorResponse,
-  QuoteRequestQuery,
+  QuoteRequestBody,
   QuoteResponse,
   TransferResponse,
   TransferStatus,
@@ -25,7 +25,7 @@ import {
 } from '@fiatconnect/fiatconnect-types'
 import { TransferRequestParams } from '../src/types'
 
-export const mockQuoteRequestQuery: QuoteRequestQuery = {
+export const mockQuoteRequestQuery: QuoteRequestBody = {
   fiatType: FiatType.USD,
   cryptoType: CryptoType.cUSD,
   country: 'DE',

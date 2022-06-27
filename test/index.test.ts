@@ -1,4 +1,4 @@
-import { FiatConnectClient, ResponseError } from '../src/index'
+import { FiatConnectClient, ResponseError } from '../src'
 import {
   mockAddFiatAccountResponse,
   mockDeleteFiatAccountParams,
@@ -393,10 +393,14 @@ describe('FiatConnect SDK', () => {
   describe('getQuoteIn', () => {
     it('calls /quote/in and returns QuoteResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
-      const response = await client.getQuoteIn(mockQuoteRequestQuery)
+      const response = await client.createQuoteIn(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/quote/in?fiatType=USD&cryptoType=cUSD&country=DE',
-        expect.objectContaining({ method: 'GET', headers: undefined }),
+        'https://fiat-connect-api.com/quote/in',
+        expect.objectContaining({
+          method: 'POST',
+          headers: undefined,
+          body: JSON.stringify(mockQuoteRequestQuery),
+        }),
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockQuoteResponse)
@@ -406,7 +410,7 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
         status: 400,
       })
-      const response = await client.getQuoteIn(mockQuoteRequestQuery)
+      const response = await client.createQuoteIn(mockQuoteRequestQuery)
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -415,7 +419,7 @@ describe('FiatConnect SDK', () => {
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
-      const response = await client.getQuoteIn(mockQuoteRequestQuery)
+      const response = await client.createQuoteIn(mockQuoteRequestQuery)
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -426,10 +430,14 @@ describe('FiatConnect SDK', () => {
   describe('getQuoteOut', () => {
     it('calls /quote/out and returns QuoteResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
-      const response = await client.getQuoteOut(mockQuoteRequestQuery)
+      const response = await client.createQuoteOut(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/quote/out?fiatType=USD&cryptoType=cUSD&country=DE',
-        expect.objectContaining({ method: 'GET', headers: undefined }),
+        'https://fiat-connect-api.com/quote/out', // ?fiatType=USD&cryptoType=cUSD&country=DE
+        expect.objectContaining({
+          method: 'POST',
+          headers: undefined,
+          body: JSON.stringify(mockQuoteRequestQuery),
+        }),
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockQuoteResponse)
@@ -439,7 +447,7 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
         status: 400,
       })
-      const response = await client.getQuoteOut(mockQuoteRequestQuery)
+      const response = await client.createQuoteOut(mockQuoteRequestQuery)
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -448,7 +456,7 @@ describe('FiatConnect SDK', () => {
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
-      const response = await client.getQuoteOut(mockQuoteRequestQuery)
+      const response = await client.createQuoteOut(mockQuoteRequestQuery)
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -578,7 +586,7 @@ describe('FiatConnect SDK', () => {
         kycSchema: KycSchema.PersonalDataAndDocuments,
       })
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/kyc/PersonalDataAndDocuments',
+        'https://fiat-connect-api.com/kyc/PersonalDataAndDocuments/status',
         expect.objectContaining({ method: 'GET', headers: undefined }),
       )
       expect(response.isOk).toBeTruthy()

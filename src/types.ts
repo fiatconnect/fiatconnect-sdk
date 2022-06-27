@@ -10,7 +10,7 @@ import {
   PostFiatAccountRequestBody,
   PostFiatAccountResponse,
   QuoteErrorResponse,
-  QuoteRequestQuery,
+  QuoteRequestBody,
   QuoteResponse,
   TransferRequestBody,
   TransferResponse,
@@ -27,11 +27,11 @@ export interface FiatConnectApiClient {
   getClock(): Promise<Result<ClockResponse, ResponseError>>
   login(params?: LoginParams): Promise<Result<'success', ResponseError>>
   isLoggedIn(): boolean
-  getQuoteIn(
-    params: QuoteRequestQuery,
+  createQuoteIn(
+    params: QuoteRequestBody,
   ): Promise<Result<QuoteResponse, ResponseError>>
-  getQuoteOut(
-    params: QuoteRequestQuery,
+  createQuoteOut(
+    params: QuoteRequestBody,
   ): Promise<Result<QuoteResponse, ResponseError>>
   addKyc<T extends KycSchema>(
     params: AddKycParams<T>,

@@ -8,7 +8,7 @@ import {
   PostFiatAccountRequestBody,
   PostFiatAccountResponse,
   QuoteErrorResponse,
-  QuoteRequestQuery,
+  QuoteRequestBody,
   QuoteResponse,
   TransferResponse,
   TransferStatusRequestParams,
@@ -144,19 +144,16 @@ export class FiatConnectClient implements FiatConnectApiClient {
     }
   }
 
-  async _getQuote(
-    params: QuoteRequestQuery,
+  async _createQuote(
+    body: QuoteRequestBody,
     inOrOut: 'in' | 'out',
   ): Promise<Result<QuoteResponse, ResponseError>> {
     try {
-      const queryParams = new URLSearchParams(params).toString()
-      const response = await fetch(
-        `${this.config.baseUrl}/quote/${inOrOut}?${queryParams}`,
-        {
-          method: 'GET',
-          headers: this._getAuthHeader(),
-        },
-      )
+      const response = await fetch(`${this.config.baseUrl}/quote/${inOrOut}`, {
+        method: 'POST',
+        headers: this._getAuthHeader(),
+        body: JSON.stringify(body),
+      })
       const data = await response.json()
       if (!response.ok) {
         return handleError(data)
@@ -239,25 +236,25 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3311-get-quotein
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3411-post-quotein
    */
-  async getQuoteIn(
-    params: QuoteRequestQuery,
+  async createQuoteIn(
+    params: QuoteRequestBody,
   ): Promise<Result<QuoteResponse, ResponseError>> {
-    return this._getQuote(params, 'in')
+    return this._createQuote(params, 'in')
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3312-get-quoteout
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3412-post-quoteout
    */
-  async getQuoteOut(
-    params: QuoteRequestQuery,
+  async createQuoteOut(
+    params: QuoteRequestBody,
   ): Promise<Result<QuoteResponse, ResponseError>> {
-    return this._getQuote(params, 'out')
+    return this._createQuote(params, 'out')
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3321-post-kyckycschema
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3421-post-kyckycschema
    */
   async addKyc<T extends KycSchema>(
     params: AddKycParams<T>,
@@ -286,7 +283,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3323-delete-kyckycschema
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3423-delete-kyckycschema
    */
   async deleteKyc(
     params: KycRequestParams,
@@ -311,7 +308,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3322-get-kyckycschemastatus
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3422-get-kyckycschemastatus
    */
   async getKycStatus(
     params: KycRequestParams,
@@ -319,7 +316,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
     try {
       await this._ensureLogin()
       const response = await fetch(
-        `${this.config.baseUrl}/kyc/${params.kycSchema}`,
+        `${this.config.baseUrl}/kyc/${params.kycSchema}/status`,
         {
           method: 'GET',
           headers: this._getAuthHeader(),
@@ -336,7 +333,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3331-post-accountsfiataccountschema
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3431-post-accounts
    */
   async addFiatAccount<T extends FiatAccountSchema>(
     params: PostFiatAccountRequestBody<T>,
@@ -362,7 +359,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3332-get-accounts
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3432-get-accounts
    */
   async getFiatAccounts(): Promise<
     Result<GetFiatAccountsResponse, ResponseError>
@@ -384,7 +381,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3333-delete-accountfiataccountid
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3433-delete-accountsfiataccountid
    */
   async deleteFiatAccount(
     params: DeleteFiatAccountRequestParams,
@@ -409,7 +406,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3341-post-transferin
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3441-post-transferin
    */
   async transferIn(
     params: TransferRequestParams,
@@ -436,7 +433,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
   }
 
   /**
-   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3342-post-transferout
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3442-post-transferout
    */
   async transferOut(
     params: TransferRequestParams,

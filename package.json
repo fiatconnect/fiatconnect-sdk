@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@badrap/result": "^0.2.12",
-    "@fiatconnect/fiatconnect-types": "^5.0.0",
+    "@fiatconnect/fiatconnect-types": "^6.0.0",
     "ethers": "^5.6.4",
     "fetch-cookie": "^2.0.3",
     "node-fetch": "^2.6.6",
