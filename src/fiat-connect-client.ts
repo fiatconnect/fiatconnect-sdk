@@ -316,7 +316,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
     try {
       await this._ensureLogin()
       const response = await fetch(
-        `${this.config.baseUrl}/kyc/${params.kycSchema}`,
+        `${this.config.baseUrl}/kyc/${params.kycSchema}/status`,
         {
           method: 'GET',
           headers: this._getAuthHeader(),

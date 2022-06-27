@@ -586,7 +586,7 @@ describe('FiatConnect SDK', () => {
         kycSchema: KycSchema.PersonalDataAndDocuments,
       })
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/kyc/PersonalDataAndDocuments',
+        'https://fiat-connect-api.com/kyc/PersonalDataAndDocuments/status',
         expect.objectContaining({ method: 'GET', headers: undefined }),
       )
       expect(response.isOk).toBeTruthy()
