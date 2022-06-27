@@ -144,7 +144,7 @@ export class FiatConnectClient implements FiatConnectApiClient {
     }
   }
 
-  async _addQuote(
+  async _createQuote(
     body: QuoteRequestBody,
     inOrOut: 'in' | 'out',
   ): Promise<Result<QuoteResponse, ResponseError>> {
@@ -238,19 +238,19 @@ export class FiatConnectClient implements FiatConnectApiClient {
   /**
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3411-post-quotein
    */
-  async addQuoteIn(
+  async createQuoteIn(
     params: QuoteRequestBody,
   ): Promise<Result<QuoteResponse, ResponseError>> {
-    return this._addQuote(params, 'in')
+    return this._createQuote(params, 'in')
   }
 
   /**
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3412-post-quoteout
    */
-  async addQuoteOut(
+  async createQuoteOut(
     params: QuoteRequestBody,
   ): Promise<Result<QuoteResponse, ResponseError>> {
-    return this._addQuote(params, 'out')
+    return this._createQuote(params, 'out')
   }
 
   /**

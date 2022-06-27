@@ -27,10 +27,10 @@ export interface FiatConnectApiClient {
   getClock(): Promise<Result<ClockResponse, ResponseError>>
   login(params?: LoginParams): Promise<Result<'success', ResponseError>>
   isLoggedIn(): boolean
-  addQuoteIn(
+  createQuoteIn(
     params: QuoteRequestBody,
   ): Promise<Result<QuoteResponse, ResponseError>>
-  addQuoteOut(
+  createQuoteOut(
     params: QuoteRequestBody,
   ): Promise<Result<QuoteResponse, ResponseError>>
   addKyc<T extends KycSchema>(

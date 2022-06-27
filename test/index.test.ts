@@ -393,7 +393,7 @@ describe('FiatConnect SDK', () => {
   describe('getQuoteIn', () => {
     it('calls /quote/in and returns QuoteResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
-      const response = await client.addQuoteIn(mockQuoteRequestQuery)
+      const response = await client.createQuoteIn(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/quote/in',
         expect.objectContaining({
@@ -410,7 +410,7 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
         status: 400,
       })
-      const response = await client.addQuoteIn(mockQuoteRequestQuery)
+      const response = await client.createQuoteIn(mockQuoteRequestQuery)
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -419,7 +419,7 @@ describe('FiatConnect SDK', () => {
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
-      const response = await client.addQuoteIn(mockQuoteRequestQuery)
+      const response = await client.createQuoteIn(mockQuoteRequestQuery)
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -430,7 +430,7 @@ describe('FiatConnect SDK', () => {
   describe('getQuoteOut', () => {
     it('calls /quote/out and returns QuoteResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
-      const response = await client.addQuoteOut(mockQuoteRequestQuery)
+      const response = await client.createQuoteOut(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/quote/out', // ?fiatType=USD&cryptoType=cUSD&country=DE
         expect.objectContaining({
@@ -447,7 +447,7 @@ describe('FiatConnect SDK', () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
         status: 400,
       })
-      const response = await client.addQuoteOut(mockQuoteRequestQuery)
+      const response = await client.createQuoteOut(mockQuoteRequestQuery)
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -456,7 +456,7 @@ describe('FiatConnect SDK', () => {
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
-      const response = await client.addQuoteOut(mockQuoteRequestQuery)
+      const response = await client.createQuoteOut(mockQuoteRequestQuery)
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
