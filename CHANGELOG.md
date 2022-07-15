@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-* **client:** support all platforms ([#36](https://github.com/fiatconnect/fiatconnect-sdk/issues/36)) ([fd0b277](https://github.com/fiatconnect/fiatconnect-sdk/commit/fd0b2774e1a655b5c23441b46ff25843cf4ad240))
+* **client:** handle cookies based on platform ([#36](https://github.com/fiatconnect/fiatconnect-sdk/issues/36)) ([fd0b277](https://github.com/fiatconnect/fiatconnect-sdk/commit/fd0b2774e1a655b5c23441b46ff25843cf4ad240))
 
 ### [0.3.2](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.1...v0.3.2) (2022-06-27)
 
