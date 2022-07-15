@@ -17,8 +17,7 @@ import {
   FiatAccountSchema,
   KycSchema,
 } from '@fiatconnect/fiatconnect-types'
-import fetchCookie from 'fetch-cookie'
-import nodeFetch, { RequestInfo, RequestInit, Response } from 'node-fetch'
+import fetch from 'cross-fetch'
 import { generateNonce, SiweMessage } from 'siwe'
 import { Result } from '@badrap/result'
 import {
@@ -39,24 +38,20 @@ const NETWORK_CHAIN_IDS = {
 }
 const SESSION_DURATION_MS = 14400000 // 4 hours
 
-export class FiatConnectClient implements FiatConnectApiClient {
+export class FiatConnectClientImpl implements FiatConnectApiClient {
   config: FiatConnectClientConfig
   signingFunction: (message: string) => Promise<string>
   _sessionExpiry?: Date
-  fetchImpl: (url: RequestInfo, init?: RequestInit) => Promise<Response>
+  fetchImpl: typeof fetch
 
   constructor(
     config: FiatConnectClientConfig,
     signingFunction: (message: string) => Promise<string>,
-    fetchImpl?: (url: RequestInfo, init?: RequestInit) => Promise<Response>,
+    fetchImpl: typeof fetch,
   ) {
     this.config = config
     this.signingFunction = signingFunction
-    if (fetchImpl) {
-      this.fetchImpl = fetchImpl
-    } else {
-      this.fetchImpl = fetchCookie(nodeFetch)
-    }
+    this.fetchImpl = fetchImpl
   }
 
   _getAuthHeader() {
@@ -527,4 +522,13 @@ function handleError<T>(error: unknown): Result<T, ResponseError> {
     )
   }
   return Result.err(new ResponseError(String(error)))
+}
+
+export class FiatConnectClientWithCookie extends FiatConnectClientImpl {
+  constructor(
+    config: FiatConnectClientConfig,
+    signingFunction: (message: string) => Promise<string>,
+  ) {
+    super(config, signingFunction, fetch)
+  }
 }
