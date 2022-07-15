@@ -55,6 +55,24 @@ describe('FiatConnect SDK', () => {
     jest.clearAllMocks()
     client._sessionExpiry = undefined
   })
+  describe('constructor', () => {
+    it('uses default fetch implementation if fetchImpl param is not set', () => {
+      expect(client.fetchImpl).toBeDefined()
+    })
+    it('uses custom fetch implementation', () => {
+      const customFetch = jest.fn()
+      const fcClient = new FiatConnectClient(
+        {
+          baseUrl: 'https://fiat-connect-api.com',
+          network: Network.Alfajores,
+          accountAddress,
+        },
+        signingFunction,
+        customFetch,
+      )
+      expect(fcClient.fetchImpl).toEqual(customFetch)
+    })
+  })
   describe('getClock', () => {
     it('gets the server clock', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
