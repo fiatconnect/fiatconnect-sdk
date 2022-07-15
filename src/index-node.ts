@@ -1,6 +1,6 @@
+import 'cross-fetch/polyfill'
 import { FiatConnectClientImpl } from './fiat-connect-client'
 import { FiatConnectClientConfig } from './types'
-import fetch from 'cross-fetch'
 import fetchCookie from 'fetch-cookie'
 export * from './types'
 

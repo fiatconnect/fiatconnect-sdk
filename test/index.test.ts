@@ -34,6 +34,8 @@ jest.mock('siwe', () => ({
   ...jest.requireActual('siwe'),
 }))
 
+// jest.mock('cross-fetch')
+
 describe('FiatConnect SDK', () => {
   const accountAddress = '0x0d8e461687b7d06f86ec348e0c270b0f279855f0'
   const checksummedAccountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
@@ -54,24 +56,6 @@ describe('FiatConnect SDK', () => {
     getHeadersMock.mockReset()
     jest.clearAllMocks()
     client._sessionExpiry = undefined
-  })
-  describe('constructor', () => {
-    it('uses default fetch implementation if fetchImpl param is not set', () => {
-      expect(client.fetchImpl).toBeDefined()
-    })
-    it('uses custom fetch implementation', () => {
-      const customFetch = jest.fn()
-      const fcClient = new FiatConnectClient(
-        {
-          baseUrl: 'https://fiat-connect-api.com',
-          network: Network.Alfajores,
-          accountAddress,
-        },
-        signingFunction,
-        customFetch,
-      )
-      expect(fcClient.fetchImpl).toEqual(customFetch)
-    })
   })
   describe('getClock', () => {
     it('gets the server clock', async () => {
