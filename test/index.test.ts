@@ -34,8 +34,6 @@ jest.mock('siwe', () => ({
   ...jest.requireActual('siwe'),
 }))
 
-// jest.mock('cross-fetch')
-
 describe('FiatConnect SDK', () => {
   const accountAddress = '0x0d8e461687b7d06f86ec348e0c270b0f279855f0'
   const checksummedAccountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
