@@ -156,7 +156,10 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/quote/${inOrOut}`,
         {
           method: 'POST',
-          headers: this._getAuthHeader(),
+          headers: {
+            'Content-Type': 'application/json',
+            ...this._getAuthHeader(),
+          },
           body: JSON.stringify(body),
         },
       )

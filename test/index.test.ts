@@ -398,7 +398,7 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/quote/in',
         expect.objectContaining({
           method: 'POST',
-          headers: undefined,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(mockQuoteRequestQuery),
         }),
       )
@@ -435,7 +435,7 @@ describe('FiatConnect SDK', () => {
         'https://fiat-connect-api.com/quote/out', // ?fiatType=USD&cryptoType=cUSD&country=DE
         expect.objectContaining({
           method: 'POST',
-          headers: undefined,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(mockQuoteRequestQuery),
         }),
       )
