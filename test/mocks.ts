@@ -87,7 +87,7 @@ export const mockKycSchemaData: KycSchemas[KycSchema.PersonalDataAndDocuments] =
   }
 
 export const mockKycStatusResponse: KycStatusResponse = {
-  kycStatus: KycStatus.Pending,
+  kycStatus: KycStatus.KycPending,
 }
 
 export const mockFiatAccountSchemaData: FiatAccountSchemas[FiatAccountSchema.AccountNumber] =
