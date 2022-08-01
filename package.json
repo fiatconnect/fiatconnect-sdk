@@ -53,7 +53,7 @@
     "@badrap/result": "^0.2.12",
     "@fiatconnect/fiatconnect-types": "^6.1.0",
     "cross-fetch": "^3.1.5",
-    "ethers": "^5.6.4",
+    "ethers": "^5.6.9",
     "fetch-cookie": "^2.0.3",
     "siwe": "^1.1.6",
     "tslib": "^2.4.0"
