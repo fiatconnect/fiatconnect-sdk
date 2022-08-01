@@ -31,7 +31,7 @@
   "private": false,
   "devDependencies": {
     "@types/jest": "^27.4.1",
-    "@types/node-fetch": "^2.6.1",
+    "@types/node-fetch": "^2.6.2",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@valora/eslint-config-typescript": "^0.0.1",
