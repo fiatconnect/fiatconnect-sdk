@@ -8,7 +8,8 @@ import {
   mockKycStatusResponse,
   mockQuoteErrorResponse,
   mockQuoteRequestQuery,
-  mockQuoteResponse,
+  mockQuoteInResponse,
+  mockQuoteOutResponse,
   mockTransferRequestParams,
   mockTransferResponse,
   mockTransferStatusRequestParams,
@@ -392,7 +393,7 @@ describe('FiatConnect SDK', () => {
   })
   describe('getQuoteIn', () => {
     it('calls /quote/in and returns QuoteResponse', async () => {
-      fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
+      fetchMock.mockResponseOnce(JSON.stringify(mockQuoteInResponse))
       const response = await client.createQuoteIn(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/quote/in',
@@ -403,7 +404,7 @@ describe('FiatConnect SDK', () => {
         }),
       )
       expect(response.isOk).toBeTruthy()
-      expect(response.unwrap()).toMatchObject(mockQuoteResponse)
+      expect(response.unwrap()).toMatchObject(mockQuoteInResponse)
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -429,7 +430,7 @@ describe('FiatConnect SDK', () => {
   })
   describe('getQuoteOut', () => {
     it('calls /quote/out and returns QuoteResponse', async () => {
-      fetchMock.mockResponseOnce(JSON.stringify(mockQuoteResponse))
+      fetchMock.mockResponseOnce(JSON.stringify(mockQuoteOutResponse))
       const response = await client.createQuoteOut(mockQuoteRequestQuery)
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/quote/out', // ?fiatType=USD&cryptoType=cUSD&country=DE
@@ -440,7 +441,7 @@ describe('FiatConnect SDK', () => {
         }),
       )
       expect(response.isOk).toBeTruthy()
-      expect(response.unwrap()).toMatchObject(mockQuoteResponse)
+      expect(response.unwrap()).toMatchObject(mockQuoteOutResponse)
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
