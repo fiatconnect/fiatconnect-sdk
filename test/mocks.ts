@@ -31,7 +31,7 @@ export const mockQuoteRequestQuery: QuoteRequestBody = {
   country: 'DE',
 }
 
-export const mockQuoteResponse: QuoteResponse = {
+export const mockQuoteInResponse: QuoteResponse = {
   quote: {
     fiatType: FiatType.USD,
     cryptoType: CryptoType.cUSD,
@@ -39,6 +39,37 @@ export const mockQuoteResponse: QuoteResponse = {
     cryptoAmount: '1.0',
     quoteId: 'mock_quote_id',
     guaranteedUntil: '2030-01-01T00:00:00.000Z',
+    transferType: TransferType.TransferIn
+  },
+  kyc: {
+    kycRequired: true,
+    kycSchemas: [
+      { kycSchema: KycSchema.PersonalDataAndDocuments, allowedValues: {} },
+    ],
+  },
+  fiatAccount: {
+    [FiatAccountType.BankAccount]: {
+      fiatAccountSchemas: [
+        {
+          fiatAccountSchema: FiatAccountSchema.AccountNumber,
+          allowedValues: {},
+        },
+      ],
+      fee: '.001',
+      feeType: FeeType.PlatformFee,
+    },
+  },
+}
+
+export const mockQuoteOutResponse: QuoteResponse = {
+  quote: {
+    fiatType: FiatType.USD,
+    cryptoType: CryptoType.cUSD,
+    fiatAmount: '1.0',
+    cryptoAmount: '1.0',
+    quoteId: 'mock_quote_id',
+    guaranteedUntil: '2030-01-01T00:00:00.000Z',
+    transferType: TransferType.TransferOut
   },
   kyc: {
     kycRequired: true,
@@ -104,6 +135,7 @@ export const mockAddFiatAccountResponse: PostFiatAccountResponse = {
   accountName: 'Checking Account',
   institutionName: 'Chase',
   fiatAccountType: FiatAccountType.BankAccount,
+  fiatAccountSchema: FiatAccountSchema.AccountNumber
 }
 
 export const mockGetFiatAccountsResponse: GetFiatAccountsResponse = {
