@@ -645,10 +645,10 @@
     "@ethersproject/properties" "^5.6.0"
     "@ethersproject/strings" "^5.6.1"
 
-"@fiatconnect/fiatconnect-types@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-6.1.0.tgz#9d9ef7eefa7fdccfba73c1ca2ed3849c17f3cc67"
-  integrity sha512-1SlJeHlH70AvASCuEGcdB/h5+AmParZ/+dcxtAJc8s2da14KMpP4q8+rDXtsSrkaNpwHM7Ec+7cs+7gZ5bCfhw==
+"@fiatconnect/fiatconnect-types@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-7.0.0.tgz#cf48795e930b97ad6b9f20550f3e6f2ab33ade89"
+  integrity sha512-GZqOD3q8rYkcQVELPN91mJFBasCkyoxMQs2lcL9tkzApA3zTT3l+++/RqiA4GlVGKgVlGlEt3/8boiEU+IzcYA==
 
 "@humanwhocodes/config-array@^0.9.2":
   version "0.9.5"
