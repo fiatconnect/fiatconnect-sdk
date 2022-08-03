@@ -39,7 +39,7 @@ export const mockQuoteInResponse: QuoteResponse = {
     cryptoAmount: '1.0',
     quoteId: 'mock_quote_id',
     guaranteedUntil: '2030-01-01T00:00:00.000Z',
-    transferType: TransferType.TransferIn
+    transferType: TransferType.TransferIn,
   },
   kyc: {
     kycRequired: true,
@@ -69,7 +69,7 @@ export const mockQuoteOutResponse: QuoteResponse = {
     cryptoAmount: '1.0',
     quoteId: 'mock_quote_id',
     guaranteedUntil: '2030-01-01T00:00:00.000Z',
-    transferType: TransferType.TransferOut
+    transferType: TransferType.TransferOut,
   },
   kyc: {
     kycRequired: true,
@@ -135,7 +135,7 @@ export const mockAddFiatAccountResponse: PostFiatAccountResponse = {
   accountName: 'Checking Account',
   institutionName: 'Chase',
   fiatAccountType: FiatAccountType.BankAccount,
-  fiatAccountSchema: FiatAccountSchema.AccountNumber
+  fiatAccountSchema: FiatAccountSchema.AccountNumber,
 }
 
 export const mockGetFiatAccountsResponse: GetFiatAccountsResponse = {
