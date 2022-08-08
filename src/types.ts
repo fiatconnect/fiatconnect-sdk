@@ -20,6 +20,7 @@ import {
   FiatAccountSchema,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
+import { CookieJar } from 'tough-cookie'
 
 export interface FiatConnectApiClient {
   getServerTimeApprox(): Promise<Result<Date, ResponseError>>
@@ -115,4 +116,9 @@ export class ResponseError extends Error {
     this.minimumCryptoAmount = data?.minimumCryptoAmount
     this.maximumCryptoAmount = data?.maximumCryptoAmount
   }
+}
+
+export type SetCookiesParams = {
+  cookies: CookieJar
+  baseUrl: string
 }

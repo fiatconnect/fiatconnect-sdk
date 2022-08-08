@@ -29,8 +29,11 @@ import {
   ClockDiffParams,
   ClockDiffResult,
   LoginParams,
+  SetCookiesParams,
 } from './types'
 import { ethers } from 'ethers'
+import { Cookie, CookieJar, MemoryCookieStore } from 'tough-cookie'
+import { Headers } from 'node-fetch'
 
 const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
@@ -43,6 +46,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
   signingFunction: (message: string) => Promise<string>
   _sessionExpiry?: Date
   fetchImpl: typeof fetch
+  cookieJar: CookieJar
 
   constructor(
     config: FiatConnectClientConfig,
@@ -52,6 +56,9 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     this.config = config
     this.signingFunction = signingFunction
     this.fetchImpl = fetchImpl
+    this.cookieJar = new CookieJar(new MemoryCookieStore(), {
+      rejectPublicSuffixes: false,
+    })
   }
 
   _getAuthHeader() {
@@ -138,6 +145,15 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         // On a non 200 response, the response should be a JSON including an error field.
         const data = await response.json()
         return handleError(data)
+      }
+
+      const headerCookies = response.headers.get('Set-Cookie')
+
+      if (headerCookies) {
+        const cookies = headerCookies.split(',')
+        cookies.forEach(async (cookie) => {
+          await this.cookieJar.setCookie(cookie, this.config.baseUrl)
+        })
       }
 
       this._sessionExpiry = expirationTime
@@ -497,6 +513,41 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     } catch (error) {
       return handleError(error)
     }
+  }
+
+  /**
+   * Getter method to retrieve all cookies
+   */
+  async getCookieJar(): Promise<CookieJar> {
+    return this.cookieJar
+  }
+
+  async setCookieJar(params: SetCookiesParams): Promise<void> {
+    const cookies = await params.cookies.getCookies(params.baseUrl)
+    cookies.forEach(async (cookie) => {
+      await this.cookieJar.setCookie(
+        new Cookie({
+          key: cookie.key,
+          value: cookie.value,
+          path: '/',
+          expires: cookie.expires,
+          maxAge: cookie.maxAge,
+          secure: cookie.secure,
+          httpOnly: cookie.httpOnly,
+          sameSite: cookie.sameSite,
+          creation: cookie.creation ?? undefined,
+          creationIndex: cookie.creationIndex,
+          extensions: cookie.extensions ?? undefined,
+        }),
+        this.config.baseUrl,
+      )
+    })
+  }
+  async _addCookiesToHeader(header: Headers): Promise<void> {
+    await header.set(
+      'cookie',
+      await this.cookieJar.getCookieString(this.config.baseUrl),
+    )
   }
 }
 
