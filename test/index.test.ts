@@ -25,8 +25,6 @@ import {
 } from '@fiatconnect/fiatconnect-types'
 import * as siwe from 'siwe'
 import { Result } from '@badrap/result'
-import { CookieJar } from 'tough-cookie'
-import { Headers } from 'node-fetch'
 
 // work around from
 // https://github.com/aelbore/esbuild-jest/issues/26#issuecomment-968853688 for
@@ -954,92 +952,9 @@ describe('FiatConnect SDK', () => {
       })
 
       const cookieJar = await client.getCookieJar()
-      const cookies = cookieJar.getCookiesSync('https://fiat-connect-api.com')
-      expect(cookies.length).toBe(1)
-      expect(cookies[0].key).toBe('session')
-      expect(cookies[0].value).toBe('session-val')
-    })
-    it('setCookies', async () => {
-      const ihlClient = new FiatConnectClient(
-        {
-          baseUrl: 'https://in-house-liquidity-api.com',
-          network: Network.Alfajores,
-          accountAddress: '0x0d8e461687b7d06f86ec348e0c270b0f279855f1', // changed last digit from 0 to 1
-        },
-        signingFunction,
-      )
-      const mockCookies = new CookieJar()
-      mockCookies.setCookie(
-        'session=session-val',
-        'https://fiat-connect-api.com',
-      )
-
-      await ihlClient.setCookieJar({
-        cookies: mockCookies,
-        baseUrl: 'https://fiat-connect-api.com',
-      })
-      const ihlCookieJar = await ihlClient.getCookieJar()
-      const ihlCookies = await ihlCookieJar.getCookies(
-        'https://in-house-liquidity-api.com',
-      )
-      expect(ihlCookies.length).toBe(1)
-      expect(ihlCookies[0].key).toBe('session')
-      expect(ihlCookies[0].value).toBe('session-val')
-    })
-    it('transfer cookies from one client to another', async () => {
-      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
-      fetchMock.mockResponseOnce('', {
-        headers: { 'set-cookie': 'session=session-val' },
-      })
-
-      await client.login({
-        issuedAt: new Date('2022-10-02T10:01:56+0000'),
-      })
-
-      const ihlClient = new FiatConnectClient(
-        {
-          baseUrl: 'https://in-house-liquidity-api.com',
-          network: Network.Alfajores,
-          accountAddress: '0x0d8e461687b7d06f86ec348e0c270b0f279855f1', // changed last digit from 0 to 1
-        },
-        signingFunction,
-      )
-
-      await ihlClient.setCookieJar({
-        cookies: await client.getCookieJar(),
-        baseUrl: 'https://fiat-connect-api.com',
-      })
-      const ihlCookieJar = await ihlClient.getCookieJar()
-      const ihlCookies = await ihlCookieJar.getCookies(
-        'https://in-house-liquidity-api.com',
-      )
-      expect(ihlCookies.length).toBe(1)
-      expect(ihlCookies[0].key).toBe('session')
-      expect(ihlCookies[0].value).toBe('session-val')
-    })
-    it('_addCookiesToHeader', async () => {
-      const ihlClient = new FiatConnectClient(
-        {
-          baseUrl: 'https://in-house-liquidity-api.com',
-          network: Network.Alfajores,
-          accountAddress: '0x0d8e461687b7d06f86ec348e0c270b0f279855f1', // changed last digit from 0 to 1
-        },
-        signingFunction,
-      )
-      const mockCookies = new CookieJar()
-      mockCookies.setCookie(
-        'session=session-val',
-        'https://fiat-connect-api.com',
-      )
-
-      await ihlClient.setCookieJar({
-        cookies: mockCookies,
-        baseUrl: 'https://fiat-connect-api.com',
-      })
-
-      const header = new Headers()
-      await ihlClient._addCookiesToHeader(header)
-      expect(await header.get('cookie')).toBe('session=session-val')
+      expect(cookieJar.cookies.length).toBe(1)
+      expect(cookieJar.cookies[0].key).toBe('session')
+      expect(cookieJar.cookies[0].value).toBe('session-val')
     })
   })
 })

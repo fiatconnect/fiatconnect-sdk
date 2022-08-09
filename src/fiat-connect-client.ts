@@ -29,11 +29,9 @@ import {
   ClockDiffParams,
   ClockDiffResult,
   LoginParams,
-  SetCookiesParams,
 } from './types'
 import { ethers } from 'ethers'
-import { Cookie, CookieJar, MemoryCookieStore } from 'tough-cookie'
-import { Headers } from 'node-fetch'
+import { CookieJar, MemoryCookieStore } from 'tough-cookie'
 
 const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
@@ -52,13 +50,16 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     config: FiatConnectClientConfig,
     signingFunction: (message: string) => Promise<string>,
     fetchImpl: typeof fetch,
+    cookieJar?: CookieJar.Serialized,
   ) {
     this.config = config
     this.signingFunction = signingFunction
     this.fetchImpl = fetchImpl
-    this.cookieJar = new CookieJar(new MemoryCookieStore(), {
-      rejectPublicSuffixes: false,
-    })
+    this.cookieJar = cookieJar
+      ? CookieJar.deserializeSync(cookieJar)
+      : new CookieJar(new MemoryCookieStore(), {
+          rejectPublicSuffixes: false,
+        })
   }
 
   _getAuthHeader() {
@@ -518,36 +519,8 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
   /**
    * Getter method to retrieve all cookies
    */
-  async getCookieJar(): Promise<CookieJar> {
-    return this.cookieJar
-  }
-
-  async setCookieJar(params: SetCookiesParams): Promise<void> {
-    const cookies = await params.cookies.getCookies(params.baseUrl)
-    cookies.forEach(async (cookie) => {
-      await this.cookieJar.setCookie(
-        new Cookie({
-          key: cookie.key,
-          value: cookie.value,
-          path: '/',
-          expires: cookie.expires,
-          maxAge: cookie.maxAge,
-          secure: cookie.secure,
-          httpOnly: cookie.httpOnly,
-          sameSite: cookie.sameSite,
-          creation: cookie.creation ?? undefined,
-          creationIndex: cookie.creationIndex,
-          extensions: cookie.extensions ?? undefined,
-        }),
-        this.config.baseUrl,
-      )
-    })
-  }
-  async _addCookiesToHeader(header: Headers): Promise<void> {
-    await header.set(
-      'cookie',
-      await this.cookieJar.getCookieString(this.config.baseUrl),
-    )
+  async getCookieJar(): Promise<CookieJar.Serialized> {
+    return this.cookieJar.serialize()
   }
 }
 
@@ -562,7 +535,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
  * it attempts to cast it to a string, put it in a ResponseError object, and
  * wrap it in a Result.err.
  **/
-function handleError<T>(error: unknown): Result<T, ResponseError> {
+export function handleError<T>(error: unknown): Result<T, ResponseError> {
   // TODO: expose trace to make these errors more useful for clients
   if (error instanceof ResponseError) {
     return Result.err(error)
