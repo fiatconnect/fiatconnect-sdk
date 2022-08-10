@@ -31,7 +31,7 @@ import {
   LoginParams,
 } from './types'
 import { ethers } from 'ethers'
-import { Cookie, CookieJar, MemoryCookieStore } from 'tough-cookie'
+import { CookieJar, MemoryCookieStore } from 'tough-cookie'
 
 const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
@@ -150,11 +150,8 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (headerSetCookie) {
         headerSetCookie.split(',').forEach(async (cookie) => {
           await this.cookieJar.setCookie(
-            Cookie.parse(cookie) ?? '',
-            this.config.baseUrl,
-            {
-              ignoreError: true,
-            },
+            cookie,
+            this.config.baseUrl
           )
         })
       }
@@ -534,7 +531,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
  * it attempts to cast it to a string, put it in a ResponseError object, and
  * wrap it in a Result.err.
  **/
-export function handleError<T>(error: unknown): Result<T, ResponseError> {
+function handleError<T>(error: unknown): Result<T, ResponseError> {
   // TODO: expose trace to make these errors more useful for clients
   if (error instanceof ResponseError) {
     return Result.err(error)
