@@ -31,7 +31,7 @@ import {
   LoginParams,
 } from './types'
 import { ethers } from 'ethers'
-import { CookieJar, MemoryCookieStore } from 'tough-cookie'
+import { Cookie, CookieJar, MemoryCookieStore } from 'tough-cookie'
 
 const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
@@ -50,16 +50,13 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     config: FiatConnectClientConfig,
     signingFunction: (message: string) => Promise<string>,
     fetchImpl: typeof fetch,
-    cookieJar?: CookieJar.Serialized,
   ) {
     this.config = config
     this.signingFunction = signingFunction
     this.fetchImpl = fetchImpl
-    this.cookieJar = cookieJar
-      ? CookieJar.deserializeSync(cookieJar)
-      : new CookieJar(new MemoryCookieStore(), {
-          rejectPublicSuffixes: false,
-        })
+    this.cookieJar = new CookieJar(new MemoryCookieStore(), {
+      rejectPublicSuffixes: false,
+    })
   }
 
   _getAuthHeader() {
@@ -148,12 +145,17 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         return handleError(data)
       }
 
-      const headerCookies = response.headers.get('Set-Cookie')
+      const headerSetCookie = response.headers.get('set-cookie')
 
-      if (headerCookies) {
-        const cookies = headerCookies.split(',')
-        cookies.forEach(async (cookie) => {
-          await this.cookieJar.setCookie(cookie, this.config.baseUrl)
+      if (headerSetCookie) {
+        headerSetCookie.split(',').forEach(async (cookie) => {
+          await this.cookieJar.setCookie(
+            Cookie.parse(cookie) ?? '',
+            this.config.baseUrl,
+            {
+              ignoreError: true,
+            },
+          )
         })
       }
 
@@ -516,11 +518,8 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     }
   }
 
-  /**
-   * Getter method to retrieve all cookies
-   */
-  async getCookieJar(): Promise<CookieJar.Serialized> {
-    return this.cookieJar.serialize()
+  async getCookies(): Promise<String> {
+    return this.cookieJar.getCookieString(this.config.baseUrl)
   }
 }
 

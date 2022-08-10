@@ -939,8 +939,7 @@ describe('FiatConnect SDK', () => {
       )
     })
   })
-
-  describe('managing cookies', () => {
+  describe('Cookie Handling', () => {
     it('getCookies', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
       fetchMock.mockResponseOnce('', {
@@ -951,10 +950,8 @@ describe('FiatConnect SDK', () => {
         issuedAt: new Date('2022-10-02T10:01:56+0000'),
       })
 
-      const cookieJar = await client.getCookieJar()
-      expect(cookieJar.cookies.length).toBe(1)
-      expect(cookieJar.cookies[0].key).toBe('session')
-      expect(cookieJar.cookies[0].value).toBe('session-val')
+      const cookies = await client.getCookies()
+      expect(cookies.split(';')[0]).toBe('session=session-val')
     })
   })
 })

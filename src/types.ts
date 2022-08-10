@@ -56,6 +56,7 @@ export interface FiatConnectApiClient {
   getTransferStatus(
     params: TransferStatusRequestParams,
   ): Promise<Result<TransferStatusResponse, ResponseError>>
+  getCookies(): Promise<String>
 }
 
 export interface LoginParams {
