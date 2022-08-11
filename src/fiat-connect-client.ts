@@ -145,15 +145,14 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         return handleError(data)
       }
 
-      const headerSetCookie = response.headers.get('set-cookie')
+      const headerSetCookie = (response.headers as any).raw()['set-cookie']
 
       if (headerSetCookie) {
-        headerSetCookie.split(',').forEach(async (cookie) => {
-          await this.cookieJar.setCookie(
-            cookie,
-            this.config.baseUrl
-          )
-        })
+        await Promise.all(
+          headerSetCookie.map(async (cookie: string) => {
+            await this.cookieJar.setCookie(cookie, this.config.baseUrl)
+          }),
+        )
       }
 
       this._sessionExpiry = expirationTime
@@ -515,7 +514,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     }
   }
 
-  async getCookies(): Promise<String> {
+  getCookies(): Promise<String> {
     return this.cookieJar.getCookieString(this.config.baseUrl)
   }
 }
