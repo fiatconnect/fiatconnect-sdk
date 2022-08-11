@@ -1,11 +1,21 @@
 import 'cross-fetch/polyfill'
 import { FiatConnectClientImpl } from './fiat-connect-client'
-import { FiatConnectClientConfig } from './types'
+import { SiweImpl } from './siwe-client'
+import { FiatConnectClientConfig, SiweClientConfig } from './types'
 export * from './types'
 
 export class FiatConnectClient extends FiatConnectClientImpl {
   constructor(
     config: FiatConnectClientConfig,
+    signingFunction: (message: string) => Promise<string>,
+  ) {
+    super(config, signingFunction, fetch)
+  }
+}
+
+export class SiweClient extends SiweImpl {
+  constructor(
+    config: SiweClientConfig,
     signingFunction: (message: string) => Promise<string>,
   ) {
     super(config, signingFunction, fetch)

@@ -1,4 +1,5 @@
 import { FiatConnectClient, ResponseError } from '../src'
+import { SiweImpl } from '../src/siwe-client'
 import {
   mockAddFiatAccountResponse,
   mockDeleteFiatAccountParams,
@@ -23,22 +24,32 @@ import {
   KycSchema,
   Network,
 } from '@fiatconnect/fiatconnect-types'
-import * as siwe from 'siwe'
 import { Result } from '@badrap/result'
 
-// work around from
-// https://github.com/aelbore/esbuild-jest/issues/26#issuecomment-968853688 for
-// mocking siwe packages
-jest.mock('siwe', () => ({
-  __esModule: true,
-  // @ts-ignore
-  ...jest.requireActual('siwe'),
-}))
+jest.mock('../src/siwe-client')
 
 describe('FiatConnect SDK', () => {
   const accountAddress = '0x0d8e461687b7d06f86ec348e0c270b0f279855f0'
-  const checksummedAccountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
   const signingFunction = jest.fn(() => Promise.resolve('signed message'))
+  const siweLoginMock = jest.fn()
+  const siweIsLoggedInMock = jest.fn()
+
+  jest.mocked(SiweImpl).mockReturnValue({
+    config: {
+      loginUrl: 'https://siwe-api.com/login',
+      accountAddress,
+      statement: 'Sign in with Ethereum',
+      chainId: 1,
+      version: '1',
+      sessionDurationMs: 3600000,
+    },
+    signingFunction: jest.fn(),
+    login: siweLoginMock,
+    isLoggedIn: siweIsLoggedInMock,
+    fetch: fetch,
+    fetchImpl: jest.fn(),
+  })
+
   const client = new FiatConnectClient(
     {
       baseUrl: 'https://fiat-connect-api.com',
@@ -53,8 +64,9 @@ describe('FiatConnect SDK', () => {
     jest.useFakeTimers().setSystemTime(new Date('2022-05-01T00:00:00Z'))
     fetchMock.resetMocks()
     getHeadersMock.mockReset()
+    siweLoginMock.mockReset()
+    siweIsLoggedInMock.mockReset()
     jest.clearAllMocks()
-    client._sessionExpiry = undefined
   })
   describe('getClock', () => {
     it('gets the server clock', async () => {
@@ -169,207 +181,76 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('login', () => {
-    it('calls /auth/login', async () => {
-      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
-      fetchMock.mockResponseOnce('', {
-        headers: { 'set-cookie': 'session=session-val' },
-      })
-
+    it('calls siwe client login', async () => {
+      siweLoginMock.mockImplementationOnce(() => Promise.resolve())
+      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer token' })
       const response = await client.login({
         issuedAt: new Date('2022-10-02T10:01:56+0000'),
       })
 
-      const expectedSiweMessage = new siwe.SiweMessage({
-        domain: 'fiat-connect-api.com',
-        address: checksummedAccountAddress,
-        statement: 'Sign in with Ethereum',
-        uri: 'https://fiat-connect-api.com/auth/login',
-        nonce: '12345678',
-        expirationTime: '2022-10-02T14:01:56.000Z',
-        issuedAt: '2022-10-02T10:01:56.000Z',
-        version: '1',
-        chainId: 44787,
-      })
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/auth/login',
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: expectedSiweMessage.prepareMessage(),
-            signature: 'signed message',
-          }),
-        }),
-      )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
-    })
-    it('returns error if login returns error response', async () => {
-      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
-      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
-      fetchMock.mockResponseOnce('{"error": "InvalidParameters"}', {
-        status: 400,
-      })
-
-      const response = await client.login({
+      expect(siweLoginMock).toHaveBeenCalledWith({
         issuedAt: new Date('2022-10-02T10:01:56+0000'),
+        headers: { Authorization: 'Bearer token' },
       })
-
-      const expectedSiweMessage = new siwe.SiweMessage({
-        domain: 'fiat-connect-api.com',
-        address: checksummedAccountAddress,
-        statement: 'Sign in with Ethereum',
-        uri: 'https://fiat-connect-api.com/auth/login',
-        nonce: '12345678',
-        expirationTime: '2022-10-02T14:01:56.000Z',
-        issuedAt: '2022-10-02T10:01:56.000Z',
-        version: '1',
-        chainId: 44787,
-      })
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/auth/login',
-        expect.objectContaining({
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer api-key',
-          },
-          body: JSON.stringify({
-            message: expectedSiweMessage.prepareMessage(),
-            signature: 'signed message',
-          }),
-        }),
-      )
-      expect(response.isOk).toBeFalsy()
-      expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('FiatConnect API Error', {
-          error: FiatConnectError.InvalidParameters,
-        }),
-      )
-      expect(getHeadersMock).toHaveBeenCalled()
     })
-    it('returns error if login throws', async () => {
-      signingFunction.mockRejectedValueOnce(new Error('some error'))
+    it('returns error if siwe login throws', async () => {
+      siweLoginMock.mockImplementationOnce(() => Promise.reject('error'))
+      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer token' })
       const response = await client.login({
         issuedAt: new Date('2022-10-02T22:01:56+0000'),
       })
 
       expect(response.isOk).toBeFalsy()
-      expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('some error'),
-      )
-      expect(getHeadersMock).not.toHaveBeenCalled()
+      expect(response.unwrap.bind(response)).toThrow(new ResponseError('error'))
+      expect(getHeadersMock).toHaveBeenCalled()
+      expect(siweLoginMock).toHaveBeenCalledWith({
+        issuedAt: new Date('2022-10-02T22:01:56+0000'),
+        headers: { Authorization: 'Bearer token' },
+      })
     })
     it('defaults to current server time for issued-at if none is provided', async () => {
-      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      siweLoginMock.mockImplementationOnce(() => Promise.resolve())
       jest
         .spyOn(client, 'getServerTimeApprox')
         .mockResolvedValueOnce(Result.ok(new Date('2022-07-02T08:01:56+0000')))
 
       const response = await client.login()
 
-      const expectedSiweMessage = new siwe.SiweMessage({
-        domain: 'fiat-connect-api.com',
-        address: checksummedAccountAddress,
-        statement: 'Sign in with Ethereum',
-        uri: 'https://fiat-connect-api.com/auth/login',
-        nonce: '12345678',
-        expirationTime: '2022-07-02T12:01:56.000Z',
-        issuedAt: '2022-07-02T08:01:56.000Z',
-        version: '1',
-        chainId: 44787,
-      })
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/auth/login',
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: expectedSiweMessage.prepareMessage(),
-            signature: 'signed message',
-          }),
-        }),
-      )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
       expect(client.getServerTimeApprox).toHaveBeenCalled()
+      expect(siweLoginMock).toHaveBeenCalledWith({
+        issuedAt: new Date('2022-07-02T08:01:56+0000'),
+        headers: undefined,
+      })
     })
     it('falls back to client time if getting clock diff throws', async () => {
-      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      siweLoginMock.mockImplementationOnce(() => Promise.resolve())
       jest
         .spyOn(client, 'getServerTimeApprox')
         .mockResolvedValueOnce(Result.err(new Error()))
 
       const response = await client.login()
 
-      const expectedSiweMessage = new siwe.SiweMessage({
-        domain: 'fiat-connect-api.com',
-        address: checksummedAccountAddress,
-        statement: 'Sign in with Ethereum',
-        uri: 'https://fiat-connect-api.com/auth/login',
-        nonce: '12345678',
-        expirationTime: '2022-05-01T04:00:00.000Z',
-        issuedAt: '2022-05-01T00:00:00.000Z',
-        version: '1',
-        chainId: 44787,
-      })
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/auth/login',
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: expectedSiweMessage.prepareMessage(),
-            signature: 'signed message',
-          }),
-        }),
-      )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
       expect(client.getServerTimeApprox).toHaveBeenCalled()
+      expect(siweLoginMock).toHaveBeenCalledWith({
+        issuedAt: new Date('2022-05-01T00:00:00.000Z'),
+        headers: undefined,
+      })
     })
   })
   describe('isLoggedIn', () => {
-    it('returns false when sessionExpiry does not exist', () => {
+    it('pipes siwe isLoggedIn', () => {
+      siweIsLoggedInMock.mockReturnValueOnce(false)
       expect(client.isLoggedIn()).toBeFalsy()
-    })
-    it('returns false when sessionExpiry exists but is too old', () => {
-      client._sessionExpiry = new Date('2022-05-01T00:00:00+0000')
-      const mockNow = new Date('2022-05-02T00:00:00+0000').getTime()
-      jest.spyOn(global.Date, 'now').mockReturnValueOnce(mockNow)
-      expect(client.isLoggedIn()).toBeFalsy()
-    })
-    it('returns true when sessionExpiry exists and is not too old', () => {
-      client._sessionExpiry = new Date('2022-05-03T00:00:00+0000')
-      const mockNow = new Date('2022-05-02T00:00:00+0000').getTime()
-      jest.spyOn(global.Date, 'now').mockReturnValueOnce(mockNow)
-      expect(client.isLoggedIn()).toBeTruthy()
-    })
-  })
-  describe('_ensureLogin', () => {
-    const mockLogin = jest.spyOn(client, 'login')
-    it('calls login and returns successfully if sessionExpiry is in the past', async () => {
-      client._sessionExpiry = new Date('2022-04-30T23:00:00Z')
-      mockLogin.mockResolvedValueOnce(Result.ok('success'))
-      await client._ensureLogin()
-      expect(mockLogin).toHaveBeenCalledTimes(1)
-    })
-    it('skips login if session expiry is in the future', async () => {
-      client._sessionExpiry = new Date('2022-05-01T03:00:00Z')
-      await client._ensureLogin()
-      expect(mockLogin).not.toHaveBeenCalled()
-    })
-    it('throws error if login fails', async () => {
-      mockLogin.mockResolvedValueOnce(
-        Result.err(new ResponseError('some error')),
-      )
-      await expect(async () => {
-        await client._ensureLogin()
-      }).rejects.toThrow(new ResponseError('some error'))
-      expect(mockLogin).toHaveBeenCalledTimes(1)
+      expect(siweIsLoggedInMock).toHaveBeenCalledWith()
     })
   })
   describe('_getAuthHeader', () => {
@@ -466,9 +347,6 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('addKyc', () => {
-    beforeEach(() => {
-      jest.spyOn(client, '_ensureLogin').mockResolvedValueOnce()
-    })
     it('calls POST /kyc/${params.kycSchemaName} and returns KycStatusResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockKycStatusResponse))
       const response = await client.addKyc({
@@ -484,7 +362,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockKycStatusResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('calls POST /kyc/${params.kycSchemaName} with auth header and returns KycStatusResponse', async () => {
@@ -506,7 +383,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockKycStatusResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -536,9 +412,6 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('deleteKyc', () => {
-    beforeEach(() => {
-      jest.spyOn(client, '_ensureLogin').mockResolvedValueOnce()
-    })
     it('calls DELETE /kyc/${params.kycSchemaName} and returns undefined', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({}))
       const response = await client.deleteKyc({
@@ -550,7 +423,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toBeUndefined()
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -578,9 +450,6 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('getKycStatus', () => {
-    beforeEach(() => {
-      jest.spyOn(client, '_ensureLogin').mockResolvedValueOnce()
-    })
     it('calls GET /kyc/${params.kycSchemaName} and returns KycStatusResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockKycStatusResponse))
       const response = await client.getKycStatus({
@@ -592,7 +461,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockKycStatusResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -620,9 +488,6 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('addFiatAccount', () => {
-    beforeEach(() => {
-      jest.spyOn(client, '_ensureLogin').mockResolvedValueOnce()
-    })
     it('calls POST /accounts/${params.fiatAccountSchemaName} and returns AddFiatAccountResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockAddFiatAccountResponse))
       const response = await client.addFiatAccount({
@@ -642,7 +507,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockAddFiatAccountResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('calls POST /accounts/${params.fiatAccountSchemaName} and returns AddFiatAccountResponse', async () => {
@@ -668,7 +532,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockAddFiatAccountResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -698,9 +561,6 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('getFiatAccounts', () => {
-    beforeEach(() => {
-      jest.spyOn(client, '_ensureLogin').mockResolvedValueOnce()
-    })
     it('calls GET /accounts and returns GetFiatAccountsResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockGetFiatAccountsResponse))
       const response = await client.getFiatAccounts()
@@ -710,7 +570,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockGetFiatAccountsResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -734,9 +593,6 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('deleteFiatAccount', () => {
-    beforeEach(() => {
-      jest.spyOn(client, '_ensureLogin').mockResolvedValueOnce()
-    })
     it('calls DELETE /accounts/${params.fiatAccountId} and returns undefined', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({}))
       const response = await client.deleteFiatAccount(
@@ -748,7 +604,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toBeUndefined()
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -776,9 +631,6 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('transferIn', () => {
-    beforeEach(() => {
-      jest.spyOn(client, '_ensureLogin').mockResolvedValueOnce()
-    })
     it('calls POST /transfer/in and returns TransferResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockTransferResponse))
       const response = await client.transferIn(mockTransferRequestParams)
@@ -793,7 +645,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('calls POST /transfer/in with auth header and returns TransferResponse', async () => {
@@ -812,7 +663,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -837,9 +687,6 @@ describe('FiatConnect SDK', () => {
   })
 
   describe('transferOut', () => {
-    beforeEach(() => {
-      jest.spyOn(client, '_ensureLogin').mockResolvedValueOnce()
-    })
     it('calls POST /transfer/out and returns TransferResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockTransferResponse))
       const response = await client.transferOut(mockTransferRequestParams)
@@ -854,7 +701,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('calls POST /transfer/out with auth header and returns TransferResponse', async () => {
@@ -873,7 +719,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
@@ -898,9 +743,6 @@ describe('FiatConnect SDK', () => {
   })
 
   describe('getTransferStatus', () => {
-    beforeEach(() => {
-      jest.spyOn(client, '_ensureLogin').mockResolvedValueOnce()
-    })
     it('calls GET /transfer/${params.transferId}/status and returns TransferStatusResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockTransferStatusResponse))
       const response = await client.getTransferStatus(
@@ -912,7 +754,6 @@ describe('FiatConnect SDK', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferStatusResponse)
-      expect(client._ensureLogin).toHaveBeenCalled()
       expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {

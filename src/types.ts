@@ -22,7 +22,7 @@ import {
 import { Result } from '@badrap/result'
 
 export interface SiweClient {
-  login(params?: LoginParams): Promise<void>
+  login(params?: SiweLoginParams): Promise<void>
   isLoggedIn(): boolean
   fetch: typeof fetch
 }
@@ -75,6 +75,10 @@ export interface SiweClientConfig {
 
 export interface LoginParams {
   issuedAt?: Date
+}
+
+export type SiweLoginParams = LoginParams & {
+  headers?: Record<string, string>
 }
 
 export interface AddKycParams<T extends KycSchema> {

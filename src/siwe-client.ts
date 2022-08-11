@@ -1,7 +1,7 @@
 import { AuthRequestBody } from '@fiatconnect/fiatconnect-types'
 import { ethers } from 'ethers'
 import { generateNonce, SiweMessage } from 'siwe'
-import { SiweClient, SiweClientConfig, LoginParams } from './types'
+import { SiweClient, SiweClientConfig, SiweLoginParams } from './types'
 
 export class SiweImpl implements SiweClient {
   config: SiweClientConfig
@@ -19,7 +19,12 @@ export class SiweImpl implements SiweClient {
     this.fetchImpl = fetchImpl
   }
 
-  async login(params?: LoginParams): Promise<void> {
+  /**
+   * Logs in with the SIWE compliant API and initializes a session.
+   *
+   * @param {SiweLoginParams} params optional object containing params used to log in
+   */
+  async login(params?: SiweLoginParams): Promise<void> {
     // Prefer param issued-at > client-based issued-at
     const issuedAt = params?.issuedAt || new Date()
     const expirationTime = new Date(
@@ -49,6 +54,7 @@ export class SiweImpl implements SiweClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...params?.headers,
       },
       body: JSON.stringify(body),
     })
@@ -56,16 +62,29 @@ export class SiweImpl implements SiweClient {
     if (!response.ok) {
       // On a non 200 response, the response should be a JSON including an error field.
       const responseText = await response.text()
-      throw new Error(`Received non 200 response on login: ${responseText}`)
+      throw new Error(`Received error response on login: ${responseText}`)
     }
 
     this._sessionExpiry = expirationTime
   }
 
+  /**
+   * Checks if a logged in session exists.
+   *
+   * @returns true if an unexpired session exists, else false
+   */
   isLoggedIn(): boolean {
     return !!(this._sessionExpiry && this._sessionExpiry > new Date())
   }
 
+  /**
+   * A wrapper around fetch that ensures a session exists before making the
+   * fetch request
+   *
+   * @param input the fetch input
+   * @param init the fetch options
+   * @returns the fetch response
+   */
   async fetch(
     input: URL | RequestInfo,
     init?: RequestInit | undefined,
