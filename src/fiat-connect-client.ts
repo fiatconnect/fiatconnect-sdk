@@ -145,7 +145,9 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         return handleError(data)
       }
 
-      const headerSetCookie = (response.headers as any).raw()['set-cookie']
+      const headerSetCookie = (response.headers as any).raw()[
+        'set-cookie'
+      ] as Array<string>
 
       if (headerSetCookie) {
         await Promise.all(
