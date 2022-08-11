@@ -21,6 +21,12 @@ import {
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
 
+export interface SiweClient {
+  login(params?: LoginParams): Promise<void>
+  isLoggedIn(): boolean
+  fetch: typeof fetch
+}
+
 export interface FiatConnectApiClient {
   getServerTimeApprox(): Promise<Result<Date, ResponseError>>
   getClockDiffApprox(): Promise<Result<ClockDiffResult, ResponseError>>
@@ -56,6 +62,15 @@ export interface FiatConnectApiClient {
   getTransferStatus(
     params: TransferStatusRequestParams,
   ): Promise<Result<TransferStatusResponse, ResponseError>>
+}
+
+export interface SiweClientConfig {
+  loginUrl: string
+  accountAddress: string
+  statement: string
+  version: string
+  chainId: number
+  sessionDurationMs: number
 }
 
 export interface LoginParams {
