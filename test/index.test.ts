@@ -204,6 +204,7 @@ describe('FiatConnect SDK', () => {
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
+      expect(client.cookieJar).toBeTruthy()
     })
     it('returns error if login returns error response', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')

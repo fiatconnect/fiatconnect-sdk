@@ -516,7 +516,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     }
   }
 
-  getCookies(): Promise<String> {
+  getCookies(): Promise<string> {
     return this.cookieJar.getCookieString(this.config.baseUrl)
   }
 }
