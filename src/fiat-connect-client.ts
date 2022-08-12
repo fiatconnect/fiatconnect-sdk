@@ -101,6 +101,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         }
       }
       await this._siweClient.login({ issuedAt, headers: this._getAuthHeader() })
+
       return Result.ok('success')
     } catch (error) {
       return handleError(error)

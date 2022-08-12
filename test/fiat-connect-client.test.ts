@@ -25,6 +25,7 @@ import {
   Network,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
+import { CookieJar, MemoryCookieStore } from 'tough-cookie'
 
 jest.mock('../src/siwe-client')
 
@@ -44,10 +45,14 @@ describe('FiatConnect SDK', () => {
       sessionDurationMs: 3600000,
     },
     signingFunction: jest.fn(),
+    cookieJar: new CookieJar(new MemoryCookieStore(), {
+      rejectPublicSuffixes: false,
+    }),
     login: siweLoginMock,
     isLoggedIn: siweIsLoggedInMock,
-    fetch: fetch,
+    fetch: fetch, // use the real fetch here as it makes mocking easy with fetch mock
     fetchImpl: jest.fn(),
+    getCookies: jest.fn(),
   })
 
   const client = new FiatConnectClient(

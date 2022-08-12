@@ -1,6 +1,7 @@
 import { AuthRequestBody } from '@fiatconnect/fiatconnect-types'
 import { ethers } from 'ethers'
 import { generateNonce, SiweMessage } from 'siwe'
+import { CookieJar, MemoryCookieStore } from 'tough-cookie'
 import { SiweClient, SiweClientConfig, SiweLoginParams } from './types'
 
 export class SiweImpl implements SiweClient {
@@ -8,6 +9,7 @@ export class SiweImpl implements SiweClient {
   signingFunction: (message: string) => Promise<string>
   fetchImpl: typeof fetch
   _sessionExpiry?: Date
+  cookieJar: CookieJar
 
   constructor(
     config: SiweClientConfig,
@@ -17,6 +19,9 @@ export class SiweImpl implements SiweClient {
     this.config = config
     this.signingFunction = signingFunction
     this.fetchImpl = fetchImpl
+    this.cookieJar = new CookieJar(new MemoryCookieStore(), {
+      rejectPublicSuffixes: false,
+    })
   }
 
   /**
@@ -65,6 +70,18 @@ export class SiweImpl implements SiweClient {
       throw new Error(`Received error response on login: ${responseText}`)
     }
 
+    const headerSetCookie = (response.headers as any).raw()[
+      'set-cookie'
+    ] as Array<string>
+
+    if (headerSetCookie) {
+      await Promise.all(
+        headerSetCookie.map(async (cookie: string) => {
+          await this.cookieJar.setCookie(cookie, this.config.loginUrl)
+        }),
+      )
+    }
+
     this._sessionExpiry = expirationTime
   }
 
@@ -93,5 +110,9 @@ export class SiweImpl implements SiweClient {
       await this.login()
     }
     return this.fetchImpl(input, init)
+  }
+
+  getCookies(): Promise<string> {
+    return this.cookieJar.getCookieString(this.config.loginUrl)
   }
 }

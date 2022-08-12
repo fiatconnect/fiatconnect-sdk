@@ -32,10 +32,11 @@ describe('SIWE client', () => {
     fetchMock.resetMocks()
     jest.clearAllMocks()
     client._sessionExpiry = undefined
+    client.cookieJar.removeAllCookiesSync()
   })
 
   describe('login', () => {
-    it('calls login url', async () => {
+    it('calls login url and sets cookies in cookie jar', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
       fetchMock.mockResponseOnce('', {
         headers: { 'set-cookie': 'session=session-val' },
@@ -66,6 +67,14 @@ describe('SIWE client', () => {
             signature: 'signed message',
           }),
         }),
+      )
+      expect(
+        client.cookieJar.getCookiesSync('https://siwe-api.com'),
+      ).toHaveLength(1)
+      expect(
+        client.cookieJar.getCookiesSync('https://siwe-api.com')[0],
+      ).toEqual(
+        expect.objectContaining({ key: 'session', value: 'session-val' }),
       )
     })
     it('calls login url with additional headers', async () => {
@@ -223,6 +232,24 @@ describe('SIWE client', () => {
         method: 'POST',
       })
       expect(mockLogin).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getCookies', () => {
+    it('returns serialized cookies from login', async () => {
+      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      fetchMock.mockResponseOnce('', {
+        headers: {
+          'set-cookie': 'session=session-val',
+        },
+      })
+
+      await client.login({
+        issuedAt: new Date('2022-10-02T10:01:56+0000'),
+      })
+
+      const cookies = await client.getCookies()
+      expect(cookies).toBe('session=session-val')
     })
   })
 })

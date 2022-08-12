@@ -25,6 +25,7 @@ export interface SiweClient {
   login(params?: SiweLoginParams): Promise<void>
   isLoggedIn(): boolean
   fetch: typeof fetch
+  getCookies(): Promise<string>
 }
 
 export interface FiatConnectApiClient {
