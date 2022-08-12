@@ -68,6 +68,32 @@ describe('FiatConnect SDK', () => {
     siweIsLoggedInMock.mockReset()
     jest.clearAllMocks()
   })
+  describe('constructor', () => {
+    it('creates siwe client with specified options', () => {
+      const fcClient = new FiatConnectClient(
+        {
+          baseUrl: 'https://fiat-connect-api.com',
+          network: Network.Alfajores,
+          accountAddress,
+        },
+        signingFunction,
+      )
+
+      expect(fcClient._siweClient).toBeDefined()
+      expect(SiweImpl).toHaveBeenCalledWith(
+        {
+          accountAddress,
+          loginUrl: 'https://fiat-connect-api.com/auth/login',
+          statement: 'Sign in with Ethereum',
+          version: '1',
+          chainId: 44787,
+          sessionDurationMs: 14400000,
+        },
+        signingFunction,
+        fetch,
+      )
+    })
+  })
   describe('getClock', () => {
     it('gets the server clock', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
