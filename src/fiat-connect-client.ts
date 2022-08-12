@@ -31,6 +31,7 @@ import {
   LoginParams,
 } from './types'
 import { ethers } from 'ethers'
+import { CookieJar, MemoryCookieStore } from 'tough-cookie'
 
 const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
@@ -43,6 +44,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
   signingFunction: (message: string) => Promise<string>
   _sessionExpiry?: Date
   fetchImpl: typeof fetch
+  cookieJar: CookieJar
 
   constructor(
     config: FiatConnectClientConfig,
@@ -52,6 +54,9 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     this.config = config
     this.signingFunction = signingFunction
     this.fetchImpl = fetchImpl
+    this.cookieJar = new CookieJar(new MemoryCookieStore(), {
+      rejectPublicSuffixes: false,
+    })
   }
 
   _getAuthHeader() {
@@ -138,6 +143,18 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         // On a non 200 response, the response should be a JSON including an error field.
         const data = await response.json()
         return handleError(data)
+      }
+
+      const headerSetCookie = (response.headers as any).raw()[
+        'set-cookie'
+      ] as Array<string>
+
+      if (headerSetCookie) {
+        await Promise.all(
+          headerSetCookie.map(async (cookie: string) => {
+            await this.cookieJar.setCookie(cookie, this.config.baseUrl)
+          }),
+        )
       }
 
       this._sessionExpiry = expirationTime
@@ -497,6 +514,10 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     } catch (error) {
       return handleError(error)
     }
+  }
+
+  getCookies(): Promise<string> {
+    return this.cookieJar.getCookieString(this.config.baseUrl)
   }
 }
 
