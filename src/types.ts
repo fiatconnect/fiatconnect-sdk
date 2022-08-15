@@ -21,7 +21,7 @@ import {
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
 
-export interface SiweClient {
+export interface SiweApiClient {
   getServerTimeApprox(): Promise<Date>
   getClockDiffApprox(): Promise<ClockDiffResult>
   getClock(): Promise<ClockResponse>

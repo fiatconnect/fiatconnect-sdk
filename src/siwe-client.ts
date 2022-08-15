@@ -5,12 +5,12 @@ import { CookieJar, MemoryCookieStore } from 'tough-cookie'
 import {
   ClockDiffParams,
   ClockDiffResult,
-  SiweClient,
+  SiweApiClient,
   SiweClientConfig,
   SiweLoginParams,
 } from './types'
 
-export class SiweImpl implements SiweClient {
+export class SiweImpl implements SiweApiClient {
   config: SiweClientConfig
   signingFunction: (message: string) => Promise<string>
   fetchImpl: typeof fetch

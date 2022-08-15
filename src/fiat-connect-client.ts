@@ -26,9 +26,9 @@ import {
   TransferRequestParams,
   ClockDiffResult,
   LoginParams,
-  SiweClient,
+  SiweApiClient,
+  SiweClientConfig,
 } from './types'
-import { SiweImpl } from './siwe-client'
 
 const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
@@ -38,28 +38,16 @@ const SESSION_DURATION_MS = 14400000 // 4 hours
 
 export class FiatConnectClientImpl implements FiatConnectApiClient {
   config: FiatConnectClientConfig
+  _siweClient: SiweApiClient
   fetchImpl: typeof fetch
-  _siweClient: SiweClient
 
   constructor(
     config: FiatConnectClientConfig,
-    signingFunction: (message: string) => Promise<string>,
+    siweClient: SiweApiClient,
     fetchImpl: typeof fetch,
   ) {
     this.config = config
-    this._siweClient = new SiweImpl(
-      {
-        accountAddress: config.accountAddress,
-        statement: 'Sign in with Ethereum',
-        version: '1',
-        chainId: NETWORK_CHAIN_IDS[this.config.network],
-        sessionDurationMs: SESSION_DURATION_MS,
-        loginUrl: `${config.baseUrl}/auth/login`,
-        clockUrl: `${config.baseUrl}/clock`,
-      },
-      signingFunction,
-      fetchImpl,
-    )
+    this._siweClient = siweClient
     this.fetchImpl = fetchImpl
   }
 
@@ -457,11 +445,16 @@ function handleError<T>(error: unknown): Result<T, ResponseError> {
   return Result.err(new ResponseError(String(error)))
 }
 
-export class FiatConnectClientWithCookie extends FiatConnectClientImpl {
-  constructor(
-    config: FiatConnectClientConfig,
-    signingFunction: (message: string) => Promise<string>,
-  ) {
-    super(config, signingFunction, fetch)
+export function createSiweConfig(
+  config: FiatConnectClientConfig,
+): SiweClientConfig {
+  return {
+    accountAddress: config.accountAddress,
+    statement: 'Sign in with Ethereum',
+    version: '1',
+    chainId: NETWORK_CHAIN_IDS[config.network],
+    sessionDurationMs: SESSION_DURATION_MS,
+    loginUrl: `${config.baseUrl}/auth/login`,
+    clockUrl: `${config.baseUrl}/clock`,
   }
 }

@@ -1,4 +1,4 @@
-import { SiweClient } from '../src'
+import { SiweImpl } from '../src/siwe-client'
 import * as siwe from 'siwe'
 import 'jest-fetch-mock'
 import { mockClockResponse } from './mocks'
@@ -16,7 +16,7 @@ describe('SIWE client', () => {
   const accountAddress = '0x0d8e461687b7d06f86ec348e0c270b0f279855f0'
   const checksummedAccountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
   const signingFunction = jest.fn(() => Promise.resolve('signed message'))
-  const client = new SiweClient(
+  const client = new SiweImpl(
     {
       accountAddress,
       statement: 'Sign in with Ethereum',
@@ -27,6 +27,7 @@ describe('SIWE client', () => {
       clockUrl: 'https://siwe-api.com/clock',
     },
     signingFunction,
+    fetch,
   )
 
   beforeEach(() => {

@@ -1,5 +1,7 @@
-import { FiatConnectClient, ResponseError } from '../src'
-import { SiweImpl } from '../src/siwe-client'
+import {
+  createSiweConfig,
+  FiatConnectClientImpl,
+} from '../src/fiat-connect-client'
 import {
   mockAddFiatAccountResponse,
   mockDeleteFiatAccountParams,
@@ -25,13 +27,12 @@ import {
   Network,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
-import { CookieJar, MemoryCookieStore } from 'tough-cookie'
+import { ResponseError } from '../src/types'
 
 jest.mock('../src/siwe-client')
 
-describe('FiatConnect SDK', () => {
+describe('FiatConnectClientImpl', () => {
   const accountAddress = '0x0d8e461687b7d06f86ec348e0c270b0f279855f0'
-  const signingFunction = jest.fn(() => Promise.resolve('signed message'))
   const siweLoginMock = jest.fn()
   const siweIsLoggedInMock = jest.fn()
   const siweGetServerTimeApprox = jest.fn()
@@ -39,38 +40,24 @@ describe('FiatConnect SDK', () => {
   const siweGetClock = jest.fn()
   const siweGetCookiesMock = jest.fn()
 
-  jest.mocked(SiweImpl).mockReturnValue({
-    config: {
-      accountAddress,
-      statement: 'Sign in with Ethereum',
-      chainId: 1,
-      version: '1',
-      sessionDurationMs: 3600000,
-      loginUrl: 'https://siwe-api.com/login',
-      clockUrl: 'https://siwe-api.com/clock',
-    },
-    signingFunction: jest.fn(),
-    cookieJar: new CookieJar(new MemoryCookieStore(), {
-      rejectPublicSuffixes: false,
-    }),
+  const siweClientMock = {
     login: siweLoginMock,
-    isLoggedIn: siweIsLoggedInMock,
-    fetch: fetch, // use the real fetch here as it makes mocking easy with fetch mock
-    fetchImpl: jest.fn(),
     getCookies: siweGetCookiesMock,
     getServerTimeApprox: siweGetServerTimeApprox,
     getClockDiffApprox: siweGetClockDiffApprox,
     getClock: siweGetClock,
-    _calculateClockDiff: jest.fn(),
-  })
+    isLoggedIn: siweIsLoggedInMock,
+    fetch: fetch, // use the real fetch here as it makes mocking easy with fetch mock
+  }
 
-  const client = new FiatConnectClient(
+  const client = new FiatConnectClientImpl(
     {
       baseUrl: 'https://fiat-connect-api.com',
       network: Network.Alfajores,
       accountAddress,
     },
-    signingFunction,
+    siweClientMock,
+    fetch,
   )
   const getHeadersMock = jest.spyOn(client, '_getAuthHeader')
 
@@ -84,33 +71,6 @@ describe('FiatConnect SDK', () => {
     siweGetClockDiffApprox.mockReset()
     siweGetClock.mockReset()
     jest.clearAllMocks()
-  })
-  describe('constructor', () => {
-    it('creates siwe client with specified options', () => {
-      const fcClient = new FiatConnectClient(
-        {
-          baseUrl: 'https://fiat-connect-api.com',
-          network: Network.Alfajores,
-          accountAddress,
-        },
-        signingFunction,
-      )
-
-      expect(fcClient._siweClient).toBeDefined()
-      expect(SiweImpl).toHaveBeenCalledWith(
-        {
-          accountAddress,
-          statement: 'Sign in with Ethereum',
-          version: '1',
-          chainId: 44787,
-          sessionDurationMs: 14400000,
-          loginUrl: 'https://fiat-connect-api.com/auth/login',
-          clockUrl: 'https://fiat-connect-api.com/clock',
-        },
-        signingFunction,
-        fetch,
-      )
-    })
   })
   describe('getClock', () => {
     it('gets the server clock using siwe client', async () => {
@@ -255,14 +215,15 @@ describe('FiatConnect SDK', () => {
   })
   describe('_getAuthHeader', () => {
     it('returns auth header if client key is set', () => {
-      const clientWithApiKey = new FiatConnectClient(
+      const clientWithApiKey = new FiatConnectClientImpl(
         {
           baseUrl: 'https://fiat-connect-api.com',
           network: Network.Alfajores,
           accountAddress,
           apiKey: 'some-api-key',
         },
-        signingFunction,
+        siweClientMock,
+        fetch,
       )
       expect(clientWithApiKey._getAuthHeader()).toEqual({
         Authorization: 'Bearer some-api-key',
@@ -788,6 +749,26 @@ describe('FiatConnect SDK', () => {
       const response = await client.getCookies()
 
       expect(response).toEqual('fake cookies')
+    })
+  })
+})
+
+describe('createSiweConfig', () => {
+  it('maps fiat connect client config to siwe client config', () => {
+    expect(
+      createSiweConfig({
+        accountAddress: '0x123',
+        network: Network.Alfajores,
+        baseUrl: 'https://fiat-connect-api.com',
+      }),
+    ).toEqual({
+      accountAddress: '0x123',
+      statement: 'Sign in with Ethereum',
+      version: '1',
+      chainId: 44787,
+      sessionDurationMs: 14400000,
+      loginUrl: 'https://fiat-connect-api.com/auth/login',
+      clockUrl: 'https://fiat-connect-api.com/clock',
     })
   })
 })
