@@ -22,6 +22,9 @@ import {
 import { Result } from '@badrap/result'
 
 export interface SiweClient {
+  getServerTimeApprox(): Promise<Date>
+  getClockDiffApprox(): Promise<ClockDiffResult>
+  getClock(): Promise<ClockResponse>
   login(params?: SiweLoginParams): Promise<void>
   isLoggedIn(): boolean
   fetch: typeof fetch
@@ -63,15 +66,17 @@ export interface FiatConnectApiClient {
   getTransferStatus(
     params: TransferStatusRequestParams,
   ): Promise<Result<TransferStatusResponse, ResponseError>>
+  getCookies(): Promise<string>
 }
 
 export interface SiweClientConfig {
-  loginUrl: string
   accountAddress: string
   statement: string
   version: string
   chainId: number
   sessionDurationMs: number
+  loginUrl: string
+  clockUrl: string
 }
 
 export interface LoginParams {

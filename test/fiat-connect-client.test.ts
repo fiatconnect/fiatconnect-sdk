@@ -34,15 +34,20 @@ describe('FiatConnect SDK', () => {
   const signingFunction = jest.fn(() => Promise.resolve('signed message'))
   const siweLoginMock = jest.fn()
   const siweIsLoggedInMock = jest.fn()
+  const siweGetServerTimeApprox = jest.fn()
+  const siweGetClockDiffApprox = jest.fn()
+  const siweGetClock = jest.fn()
+  const siweGetCookiesMock = jest.fn()
 
   jest.mocked(SiweImpl).mockReturnValue({
     config: {
-      loginUrl: 'https://siwe-api.com/login',
       accountAddress,
       statement: 'Sign in with Ethereum',
       chainId: 1,
       version: '1',
       sessionDurationMs: 3600000,
+      loginUrl: 'https://siwe-api.com/login',
+      clockUrl: 'https://siwe-api.com/clock',
     },
     signingFunction: jest.fn(),
     cookieJar: new CookieJar(new MemoryCookieStore(), {
@@ -52,7 +57,11 @@ describe('FiatConnect SDK', () => {
     isLoggedIn: siweIsLoggedInMock,
     fetch: fetch, // use the real fetch here as it makes mocking easy with fetch mock
     fetchImpl: jest.fn(),
-    getCookies: jest.fn(),
+    getCookies: siweGetCookiesMock,
+    getServerTimeApprox: siweGetServerTimeApprox,
+    getClockDiffApprox: siweGetClockDiffApprox,
+    getClock: siweGetClock,
+    _calculateClockDiff: jest.fn(),
   })
 
   const client = new FiatConnectClient(
@@ -71,6 +80,9 @@ describe('FiatConnect SDK', () => {
     getHeadersMock.mockReset()
     siweLoginMock.mockReset()
     siweIsLoggedInMock.mockReset()
+    siweGetServerTimeApprox.mockReset()
+    siweGetClockDiffApprox.mockReset()
+    siweGetClock.mockReset()
     jest.clearAllMocks()
   })
   describe('constructor', () => {
@@ -88,11 +100,12 @@ describe('FiatConnect SDK', () => {
       expect(SiweImpl).toHaveBeenCalledWith(
         {
           accountAddress,
-          loginUrl: 'https://fiat-connect-api.com/auth/login',
           statement: 'Sign in with Ethereum',
           version: '1',
           chainId: 44787,
           sessionDurationMs: 14400000,
+          loginUrl: 'https://fiat-connect-api.com/auth/login',
+          clockUrl: 'https://fiat-connect-api.com/clock',
         },
         signingFunction,
         fetch,
@@ -100,22 +113,15 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('getClock', () => {
-    it('gets the server clock', async () => {
-      fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
+    it('gets the server clock using siwe client', async () => {
+      siweGetClock.mockResolvedValueOnce(mockClockResponse)
       const response = await client.getClock()
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/clock',
-        expect.objectContaining({
-          method: 'GET',
-          headers: undefined,
-        }),
-      )
+
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockClockResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
-    it('handles fetch errors', async () => {
-      fetchMock.mockRejectOnce(new Error('fake error message'))
+    it('handles errors', async () => {
+      siweGetClock.mockRejectedValueOnce(new Error('fake error message'))
       const response = await client.getClock()
 
       expect(response.isOk).toBeFalsy()
@@ -125,23 +131,21 @@ describe('FiatConnect SDK', () => {
     })
   })
   describe('getServerTimeApprox', () => {
-    it('returns the earliest approximation of server time', async () => {
-      jest
-        .spyOn(client, 'getClockDiffApprox')
-        .mockResolvedValueOnce(Result.ok({ diff: 1000, maxError: 500 }))
+    it('gets using siwe client', async () => {
+      siweGetServerTimeApprox.mockResolvedValueOnce(
+        new Date('2022-05-01T00:00:00.500Z'),
+      )
       const response = await client.getServerTimeApprox()
 
       expect(response.isOk).toBeTruthy()
-      expect((response.unwrap() as Date).toISOString()).toEqual(
+      expect(response.unwrap().toISOString()).toEqual(
         '2022-05-01T00:00:00.500Z',
       )
     })
-    it('returns an error if clock diff throws', async () => {
-      jest
-        .spyOn(client, 'getClockDiffApprox')
-        .mockResolvedValueOnce(
-          Result.err(new ResponseError('fake error message')),
-        )
+    it('returns an error if siwe client throws', async () => {
+      siweGetServerTimeApprox.mockRejectedValueOnce(
+        new Error('fake error message'),
+      )
       const response = await client.getServerTimeApprox()
 
       expect(response.isOk).toBeFalsy()
@@ -150,59 +154,24 @@ describe('FiatConnect SDK', () => {
       )
     })
   })
-  describe('_calculateClockDiff', () => {
-    it('calculates clock diff when server is ahead', async () => {
-      const t0 = 10000
-      const t1 = 10500
-      const t2 = 10500
-      const t3 = 10500
-      const clockDiffResult = client._calculateClockDiff({ t0, t1, t2, t3 })
-      expect(clockDiffResult.diff).toEqual(250)
-      expect(clockDiffResult.maxError).toEqual(250)
-    })
-    it('calculates clock diff when server is behind', async () => {
-      const t0 = 10000
-      const t1 = 9500
-      const t2 = 9500
-      const t3 = 10500
-      const clockDiffResult = client._calculateClockDiff({ t0, t1, t2, t3 })
-      expect(clockDiffResult.diff).toEqual(-750)
-      expect(clockDiffResult.maxError).toEqual(250)
-    })
-  })
   describe('getClockDiffApprox', () => {
-    it('calculates clock diff with correct arguments', async () => {
-      const t0 = new Date('2022-05-02T22:05:55+0000').getTime()
-      const t1 = new Date(mockClockResponse.time).getTime()
-      const t2 = t1
-      const t3 = new Date('2022-05-02T22:05:56+0000').getTime()
-      jest
-        .spyOn(global.Date, 'now')
-        .mockReturnValueOnce(t0)
-        .mockReturnValueOnce(t3)
-      jest
-        .spyOn(client, 'getClock')
-        .mockResolvedValueOnce(Result.ok(mockClockResponse))
-      const expectedClockDiffResult = {
+    it('gets using siwe client', async () => {
+      siweGetClockDiffApprox.mockResolvedValueOnce({
         diff: 1000,
         maxError: 500,
-      }
-      jest
-        .spyOn(client, '_calculateClockDiff')
-        .mockReturnValueOnce(expectedClockDiffResult)
+      })
 
       const actualClockDiffResult = await client.getClockDiffApprox()
       expect(actualClockDiffResult.isOk).toBeTruthy()
-      expect(actualClockDiffResult.unwrap()).toEqual(expectedClockDiffResult)
-      expect(client._calculateClockDiff).toHaveBeenCalledWith({
-        t0,
-        t1,
-        t2,
-        t3,
+      expect(actualClockDiffResult.unwrap()).toEqual({
+        diff: 1000,
+        maxError: 500,
       })
     })
-    it('handles errors when getting server clock', async () => {
-      fetchMock.mockRejectOnce(new Error('fake error message'))
+    it('handles errors from siwe client', async () => {
+      siweGetClockDiffApprox.mockRejectedValueOnce(
+        new Error('fake error message'),
+      )
       const response = await client.getClockDiffApprox()
 
       expect(response.isOk).toBeFalsy()
@@ -809,6 +778,16 @@ describe('FiatConnect SDK', () => {
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError('fake error message'),
       )
+    })
+  })
+
+  describe('getCookies', () => {
+    it('returns cookies using siwe client', async () => {
+      siweGetCookiesMock.mockResolvedValueOnce('fake cookies')
+
+      const response = await client.getCookies()
+
+      expect(response).toEqual('fake cookies')
     })
   })
 })

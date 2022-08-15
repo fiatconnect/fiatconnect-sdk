@@ -24,7 +24,6 @@ import {
   FiatConnectApiClient,
   FiatConnectClientConfig,
   TransferRequestParams,
-  ClockDiffParams,
   ClockDiffResult,
   LoginParams,
   SiweClient,
@@ -50,12 +49,13 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     this.config = config
     this._siweClient = new SiweImpl(
       {
-        loginUrl: `${config.baseUrl}/auth/login`,
         accountAddress: config.accountAddress,
         statement: 'Sign in with Ethereum',
         version: '1',
         chainId: NETWORK_CHAIN_IDS[this.config.network],
         sessionDurationMs: SESSION_DURATION_MS,
+        loginUrl: `${config.baseUrl}/auth/login`,
+        clockUrl: `${config.baseUrl}/clock`,
       },
       signingFunction,
       fetchImpl,
@@ -135,55 +135,30 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
   }
 
   /**
-   * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
-   *
-   * Returns the calculated difference between the client and server clocks as a number of milliseconds.
-   * Positive values mean the server's clock is ahead of the client's.
-   * Also returns the maximum error of the calculated difference.
-   */
-  _calculateClockDiff({ t0, t1, t2, t3 }: ClockDiffParams): ClockDiffResult {
-    return {
-      diff: Math.floor((t1 - t0 + (t2 - t3)) / 2),
-      maxError: Math.floor((t3 - t0) / 2),
-    }
-  }
-
-  /**
    * Returns an approximation of the current server time, taking into account clock differences
    * between client and server. Returns the earliest possible server time based on the max error
    * of the clock diff between client and server, to ensure that sessions created using this time
    * are not issued in the future with respect to the server clock.
    */
   async getServerTimeApprox(): Promise<Result<Date, ResponseError>> {
-    const clockDiffResponse = await this.getClockDiffApprox()
-    if (!clockDiffResponse.isOk) {
-      return Result.err(clockDiffResponse.error)
+    try {
+      const data = await this._siweClient.getServerTimeApprox()
+      return Result.ok(data)
+    } catch (error) {
+      return handleError(error)
     }
-    return Result.ok(
-      new Date(
-        Date.now() +
-          clockDiffResponse.value.diff -
-          clockDiffResponse.value.maxError,
-      ),
-    )
   }
 
   /**
    * Convenience method to calculate the approximate difference between server and client clocks.
    */
   async getClockDiffApprox(): Promise<Result<ClockDiffResult, ResponseError>> {
-    const t0 = Date.now()
-    const clockResponse = await this.getClock()
-    const t3 = Date.now()
-
-    if (!clockResponse.isOk) {
-      return Result.err(clockResponse.error)
+    try {
+      const data = await this._siweClient.getClockDiffApprox()
+      return Result.ok(data)
+    } catch (error) {
+      return handleError(error)
     }
-
-    const t1 = new Date(clockResponse.value.time).getTime()
-    // We can assume that t1 and t2 are sufficiently close to each other
-    const t2 = t1
-    return Result.ok(this._calculateClockDiff({ t0, t1, t2, t3 }))
   }
 
   /**
@@ -191,14 +166,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    */
   async getClock(): Promise<Result<ClockResponse, ResponseError>> {
     try {
-      const response = await this.fetchImpl(`${this.config.baseUrl}/clock`, {
-        method: 'GET',
-        headers: this._getAuthHeader(),
-      })
-      const data = await response.json()
-      if (!response.ok) {
-        return handleError(data)
-      }
+      const data = await this._siweClient.getClock()
       return Result.ok(data)
     } catch (error) {
       return handleError(error)
@@ -455,6 +423,10 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     } catch (error) {
       return handleError(error)
     }
+  }
+
+  async getCookies(): Promise<string> {
+    return this._siweClient.getCookies()
   }
 }
 

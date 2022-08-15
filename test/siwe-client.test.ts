@@ -1,6 +1,7 @@
 import { SiweClient } from '../src'
 import * as siwe from 'siwe'
 import 'jest-fetch-mock'
+import { mockClockResponse } from './mocks'
 
 // work around from
 // https://github.com/aelbore/esbuild-jest/issues/26#issuecomment-968853688 for
@@ -17,12 +18,13 @@ describe('SIWE client', () => {
   const signingFunction = jest.fn(() => Promise.resolve('signed message'))
   const client = new SiweClient(
     {
-      loginUrl: 'https://siwe-api.com/login',
       accountAddress,
       statement: 'Sign in with Ethereum',
       chainId: 1,
       version: '1',
       sessionDurationMs: 3600000,
+      loginUrl: 'https://siwe-api.com/login',
+      clockUrl: 'https://siwe-api.com/clock',
     },
     signingFunction,
   )
@@ -33,6 +35,83 @@ describe('SIWE client', () => {
     jest.clearAllMocks()
     client._sessionExpiry = undefined
     client.cookieJar.removeAllCookiesSync()
+  })
+
+  describe('getClock', () => {
+    it('gets the server clock', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
+      const response = await client.getClock()
+      expect(fetchMock).toHaveBeenCalledWith('https://siwe-api.com/clock')
+      expect(response).toMatchObject(mockClockResponse)
+    })
+    it('handles error responses', async () => {
+      fetchMock.mockResponseOnce('error', { status: 500 })
+      await expect(client.getClock()).rejects.toEqual(
+        new Error('Received error response from clock endpoint: error'),
+      )
+    })
+  })
+
+  describe('getServerTimeApprox', () => {
+    it('returns the earliest approximation of server time', async () => {
+      jest
+        .spyOn(client, 'getClockDiffApprox')
+        .mockResolvedValueOnce({ diff: 1000, maxError: 500 })
+      const response = await client.getServerTimeApprox()
+
+      expect(response.toISOString()).toEqual('2022-05-01T00:00:00.500Z')
+    })
+  })
+
+  describe('_calculateClockDiff', () => {
+    it('calculates clock diff when server is ahead', async () => {
+      const t0 = 10000
+      const t1 = 10500
+      const t2 = 10500
+      const t3 = 10500
+      const clockDiffResult = client._calculateClockDiff({ t0, t1, t2, t3 })
+      expect(clockDiffResult.diff).toEqual(250)
+      expect(clockDiffResult.maxError).toEqual(250)
+    })
+    it('calculates clock diff when server is behind', async () => {
+      const t0 = 10000
+      const t1 = 9500
+      const t2 = 9500
+      const t3 = 10500
+      const clockDiffResult = client._calculateClockDiff({ t0, t1, t2, t3 })
+      expect(clockDiffResult.diff).toEqual(-750)
+      expect(clockDiffResult.maxError).toEqual(250)
+    })
+  })
+
+  describe('getClockDiffApprox', () => {
+    it('calculates clock diff with correct arguments', async () => {
+      const t0 = new Date('2022-05-02T22:05:55+0000').getTime()
+      const t1 = new Date(mockClockResponse.time).getTime()
+      const t2 = t1
+      const t3 = new Date('2022-05-02T22:05:56+0000').getTime()
+      jest
+        .spyOn(global.Date, 'now')
+        .mockReturnValueOnce(t0)
+        .mockReturnValueOnce(t3)
+      jest.spyOn(client, 'getClock').mockResolvedValueOnce(mockClockResponse)
+      const expectedClockDiffResult = {
+        diff: 1000,
+        maxError: 500,
+      }
+      jest
+        .spyOn(client, '_calculateClockDiff')
+        .mockReturnValueOnce(expectedClockDiffResult)
+
+      const actualClockDiffResult = await client.getClockDiffApprox()
+      expect(actualClockDiffResult).toEqual(expectedClockDiffResult)
+      expect(client._calculateClockDiff).toHaveBeenCalledWith({
+        t0,
+        t1,
+        t2,
+        t3,
+      })
+    })
   })
 
   describe('login', () => {

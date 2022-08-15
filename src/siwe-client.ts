@@ -1,8 +1,14 @@
-import { AuthRequestBody } from '@fiatconnect/fiatconnect-types'
+import { AuthRequestBody, ClockResponse } from '@fiatconnect/fiatconnect-types'
 import { ethers } from 'ethers'
 import { generateNonce, SiweMessage } from 'siwe'
 import { CookieJar, MemoryCookieStore } from 'tough-cookie'
-import { SiweClient, SiweClientConfig, SiweLoginParams } from './types'
+import {
+  ClockDiffParams,
+  ClockDiffResult,
+  SiweClient,
+  SiweClientConfig,
+  SiweLoginParams,
+} from './types'
 
 export class SiweImpl implements SiweClient {
   config: SiweClientConfig
@@ -92,6 +98,65 @@ export class SiweImpl implements SiweClient {
    */
   isLoggedIn(): boolean {
     return !!(this._sessionExpiry && this._sessionExpiry > new Date())
+  }
+
+  /**
+   * Invokes clock endpoint and returns the result.
+   * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#321-get-clock
+   *
+   * @returns an object containing a single time field with server time in ISO
+   * 8601 datetime string.
+   */
+  async getClock(): Promise<ClockResponse> {
+    const response = await this.fetchImpl(`${this.config.clockUrl}`)
+    if (!response.ok) {
+      const responseText = await response.text()
+      throw new Error(
+        `Received error response from clock endpoint: ${responseText}`,
+      )
+    }
+    return response.json()
+  }
+
+  /**
+   * Returns an approximation of the current server time, taking into account clock differences
+   * between client and server. Returns the earliest possible server time based on the max error
+   * of the clock diff between client and server, to ensure that sessions created using this time
+   * are not issued in the future with respect to the server clock.
+   */
+  async getServerTimeApprox(): Promise<Date> {
+    const clockDiffResponse = await this.getClockDiffApprox()
+    return new Date(
+      Date.now() + clockDiffResponse.diff - clockDiffResponse.maxError,
+    )
+  }
+
+  /**
+   * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
+   *
+   * Returns the calculated difference between the client and server clocks as a number of milliseconds.
+   * Positive values mean the server's clock is ahead of the client's.
+   * Also returns the maximum error of the calculated difference.
+   */
+  _calculateClockDiff({ t0, t1, t2, t3 }: ClockDiffParams): ClockDiffResult {
+    return {
+      diff: Math.floor((t1 - t0 + (t2 - t3)) / 2),
+      maxError: Math.floor((t3 - t0) / 2),
+    }
+  }
+
+  /**
+   * Convenience method to calculate the approximate difference between server and client clocks.
+   */
+  async getClockDiffApprox(): Promise<ClockDiffResult> {
+    const t0 = Date.now()
+    const clockResponse = await this.getClock()
+    const t3 = Date.now()
+
+    const t1 = new Date(clockResponse.time).getTime()
+    // We can assume that t1 and t2 are sufficiently close to each other
+    const t2 = t1
+    return this._calculateClockDiff({ t0, t1, t2, t3 })
   }
 
   /**
