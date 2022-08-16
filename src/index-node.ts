@@ -26,11 +26,9 @@ export class SiweClient extends SiweImpl {
     super(config, signingFunction, fetchWithCookie)
   }
 
-  async _extractCookies(): Promise<void> {
+  async _extractCookies(_header?: Headers): Promise<void> {
     const cookieRecord: Record<string, string> = {}
-    const setCookie = await Cookie.parse(
-      this._loginHeader?.get('set-cookie') || '',
-    )
+    const setCookie = Cookie.parse(_header?.get('set-cookie') || '')
     if (setCookie) {
       cookieRecord[setCookie.key] = setCookie.value
     }

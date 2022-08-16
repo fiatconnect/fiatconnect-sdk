@@ -2,6 +2,7 @@ import { FiatConnectClient, SiweClient } from '../src/index-node'
 import { Network } from '@fiatconnect/fiatconnect-types'
 import * as siwe from 'siwe'
 import 'jest-fetch-mock'
+import { mockClockResponse } from './mocks'
 
 // work around from
 // https://github.com/aelbore/esbuild-jest/issues/26#issuecomment-968853688 for
@@ -71,6 +72,7 @@ describe('FiatConnect SDK node', () => {
     describe('getCookies', () => {
       it('returns serialized cookies from login', async () => {
         jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+        fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
         fetchMock.mockResponseOnce('', {
           headers: {
             'set-cookie': 'session=session-val',
@@ -78,11 +80,8 @@ describe('FiatConnect SDK node', () => {
         })
 
         await client.login()
-
-        expect(client._loginHeader?.get('set-cookie')).toBe(
-          'session=session-val',
-        )
         const cookies = client.getCookies()
+
         expect(cookies).toStrictEqual({ session: 'session-val' })
       })
     })

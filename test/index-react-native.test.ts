@@ -3,6 +3,7 @@ import { Network } from '@fiatconnect/fiatconnect-types'
 import * as siwe from 'siwe'
 import 'jest-fetch-mock'
 import CookieManager, { Cookies } from '@react-native-cookies/cookies'
+import { mockClockResponse } from './mocks'
 
 // work around from
 // https://github.com/aelbore/esbuild-jest/issues/26#issuecomment-968853688 for
@@ -83,6 +84,7 @@ describe('FiatConnect SDK react-native', () => {
     describe('getCookies', () => {
       it('returns serialized cookies from login', async () => {
         jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+        fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
         jest.spyOn(CookieManager, 'get').mockResolvedValue(mockSetCookies)
         fetchMock.mockResponseOnce('', {
           headers: {

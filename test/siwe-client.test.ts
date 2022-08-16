@@ -117,6 +117,7 @@ describe('SIWE client', () => {
   describe('login', () => {
     it('calls login url and sets cookies in cookie jar', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      jest.spyOn(client, '_extractCookies')
       fetchMock.mockResponseOnce('', {
         headers: { 'set-cookie': 'session=session-val' },
       })
@@ -147,6 +148,7 @@ describe('SIWE client', () => {
           }),
         }),
       )
+      expect(client._extractCookies).toBeCalled()
     })
     it('calls login url with additional headers', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
