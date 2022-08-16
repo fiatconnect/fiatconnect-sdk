@@ -79,6 +79,9 @@ describe('FiatConnect SDK node', () => {
 
         await client.login()
 
+        expect(client._loginHeader?.get('set-cookie')).toBe(
+          'session=session-val',
+        )
         const cookies = client.getCookies()
         expect(cookies).toStrictEqual({ session: 'session-val' })
       })
