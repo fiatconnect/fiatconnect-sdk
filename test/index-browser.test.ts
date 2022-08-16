@@ -1,4 +1,4 @@
-import { FiatConnectClient, SiweClient } from '../src/index'
+import { FiatConnectClient, SiweClient } from '../src/index-browser'
 import { Network } from '@fiatconnect/fiatconnect-types'
 
 describe('FiatConnect SDK node', () => {

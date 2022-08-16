@@ -1,7 +1,6 @@
 import { AuthRequestBody, ClockResponse } from '@fiatconnect/fiatconnect-types'
 import { ethers } from 'ethers'
 import { generateNonce, SiweMessage } from 'siwe'
-import { CookieJar, MemoryCookieStore } from 'tough-cookie'
 import {
   ClockDiffParams,
   ClockDiffResult,
@@ -16,7 +15,6 @@ export class SiweImpl implements SiweApiClient {
   signingFunction: (message: string) => Promise<string>
   fetchImpl: typeof fetch
   _sessionExpiry?: Date
-  cookieJar: CookieJar
   _loginHeader: Headers
 
   constructor(
@@ -27,9 +25,6 @@ export class SiweImpl implements SiweApiClient {
     this.config = config
     this.signingFunction = signingFunction
     this.fetchImpl = fetchImpl
-    this.cookieJar = new CookieJar(new MemoryCookieStore(), {
-      rejectPublicSuffixes: false,
-    })
     this._loginHeader = new Headers()
   }
 

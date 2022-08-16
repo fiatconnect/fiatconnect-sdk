@@ -31,7 +31,7 @@ export class SiweClient extends SiweImpl {
     const cookieRecord: CookieJarType = {}
     const cookies = await CookieManager.get(this.config.loginUrl)
     Object.keys(cookies).forEach((cookie) => {
-      cookieRecord[cookie] = cookies.cookie.value
+      cookieRecord[cookies[cookie].name] = cookies[cookie].value
     })
     return cookieRecord
   }

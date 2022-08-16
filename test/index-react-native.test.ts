@@ -1,7 +1,8 @@
-import { FiatConnectClient, SiweClient } from '../src/index-node'
+import { FiatConnectClient, SiweClient } from '../src/index-react-native'
 import { Network } from '@fiatconnect/fiatconnect-types'
 import * as siwe from 'siwe'
 import 'jest-fetch-mock'
+import CookieManager, { Cookies } from '@react-native-cookies/cookies'
 
 // work around from
 // https://github.com/aelbore/esbuild-jest/issues/26#issuecomment-968853688 for
@@ -11,6 +12,19 @@ jest.mock('siwe', () => ({
   // @ts-ignore
   ...jest.requireActual('siwe'),
 }))
+
+const mockSetCookies: Cookies = {
+  session: {
+    name: 'session',
+    value: 'session-val',
+  },
+}
+
+jest.mock('@react-native-cookies/cookies', () => {
+  return {
+    get: jest.fn(),
+  }
+})
 
 describe('FiatConnect SDK node', () => {
   describe('FiatConnectClient', () => {
@@ -25,7 +39,7 @@ describe('FiatConnect SDK node', () => {
         signingFunction,
       )
 
-      expect(client.fetchImpl.name).toEqual('fetchCookieWrapper')
+      expect(client.fetchImpl).toEqual(fetch)
       expect(client._siweClient).toBeInstanceOf(SiweClient)
       expect((client._siweClient as SiweClient).signingFunction).toEqual(
         signingFunction,
@@ -63,14 +77,13 @@ describe('FiatConnect SDK node', () => {
       jest.clearAllMocks()
       client._sessionExpiry = undefined
     })
-
     it('creates client with fetch cookie', () => {
-      expect(client.fetchImpl.name).toEqual('fetchCookieWrapper')
+      expect(client.fetchImpl).toEqual(fetch)
     })
-
     describe('getCookies', () => {
       it('returns serialized cookies from login', async () => {
         jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+        jest.spyOn(CookieManager, 'get').mockResolvedValue(mockSetCookies)
         fetchMock.mockResponseOnce('', {
           headers: {
             'set-cookie': 'session=session-val',
