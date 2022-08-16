@@ -1,10 +1,6 @@
 import 'cross-fetch/polyfill'
 import { FiatConnectClientImpl, createSiweConfig } from './fiat-connect-client'
-import {
-  FiatConnectClientConfig,
-  SiweClientConfig,
-  CookieJarType,
-} from './types'
+import { FiatConnectClientConfig, SiweClientConfig } from './types'
 import fetchCookie from 'fetch-cookie'
 import { SiweImpl } from './siwe-client'
 import { Cookie } from 'tough-cookie'
@@ -31,9 +27,9 @@ export class SiweClient extends SiweImpl {
   }
 
   async _extractCookies(): Promise<void> {
-    const cookieRecord: CookieJarType = {}
+    const cookieRecord: Record<string, string> = {}
     const setCookie = await Cookie.parse(
-      this._loginHeader.get('set-cookie') || '',
+      this._loginHeader?.get('set-cookie') || '',
     )
     if (setCookie) {
       cookieRecord[setCookie.key] = setCookie.value

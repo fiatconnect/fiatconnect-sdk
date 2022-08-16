@@ -26,7 +26,7 @@ jest.mock('@react-native-cookies/cookies', () => {
   }
 })
 
-describe('FiatConnect SDK node', () => {
+describe('FiatConnect SDK react-native', () => {
   describe('FiatConnectClient', () => {
     it('creates client with fetch cookie and siwe client', () => {
       const signingFunction = jest.fn(() => Promise.resolve('message'))
@@ -92,7 +92,7 @@ describe('FiatConnect SDK node', () => {
 
         await client.login()
 
-        const cookies = await client.getCookies()
+        const cookies = client.getCookies()
         expect(cookies).toStrictEqual({ session: 'session-val' })
       })
     })

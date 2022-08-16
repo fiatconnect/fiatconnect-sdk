@@ -28,7 +28,7 @@ export interface SiweApiClient {
   login(params?: SiweLoginParams): Promise<void>
   isLoggedIn(): boolean
   fetch: typeof fetch
-  getCookies(): Promise<CookieJarType>
+  getCookies(): Record<string, string>
 }
 
 export interface FiatConnectApiClient {
@@ -66,7 +66,7 @@ export interface FiatConnectApiClient {
   getTransferStatus(
     params: TransferStatusRequestParams,
   ): Promise<Result<TransferStatusResponse, ResponseError>>
-  getCookies(): Promise<CookieJarType>
+  getCookies(): Record<string, string>
 }
 
 export interface SiweClientConfig {
@@ -140,8 +140,4 @@ export class ResponseError extends Error {
     this.minimumCryptoAmount = data?.minimumCryptoAmount
     this.maximumCryptoAmount = data?.maximumCryptoAmount
   }
-}
-
-export type CookieJarType = {
-  [key: string]: string
 }

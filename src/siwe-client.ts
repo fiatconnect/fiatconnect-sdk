@@ -7,7 +7,6 @@ import {
   SiweApiClient,
   SiweClientConfig,
   SiweLoginParams,
-  CookieJarType,
 } from './types'
 
 export class SiweImpl implements SiweApiClient {
@@ -15,8 +14,8 @@ export class SiweImpl implements SiweApiClient {
   signingFunction: (message: string) => Promise<string>
   fetchImpl: typeof fetch
   _sessionExpiry?: Date
-  _loginHeader: Headers
-  _cookieJar: CookieJarType
+  _loginHeader?: Headers
+  _cookieJar: Record<string, string>
 
   constructor(
     config: SiweClientConfig,
@@ -26,7 +25,6 @@ export class SiweImpl implements SiweApiClient {
     this.config = config
     this.signingFunction = signingFunction
     this.fetchImpl = fetchImpl
-    this._loginHeader = new Headers()
     this._cookieJar = {}
   }
 
@@ -187,7 +185,7 @@ export class SiweImpl implements SiweApiClient {
     return this.fetchImpl(input, init)
   }
 
-  async getCookies(): Promise<CookieJarType> {
+  getCookies(): Record<string, string> {
     return this._cookieJar
   }
 }

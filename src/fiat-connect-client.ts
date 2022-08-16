@@ -28,7 +28,6 @@ import {
   LoginParams,
   SiweApiClient,
   SiweClientConfig,
-  CookieJarType,
 } from './types'
 
 const NETWORK_CHAIN_IDS = {
@@ -404,7 +403,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     }
   }
 
-  async getCookies(): Promise<CookieJarType> {
+  getCookies(): Record<string, string> {
     return this._siweClient.getCookies()
   }
 }

@@ -1,11 +1,7 @@
 import 'cross-fetch/polyfill'
 import { FiatConnectClientImpl, createSiweConfig } from './fiat-connect-client'
 import { SiweImpl } from './siwe-client'
-import {
-  CookieJarType,
-  FiatConnectClientConfig,
-  SiweClientConfig,
-} from './types'
+import { FiatConnectClientConfig, SiweClientConfig } from './types'
 export * from './types'
 import CookieManager from '@react-native-cookies/cookies'
 
@@ -28,7 +24,7 @@ export class SiweClient extends SiweImpl {
   }
 
   async _extractCookies(): Promise<void> {
-    const cookieRecord: CookieJarType = {}
+    const cookieRecord: Record<string, string> = {}
     const cookies = await CookieManager.get(this.config.loginUrl)
     Object.keys(cookies).forEach((cookie) => {
       cookieRecord[cookies[cookie].name] = cookies[cookie].value
