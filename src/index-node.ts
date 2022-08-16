@@ -7,7 +7,7 @@ import {
 } from './types'
 import fetchCookie from 'fetch-cookie'
 import { SiweImpl } from './siwe-client'
-import { Cookie, CookieJar, MemoryCookieStore } from 'tough-cookie'
+import { Cookie } from 'tough-cookie'
 export * from './types'
 
 const fetchWithCookie = fetchCookie(fetch)
