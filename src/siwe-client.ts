@@ -16,6 +16,7 @@ export class SiweImpl implements SiweApiClient {
   fetchImpl: typeof fetch
   _sessionExpiry?: Date
   _loginHeader: Headers
+  _cookieJar: CookieJarType
 
   constructor(
     config: SiweClientConfig,
@@ -26,6 +27,7 @@ export class SiweImpl implements SiweApiClient {
     this.signingFunction = signingFunction
     this.fetchImpl = fetchImpl
     this._loginHeader = new Headers()
+    this._cookieJar = {}
   }
 
   /**
@@ -87,7 +89,16 @@ export class SiweImpl implements SiweApiClient {
 
     this._loginHeader = response.headers
 
+    await this._extractCookies()
+
     this._sessionExpiry = expirationTime
+  }
+
+  /**
+   * Extracts cookies and stores in local variable
+   */
+  async _extractCookies(): Promise<void> {
+    this._cookieJar = {}
   }
 
   /**
@@ -177,6 +188,6 @@ export class SiweImpl implements SiweApiClient {
   }
 
   async getCookies(): Promise<CookieJarType> {
-    throw new Error('Not Implemented')
+    return this._cookieJar
   }
 }

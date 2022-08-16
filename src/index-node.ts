@@ -30,7 +30,7 @@ export class SiweClient extends SiweImpl {
     super(config, signingFunction, fetchWithCookie)
   }
 
-  async getCookies(): Promise<CookieJarType> {
+  async _extractCookies(): Promise<void> {
     const cookieRecord: CookieJarType = {}
     const setCookie = await Cookie.parse(
       this._loginHeader.get('set-cookie') || '',
@@ -38,6 +38,6 @@ export class SiweClient extends SiweImpl {
     if (setCookie) {
       cookieRecord[setCookie.key] = setCookie.value
     }
-    return cookieRecord
+    this._cookieJar = cookieRecord
   }
 }

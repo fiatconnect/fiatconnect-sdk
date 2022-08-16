@@ -27,12 +27,12 @@ export class SiweClient extends SiweImpl {
     super(config, signingFunction, fetch)
   }
 
-  async getCookies(): Promise<CookieJarType> {
+  async _extractCookies(): Promise<void> {
     const cookieRecord: CookieJarType = {}
     const cookies = await CookieManager.get(this.config.loginUrl)
     Object.keys(cookies).forEach((cookie) => {
       cookieRecord[cookies[cookie].name] = cookies[cookie].value
     })
-    return cookieRecord
+    this._cookieJar = cookieRecord
   }
 }
