@@ -21,6 +21,16 @@ import {
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
 
+export interface SiweApiClient {
+  getServerTimeApprox(): Promise<Date>
+  getClockDiffApprox(): Promise<ClockDiffResult>
+  getClock(): Promise<ClockResponse>
+  login(params?: SiweLoginParams): Promise<void>
+  isLoggedIn(): boolean
+  fetch: typeof fetch
+  getCookies(): Promise<string>
+}
+
 export interface FiatConnectApiClient {
   getServerTimeApprox(): Promise<Result<Date, ResponseError>>
   getClockDiffApprox(): Promise<Result<ClockDiffResult, ResponseError>>
@@ -59,8 +69,22 @@ export interface FiatConnectApiClient {
   getCookies(): Promise<string>
 }
 
+export interface SiweClientConfig {
+  accountAddress: string
+  statement: string
+  version: string
+  chainId: number
+  sessionDurationMs: number
+  loginUrl: string
+  clockUrl: string
+}
+
 export interface LoginParams {
   issuedAt?: Date
+}
+
+export type SiweLoginParams = LoginParams & {
+  headers?: Record<string, string>
 }
 
 export interface AddKycParams<T extends KycSchema> {

@@ -1,4 +1,4 @@
-import { FiatConnectClient, SiweClient } from '../src/index'
+import { FiatConnectClient, SiweClient } from '../src/index-node'
 import { Network } from '@fiatconnect/fiatconnect-types'
 
 describe('FiatConnect SDK node', () => {
@@ -14,7 +14,7 @@ describe('FiatConnect SDK node', () => {
         signingFunction,
       )
 
-      expect(client.fetchImpl).toEqual(fetch)
+      expect(client.fetchImpl.name).toEqual('fetchCookieWrapper')
       expect(client._siweClient).toBeInstanceOf(SiweClient)
       expect((client._siweClient as SiweClient).signingFunction).toEqual(
         signingFunction,
@@ -47,7 +47,7 @@ describe('FiatConnect SDK node', () => {
         signingFunction,
       )
 
-      expect(client.fetchImpl).toEqual(fetch)
+      expect(client.fetchImpl.name).toEqual('fetchCookieWrapper')
     })
   })
 })

@@ -1,5 +1,4 @@
 import {
-  AuthRequestBody,
   DeleteFiatAccountRequestParams,
   GetFiatAccountsResponse,
   KycRequestParams,
@@ -18,7 +17,6 @@ import {
   KycSchema,
 } from '@fiatconnect/fiatconnect-types'
 import fetch from 'cross-fetch'
-import { generateNonce, SiweMessage } from 'siwe'
 import { Result } from '@badrap/result'
 import {
   AddKycParams,
@@ -26,12 +24,11 @@ import {
   FiatConnectApiClient,
   FiatConnectClientConfig,
   TransferRequestParams,
-  ClockDiffParams,
   ClockDiffResult,
   LoginParams,
+  SiweApiClient,
+  SiweClientConfig,
 } from './types'
-import { ethers } from 'ethers'
-import { CookieJar, MemoryCookieStore } from 'tough-cookie'
 
 const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
@@ -41,37 +38,22 @@ const SESSION_DURATION_MS = 14400000 // 4 hours
 
 export class FiatConnectClientImpl implements FiatConnectApiClient {
   config: FiatConnectClientConfig
-  signingFunction: (message: string) => Promise<string>
-  _sessionExpiry?: Date
+  _siweClient: SiweApiClient
   fetchImpl: typeof fetch
-  cookieJar: CookieJar
 
   constructor(
     config: FiatConnectClientConfig,
-    signingFunction: (message: string) => Promise<string>,
+    siweClient: SiweApiClient,
     fetchImpl: typeof fetch,
   ) {
     this.config = config
-    this.signingFunction = signingFunction
+    this._siweClient = siweClient
     this.fetchImpl = fetchImpl
-    this.cookieJar = new CookieJar(new MemoryCookieStore(), {
-      rejectPublicSuffixes: false,
-    })
   }
 
   _getAuthHeader() {
     if (this.config.apiKey) {
       return { Authorization: `Bearer ${this.config.apiKey}` }
-    }
-  }
-
-  async _ensureLogin() {
-    if (this.isLoggedIn()) {
-      return
-    }
-    const loginResult = await this.login()
-    if (loginResult.isErr) {
-      throw loginResult.error
     }
   }
 
@@ -81,7 +63,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    * @returns true if an unexpired session exists with the provider, else false
    */
   isLoggedIn(): boolean {
-    return !!(this._sessionExpiry && this._sessionExpiry > new Date())
+    return this._siweClient.isLoggedIn()
   }
 
   /**
@@ -93,71 +75,11 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    */
   async login(params?: LoginParams): Promise<Result<'success', ResponseError>> {
     try {
-      // Prefer param issued-at > diff-based issued-at > client-based issued-at
-      let issuedAt = params?.issuedAt
-      if (!issuedAt) {
-        const serverTimeResult = await this.getServerTimeApprox()
-        if (serverTimeResult.isOk) {
-          issuedAt = serverTimeResult.value
-        } else {
-          console.error(
-            `Unable to determine issuedAt time from server timestamp: ${serverTimeResult.error.message}`,
-          )
-          issuedAt = new Date()
-        }
-      }
-      const expirationTime = new Date(issuedAt.getTime() + SESSION_DURATION_MS)
-      const siweMessage = new SiweMessage({
-        domain: new URL(this.config.baseUrl).hostname,
-        // Some SIWE validators compare this against the checksummed signing address,
-        // and thus will always fail if this address is not checksummed. This coerces
-        // non-checksummed addresses to be checksummed.
-        address: ethers.utils.getAddress(this.config.accountAddress),
-        statement: 'Sign in with Ethereum',
-        uri: `${this.config.baseUrl}/auth/login`,
-        version: '1',
-        chainId: NETWORK_CHAIN_IDS[this.config.network],
-        nonce: generateNonce(),
-        issuedAt: issuedAt.toISOString(),
-        expirationTime: expirationTime.toISOString(),
+      await this._siweClient.login({
+        issuedAt: params?.issuedAt,
+        headers: this._getAuthHeader(),
       })
-      const message = siweMessage.prepareMessage()
-      const body: AuthRequestBody = {
-        message,
-        signature: await this.signingFunction(message),
-      }
 
-      const response = await this.fetchImpl(
-        `${this.config.baseUrl}/auth/login`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...this._getAuthHeader(),
-          },
-          body: JSON.stringify(body),
-        },
-      )
-
-      if (!response.ok) {
-        // On a non 200 response, the response should be a JSON including an error field.
-        const data = await response.json()
-        return handleError(data)
-      }
-
-      const headerSetCookie = (response.headers as any).raw()[
-        'set-cookie'
-      ] as Array<string>
-
-      if (headerSetCookie) {
-        await Promise.all(
-          headerSetCookie.map(async (cookie: string) => {
-            await this.cookieJar.setCookie(cookie, this.config.baseUrl)
-          }),
-        )
-      }
-
-      this._sessionExpiry = expirationTime
       return Result.ok('success')
     } catch (error) {
       return handleError(error)
@@ -191,55 +113,30 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
   }
 
   /**
-   * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
-   *
-   * Returns the calculated difference between the client and server clocks as a number of milliseconds.
-   * Positive values mean the server's clock is ahead of the client's.
-   * Also returns the maximum error of the calculated difference.
-   */
-  _calculateClockDiff({ t0, t1, t2, t3 }: ClockDiffParams): ClockDiffResult {
-    return {
-      diff: Math.floor((t1 - t0 + (t2 - t3)) / 2),
-      maxError: Math.floor((t3 - t0) / 2),
-    }
-  }
-
-  /**
    * Returns an approximation of the current server time, taking into account clock differences
    * between client and server. Returns the earliest possible server time based on the max error
    * of the clock diff between client and server, to ensure that sessions created using this time
    * are not issued in the future with respect to the server clock.
    */
   async getServerTimeApprox(): Promise<Result<Date, ResponseError>> {
-    const clockDiffResponse = await this.getClockDiffApprox()
-    if (!clockDiffResponse.isOk) {
-      return Result.err(clockDiffResponse.error)
+    try {
+      const data = await this._siweClient.getServerTimeApprox()
+      return Result.ok(data)
+    } catch (error) {
+      return handleError(error)
     }
-    return Result.ok(
-      new Date(
-        Date.now() +
-          clockDiffResponse.value.diff -
-          clockDiffResponse.value.maxError,
-      ),
-    )
   }
 
   /**
    * Convenience method to calculate the approximate difference between server and client clocks.
    */
   async getClockDiffApprox(): Promise<Result<ClockDiffResult, ResponseError>> {
-    const t0 = Date.now()
-    const clockResponse = await this.getClock()
-    const t3 = Date.now()
-
-    if (!clockResponse.isOk) {
-      return Result.err(clockResponse.error)
+    try {
+      const data = await this._siweClient.getClockDiffApprox()
+      return Result.ok(data)
+    } catch (error) {
+      return handleError(error)
     }
-
-    const t1 = new Date(clockResponse.value.time).getTime()
-    // We can assume that t1 and t2 are sufficiently close to each other
-    const t2 = t1
-    return Result.ok(this._calculateClockDiff({ t0, t1, t2, t3 }))
   }
 
   /**
@@ -247,14 +144,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    */
   async getClock(): Promise<Result<ClockResponse, ResponseError>> {
     try {
-      const response = await this.fetchImpl(`${this.config.baseUrl}/clock`, {
-        method: 'GET',
-        headers: this._getAuthHeader(),
-      })
-      const data = await response.json()
-      if (!response.ok) {
-        return handleError(data)
-      }
+      const data = await this._siweClient.getClock()
       return Result.ok(data)
     } catch (error) {
       return handleError(error)
@@ -286,8 +176,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     params: AddKycParams<T>,
   ): Promise<Result<KycStatusResponse, ResponseError>> {
     try {
-      await this._ensureLogin()
-      const response = await this.fetchImpl(
+      const response = await this._siweClient.fetch(
         `${this.config.baseUrl}/kyc/${params.kycSchemaName}`,
         {
           method: 'POST',
@@ -315,8 +204,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     params: KycRequestParams,
   ): Promise<Result<void, ResponseError>> {
     try {
-      await this._ensureLogin()
-      const response = await this.fetchImpl(
+      const response = await this._siweClient.fetch(
         `${this.config.baseUrl}/kyc/${params.kycSchema}`,
         {
           method: 'DELETE',
@@ -340,8 +228,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     params: KycRequestParams,
   ): Promise<Result<KycStatusResponse, ResponseError>> {
     try {
-      await this._ensureLogin()
-      const response = await this.fetchImpl(
+      const response = await this._siweClient.fetch(
         `${this.config.baseUrl}/kyc/${params.kycSchema}/status`,
         {
           method: 'GET',
@@ -365,15 +252,17 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     params: PostFiatAccountRequestBody<T>,
   ): Promise<Result<PostFiatAccountResponse, ResponseError>> {
     try {
-      await this._ensureLogin()
-      const response = await this.fetchImpl(`${this.config.baseUrl}/accounts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...this._getAuthHeader(),
+      const response = await this._siweClient.fetch(
+        `${this.config.baseUrl}/accounts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...this._getAuthHeader(),
+          },
+          body: JSON.stringify(params),
         },
-        body: JSON.stringify(params),
-      })
+      )
       const data = await response.json()
       if (!response.ok) {
         return handleError(data)
@@ -391,11 +280,13 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     Result<GetFiatAccountsResponse, ResponseError>
   > {
     try {
-      await this._ensureLogin()
-      const response = await this.fetchImpl(`${this.config.baseUrl}/accounts`, {
-        method: 'GET',
-        headers: this._getAuthHeader(),
-      })
+      const response = await this._siweClient.fetch(
+        `${this.config.baseUrl}/accounts`,
+        {
+          method: 'GET',
+          headers: this._getAuthHeader(),
+        },
+      )
       const data = await response.json()
       if (!response.ok) {
         return handleError(data)
@@ -413,8 +304,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     params: DeleteFiatAccountRequestParams,
   ): Promise<Result<void, ResponseError>> {
     try {
-      await this._ensureLogin()
-      const response = await this.fetchImpl(
+      const response = await this._siweClient.fetch(
         `${this.config.baseUrl}/accounts/${params.fiatAccountId}`,
         {
           method: 'DELETE',
@@ -438,8 +328,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     params: TransferRequestParams,
   ): Promise<Result<TransferResponse, ResponseError>> {
     try {
-      await this._ensureLogin()
-      const response = await this.fetchImpl(
+      const response = await this._siweClient.fetch(
         `${this.config.baseUrl}/transfer/in`,
         {
           method: 'POST',
@@ -468,8 +357,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     params: TransferRequestParams,
   ): Promise<Result<TransferResponse, ResponseError>> {
     try {
-      await this._ensureLogin()
-      const response = await this.fetchImpl(
+      const response = await this._siweClient.fetch(
         `${this.config.baseUrl}/transfer/out`,
         {
           method: 'POST',
@@ -498,8 +386,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     params: TransferStatusRequestParams,
   ): Promise<Result<TransferStatusResponse, ResponseError>> {
     try {
-      await this._ensureLogin()
-      const response = await this.fetchImpl(
+      const response = await this._siweClient.fetch(
         `${this.config.baseUrl}/transfer/${params.transferId}/status`,
         {
           method: 'GET',
@@ -516,8 +403,8 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     }
   }
 
-  getCookies(): Promise<string> {
-    return this.cookieJar.getCookieString(this.config.baseUrl)
+  async getCookies(): Promise<string> {
+    return this._siweClient.getCookies()
   }
 }
 
@@ -548,11 +435,16 @@ function handleError<T>(error: unknown): Result<T, ResponseError> {
   return Result.err(new ResponseError(String(error)))
 }
 
-export class FiatConnectClientWithCookie extends FiatConnectClientImpl {
-  constructor(
-    config: FiatConnectClientConfig,
-    signingFunction: (message: string) => Promise<string>,
-  ) {
-    super(config, signingFunction, fetch)
+export function createSiweConfig(
+  config: FiatConnectClientConfig,
+): SiweClientConfig {
+  return {
+    accountAddress: config.accountAddress,
+    statement: 'Sign in with Ethereum',
+    version: '1',
+    chainId: NETWORK_CHAIN_IDS[config.network],
+    sessionDurationMs: SESSION_DURATION_MS,
+    loginUrl: `${config.baseUrl}/auth/login`,
+    clockUrl: `${config.baseUrl}/clock`,
   }
 }
