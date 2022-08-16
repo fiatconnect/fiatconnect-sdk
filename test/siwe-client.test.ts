@@ -235,10 +235,44 @@ describe('SIWE client', () => {
         }),
       )
     })
-    it('defaults to client time for issued-at if none is provided', async () => {
+    it('defaults to current server time for issued-at if none is provided', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      jest
+        .spyOn(client, 'getServerTimeApprox')
+        .mockResolvedValueOnce(new Date('2022-07-02T08:01:56+0000'))
 
       await client.login()
+
+      const expectedSiweMessage = new siwe.SiweMessage({
+        domain: 'siwe-api.com',
+        address: checksummedAccountAddress,
+        statement: 'Sign in with Ethereum',
+        uri: 'https://siwe-api.com/login',
+        nonce: '12345678',
+        expirationTime: '2022-07-02T09:01:56.000Z',
+        issuedAt: '2022-07-02T08:01:56.000Z',
+        version: '1',
+        chainId: 1,
+      })
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://siwe-api.com/login',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: expectedSiweMessage.prepareMessage(),
+            signature: 'signed message',
+          }),
+        }),
+      )
+    })
+    it('falls back to client time if getting clock diff throws', async () => {
+      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      jest
+        .spyOn(client, 'getServerTimeApprox')
+        .mockRejectedValueOnce(new Error('error fetching time'))
+
+      await client.login({ issuedAt: undefined })
 
       const expectedSiweMessage = new siwe.SiweMessage({
         domain: 'siwe-api.com',

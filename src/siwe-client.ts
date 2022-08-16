@@ -36,8 +36,19 @@ export class SiweImpl implements SiweApiClient {
    * @param {SiweLoginParams} params optional object containing params used to log in
    */
   async login(params?: SiweLoginParams): Promise<void> {
-    // Prefer param issued-at > client-based issued-at
-    const issuedAt = params?.issuedAt || new Date()
+    // Prefer param issued-at > diff-based issued-at > client-based issued-at
+    let issuedAt = params?.issuedAt
+    if (!issuedAt) {
+      try {
+        issuedAt = await this.getServerTimeApprox()
+      } catch (error) {
+        console.error(
+          `Unable to determine issuedAt time from server timestamp`,
+          error,
+        )
+        issuedAt = new Date()
+      }
+    }
     const expirationTime = new Date(
       issuedAt.getTime() + this.config.sessionDurationMs,
     )

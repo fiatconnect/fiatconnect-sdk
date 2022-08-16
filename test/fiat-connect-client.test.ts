@@ -26,7 +26,6 @@ import {
   KycSchema,
   Network,
 } from '@fiatconnect/fiatconnect-types'
-import { Result } from '@badrap/result'
 import { ResponseError } from '../src/types'
 
 jest.mock('../src/siwe-client')
@@ -171,37 +170,16 @@ describe('FiatConnectClientImpl', () => {
         headers: { Authorization: 'Bearer token' },
       })
     })
-    it('defaults to current server time for issued-at if none is provided', async () => {
+    it('calls siwe client login with empty params', async () => {
       siweLoginMock.mockImplementationOnce(() => Promise.resolve())
-      jest
-        .spyOn(client, 'getServerTimeApprox')
-        .mockResolvedValueOnce(Result.ok(new Date('2022-07-02T08:01:56+0000')))
 
       const response = await client.login()
 
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
       expect(getHeadersMock).toHaveBeenCalled()
-      expect(client.getServerTimeApprox).toHaveBeenCalled()
       expect(siweLoginMock).toHaveBeenCalledWith({
-        issuedAt: new Date('2022-07-02T08:01:56+0000'),
-        headers: undefined,
-      })
-    })
-    it('falls back to client time if getting clock diff throws', async () => {
-      siweLoginMock.mockImplementationOnce(() => Promise.resolve())
-      jest
-        .spyOn(client, 'getServerTimeApprox')
-        .mockResolvedValueOnce(Result.err(new Error()))
-
-      const response = await client.login()
-
-      expect(response.isOk).toBeTruthy()
-      expect(response.unwrap()).toEqual('success')
-      expect(getHeadersMock).toHaveBeenCalled()
-      expect(client.getServerTimeApprox).toHaveBeenCalled()
-      expect(siweLoginMock).toHaveBeenCalledWith({
-        issuedAt: new Date('2022-05-01T00:00:00.000Z'),
+        issuedAt: undefined,
         headers: undefined,
       })
     })

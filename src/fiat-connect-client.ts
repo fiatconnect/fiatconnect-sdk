@@ -75,20 +75,10 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    */
   async login(params?: LoginParams): Promise<Result<'success', ResponseError>> {
     try {
-      // Prefer param issued-at > diff-based issued-at > client-based issued-at
-      let issuedAt = params?.issuedAt
-      if (!issuedAt) {
-        const serverTimeResult = await this.getServerTimeApprox()
-        if (serverTimeResult.isOk) {
-          issuedAt = serverTimeResult.value
-        } else {
-          console.error(
-            `Unable to determine issuedAt time from server timestamp: ${serverTimeResult.error.message}`,
-          )
-          issuedAt = new Date()
-        }
-      }
-      await this._siweClient.login({ issuedAt, headers: this._getAuthHeader() })
+      await this._siweClient.login({
+        issuedAt: params?.issuedAt,
+        headers: this._getAuthHeader(),
+      })
 
       return Result.ok('success')
     } catch (error) {
