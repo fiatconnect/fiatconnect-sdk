@@ -8,6 +8,7 @@ import {
   SiweApiClient,
   SiweClientConfig,
   SiweLoginParams,
+  CookieJarType,
 } from './types'
 
 export class SiweImpl implements SiweApiClient {
@@ -16,6 +17,7 @@ export class SiweImpl implements SiweApiClient {
   fetchImpl: typeof fetch
   _sessionExpiry?: Date
   cookieJar: CookieJar
+  _loginHeader: Headers
 
   constructor(
     config: SiweClientConfig,
@@ -28,6 +30,7 @@ export class SiweImpl implements SiweApiClient {
     this.cookieJar = new CookieJar(new MemoryCookieStore(), {
       rejectPublicSuffixes: false,
     })
+    this._loginHeader = new Headers()
   }
 
   /**
@@ -87,17 +90,7 @@ export class SiweImpl implements SiweApiClient {
       throw new Error(`Received error response on login: ${responseText}`)
     }
 
-    const headerSetCookie = (response.headers as any).raw()[
-      'set-cookie'
-    ] as Array<string>
-
-    if (headerSetCookie) {
-      await Promise.all(
-        headerSetCookie.map(async (cookie: string) => {
-          await this.cookieJar.setCookie(cookie, this.config.loginUrl)
-        }),
-      )
-    }
+    this._loginHeader = response.headers
 
     this._sessionExpiry = expirationTime
   }
@@ -188,7 +181,7 @@ export class SiweImpl implements SiweApiClient {
     return this.fetchImpl(input, init)
   }
 
-  getCookies(): Promise<string> {
-    return this.cookieJar.getCookieString(this.config.loginUrl)
+  async getCookies(): Promise<CookieJarType> {
+    throw new Error('Not Implemented')
   }
 }
