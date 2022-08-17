@@ -91,8 +91,9 @@ export class SiweImpl implements SiweApiClient {
 
   /**
    * Extracts cookies and stores in local variable
+   * _extractCookies is overidded in each index, per environment, thus default implementation just avoids errors
    */
-  async _extractCookies(_header?: Headers): Promise<void> {
+  async _extractCookies(_headers?: Headers): Promise<void> {
     this._cookieJar = {}
   }
 
