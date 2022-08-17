@@ -9,7 +9,7 @@ import {
   SiweLoginParams,
 } from './types'
 
-export class SiweImpl implements SiweApiClient {
+export abstract class SiweImpl implements SiweApiClient {
   config: SiweClientConfig
   signingFunction: (message: string) => Promise<string>
   fetchImpl: typeof fetch
@@ -93,9 +93,7 @@ export class SiweImpl implements SiweApiClient {
    * Extracts cookies and stores in local variable
    * _extractCookies is overidded in each index, per environment, thus default implementation just avoids errors
    */
-  async _extractCookies(_headers?: Headers): Promise<void> {
-    this._cookieJar = {}
-  }
+  abstract _extractCookies(_headers?: Headers): Promise<void>
 
   /**
    * Checks if a logged in session exists.

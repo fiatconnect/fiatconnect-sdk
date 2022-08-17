@@ -21,4 +21,8 @@ export class SiweClient extends SiweImpl {
   ) {
     super(config, signingFunction, fetch)
   }
+
+  async _extractCookies(_headers?: Headers | undefined): Promise<void> {
+    this._cookieJar = {}
+  }
 }
