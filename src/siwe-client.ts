@@ -91,9 +91,9 @@ export abstract class SiweImpl implements SiweApiClient {
 
   /**
    * Extracts cookies and stores in local variable
-   * _extractCookies is overidded in each index, per environment, thus default implementation just avoids errors
+   * _extractCookies must be overidden in each index
    */
-  abstract _extractCookies(_headers?: Headers): Promise<void>
+  protected abstract _extractCookies(_headers?: Headers): Promise<void>
 
   /**
    * Checks if a logged in session exists.
