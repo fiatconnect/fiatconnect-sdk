@@ -69,6 +69,23 @@ describe('FiatConnect SDK node', () => {
       expect(client.fetchImpl.name).toEqual('fetchCookieWrapper')
     })
 
+    describe('_extractCookies', () => {
+      it('parses header for cookies', async () => {
+        const mockHeader = {
+          raw: () => ({
+            'set-cookie': ['session=session-val', 'session2=session-val2'],
+          }),
+        } as any as Headers
+
+        await client._extractCookies(mockHeader)
+
+        expect(client._cookieJar).toStrictEqual({
+          session: 'session-val',
+          session2: 'session-val2',
+        })
+      })
+    })
+
     describe('getCookies', () => {
       it('returns serialized cookies from login', async () => {
         jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')

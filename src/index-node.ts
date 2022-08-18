@@ -28,10 +28,19 @@ export class SiweClient extends SiweImpl {
 
   async _extractCookies(headers?: Headers): Promise<void> {
     const cookieRecord: Record<string, string> = {}
-    const setCookie = Cookie.parse(headers?.get('set-cookie') || '')
-    if (setCookie) {
-      cookieRecord[setCookie.key] = setCookie.value
+    const headerSetCookies = (headers as any).raw()[
+      'set-cookie'
+    ] as Array<string>
+
+    if (headerSetCookies) {
+      headerSetCookies.forEach(async (cookieString: string) => {
+        const setCookie = Cookie.parse(cookieString)
+        if (setCookie) {
+          cookieRecord[setCookie.key] = setCookie.value
+        }
+      })
     }
+
     this._cookieJar = cookieRecord
   }
 }
