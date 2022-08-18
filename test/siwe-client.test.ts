@@ -12,11 +12,17 @@ jest.mock('siwe', () => ({
   ...jest.requireActual('siwe'),
 }))
 
+class TestSiweClient extends SiweImpl {
+  async _extractCookies(_headers?: Headers | undefined): Promise<void> {
+    this._cookieJar = {}
+  }
+}
+
 describe('SIWE client', () => {
   const accountAddress = '0x0d8e461687b7d06f86ec348e0c270b0f279855f0'
   const checksummedAccountAddress = '0x0D8e461687b7D06f86EC348E0c270b0F279855F0'
   const signingFunction = jest.fn(() => Promise.resolve('signed message'))
-  const client = new SiweImpl(
+  const client = new TestSiweClient(
     {
       accountAddress,
       statement: 'Sign in with Ethereum',
@@ -35,7 +41,6 @@ describe('SIWE client', () => {
     fetchMock.resetMocks()
     jest.clearAllMocks()
     client._sessionExpiry = undefined
-    client.cookieJar.removeAllCookiesSync()
   })
 
   describe('getClock', () => {
@@ -118,6 +123,7 @@ describe('SIWE client', () => {
   describe('login', () => {
     it('calls login url and sets cookies in cookie jar', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      jest.spyOn(client, '_extractCookies')
       fetchMock.mockResponseOnce('', {
         headers: { 'set-cookie': 'session=session-val' },
       })
@@ -148,14 +154,7 @@ describe('SIWE client', () => {
           }),
         }),
       )
-      expect(
-        client.cookieJar.getCookiesSync('https://siwe-api.com'),
-      ).toHaveLength(1)
-      expect(
-        client.cookieJar.getCookiesSync('https://siwe-api.com')[0],
-      ).toEqual(
-        expect.objectContaining({ key: 'session', value: 'session-val' }),
-      )
+      expect(client._extractCookies).toBeCalled()
     })
     it('calls login url with additional headers', async () => {
       jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
@@ -346,24 +345,6 @@ describe('SIWE client', () => {
         method: 'POST',
       })
       expect(mockLogin).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('getCookies', () => {
-    it('returns serialized cookies from login', async () => {
-      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
-      fetchMock.mockResponseOnce('', {
-        headers: {
-          'set-cookie': 'session=session-val',
-        },
-      })
-
-      await client.login({
-        issuedAt: new Date('2022-10-02T10:01:56+0000'),
-      })
-
-      const cookies = await client.getCookies()
-      expect(cookies).toBe('session=session-val')
     })
   })
 })

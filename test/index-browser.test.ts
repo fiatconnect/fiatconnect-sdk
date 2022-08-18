@@ -1,7 +1,7 @@
-import { FiatConnectClient, SiweClient } from '../src/index'
+import { FiatConnectClient, SiweClient } from '../src/index-browser'
 import { Network } from '@fiatconnect/fiatconnect-types'
 
-describe('FiatConnect SDK node', () => {
+describe('FiatConnect SDK browser', () => {
   describe('FiatConnectClient', () => {
     it('creates client with fetch cookie and siwe client', () => {
       const signingFunction = jest.fn(() => Promise.resolve('message'))

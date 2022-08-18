@@ -1,7 +1,6 @@
 import { AuthRequestBody, ClockResponse } from '@fiatconnect/fiatconnect-types'
 import { ethers } from 'ethers'
 import { generateNonce, SiweMessage } from 'siwe'
-import { CookieJar, MemoryCookieStore } from 'tough-cookie'
 import {
   ClockDiffParams,
   ClockDiffResult,
@@ -10,12 +9,12 @@ import {
   SiweLoginParams,
 } from './types'
 
-export class SiweImpl implements SiweApiClient {
+export abstract class SiweImpl implements SiweApiClient {
   config: SiweClientConfig
   signingFunction: (message: string) => Promise<string>
   fetchImpl: typeof fetch
   _sessionExpiry?: Date
-  cookieJar: CookieJar
+  _cookieJar: Record<string, string>
 
   constructor(
     config: SiweClientConfig,
@@ -25,9 +24,7 @@ export class SiweImpl implements SiweApiClient {
     this.config = config
     this.signingFunction = signingFunction
     this.fetchImpl = fetchImpl
-    this.cookieJar = new CookieJar(new MemoryCookieStore(), {
-      rejectPublicSuffixes: false,
-    })
+    this._cookieJar = {}
   }
 
   /**
@@ -87,20 +84,16 @@ export class SiweImpl implements SiweApiClient {
       throw new Error(`Received error response on login: ${responseText}`)
     }
 
-    const headerSetCookie = (response.headers as any).raw()[
-      'set-cookie'
-    ] as Array<string>
-
-    if (headerSetCookie) {
-      await Promise.all(
-        headerSetCookie.map(async (cookie: string) => {
-          await this.cookieJar.setCookie(cookie, this.config.loginUrl)
-        }),
-      )
-    }
+    await this._extractCookies(response.headers)
 
     this._sessionExpiry = expirationTime
   }
+
+  /**
+   * Extracts cookies and stores in local variable
+   * _extractCookies must be overidden in each index
+   */
+  protected abstract _extractCookies(_headers?: Headers): Promise<void>
 
   /**
    * Checks if a logged in session exists.
@@ -188,7 +181,7 @@ export class SiweImpl implements SiweApiClient {
     return this.fetchImpl(input, init)
   }
 
-  getCookies(): Promise<string> {
-    return this.cookieJar.getCookieString(this.config.loginUrl)
+  getCookies(): Record<string, string> {
+    return this._cookieJar
   }
 }

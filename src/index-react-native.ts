@@ -3,6 +3,7 @@ import { FiatConnectClientImpl, createSiweConfig } from './fiat-connect-client'
 import { SiweImpl } from './siwe-client'
 import { FiatConnectClientConfig, SiweClientConfig } from './types'
 export * from './types'
+import CookieManager from '@react-native-cookies/cookies'
 
 export class FiatConnectClient extends FiatConnectClientImpl {
   constructor(
@@ -20,5 +21,14 @@ export class SiweClient extends SiweImpl {
     signingFunction: (message: string) => Promise<string>,
   ) {
     super(config, signingFunction, fetch)
+  }
+
+  async _extractCookies(): Promise<void> {
+    const cookieRecord: Record<string, string> = {}
+    const cookies = await CookieManager.get(this.config.loginUrl)
+    Object.keys(cookies).forEach((cookie) => {
+      cookieRecord[cookies[cookie].name] = cookies[cookie].value
+    })
+    this._cookieJar = cookieRecord
   }
 }

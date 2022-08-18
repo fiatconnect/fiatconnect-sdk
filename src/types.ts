@@ -28,7 +28,7 @@ export interface SiweApiClient {
   login(params?: SiweLoginParams): Promise<void>
   isLoggedIn(): boolean
   fetch: typeof fetch
-  getCookies(): Promise<string>
+  getCookies(): Record<string, string>
 }
 
 export interface FiatConnectApiClient {
@@ -66,7 +66,7 @@ export interface FiatConnectApiClient {
   getTransferStatus(
     params: TransferStatusRequestParams,
   ): Promise<Result<TransferStatusResponse, ResponseError>>
-  getCookies(): Promise<string>
+  getCookies(): Record<string, string>
 }
 
 export interface SiweClientConfig {

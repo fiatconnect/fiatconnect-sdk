@@ -18,8 +18,8 @@
     "celo"
   ],
   "main": "dist/index-node.js",
-  "browser": "dist/index.js",
-  "react-native": "dist/index.js",
+  "browser": "dist/index-browser.js",
+  "react-native": "dist/index-react-native.js",
   "types": "dist/index.d.ts",
   "repository": "git@github.com:fiatconnect/fiatconnect-sdk.git",
   "author": "Jacob Waterman <jacob.waterman@valoraapp.com>",
@@ -53,6 +53,7 @@
   "dependencies": {
     "@badrap/result": "^0.2.12",
     "@fiatconnect/fiatconnect-types": "^7.0.0",
+    "@react-native-cookies/cookies": "^6.2.1",
     "@types/tough-cookie": "^4.0.2",
     "cross-fetch": "^3.1.5",
     "ethers": "^5.6.4",

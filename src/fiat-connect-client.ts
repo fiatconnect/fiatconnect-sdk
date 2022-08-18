@@ -403,7 +403,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     }
   }
 
-  async getCookies(): Promise<string> {
+  getCookies(): Record<string, string> {
     return this._siweClient.getCookies()
   }
 }
