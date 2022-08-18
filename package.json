@@ -1,10 +1,10 @@
 {
   "name": "@fiatconnect/fiatconnect-sdk",
   "version": "0.3.6",
-  "description": "A helper libary for wallets to integrate with FiatConnect APIs",
+  "description": "A helper library for wallets to integrate with FiatConnect APIs",
   "scripts": {
     "format": "prettier --loglevel error --write \"./**/*.ts\"",
-    "prepublish": "tsc",
+    "prepublish": "rm -rf dist && tsc",
     "lint": "eslint --ext=.ts src/",
     "release": "standard-version --skip.tag",
     "test": "jest",
@@ -20,7 +20,7 @@
   "main": "dist/index-node.js",
   "browser": "dist/index-browser.js",
   "react-native": "dist/index-react-native.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/index-node.d.ts",
   "repository": "git@github.com:fiatconnect/fiatconnect-sdk.git",
   "author": "Jacob Waterman <jacob.waterman@valoraapp.com>",
   "bugs": {
@@ -32,6 +32,7 @@
   "devDependencies": {
     "@types/jest": "^27.5.2",
     "@types/node-fetch": "^2.6.2",
+    "@types/tough-cookie": "^4.0.2",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.32.0",
     "@valora/eslint-config-typescript": "^0.0.1",
@@ -46,19 +47,25 @@
     "jest-fetch-mock": "^3.0.3",
     "prettier": "2.7.1",
     "standard-version": "^9.3.2",
-    "tough-cookie": "^4.0.0",
     "ts-jest": "^27.1.5",
     "typescript": "^4.7.4"
+  },
+  "peerDependencies": {
+    "@react-native-cookies/cookies": "^6.2.1"
+  },
+  "peerDependenciesMeta": {
+    "@react-native-cookies/cookies": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@badrap/result": "^0.2.12",
     "@fiatconnect/fiatconnect-types": "^7.0.0",
-    "@react-native-cookies/cookies": "^6.2.1",
-    "@types/tough-cookie": "^4.0.2",
     "cross-fetch": "^3.1.5",
     "ethers": "^5.6.4",
     "fetch-cookie": "^2.0.3",
     "siwe": "^1.1.6",
+    "tough-cookie": "^4.0.0",
     "tslib": "^2.4.0"
   }
 }
