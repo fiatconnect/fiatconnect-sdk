@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.7](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.6...v0.3.7) (2022-08-18)
+
+
+### Bug Fixes
+
+* **cookies:** reverted node's getter back to raw() ([#63](https://github.com/fiatconnect/fiatconnect-sdk/issues/63)) ([ef6344c](https://github.com/fiatconnect/fiatconnect-sdk/commit/ef6344c3e4ae178b90c1eb62ca51adbf739b5c10))
+* **package:** types, dependencies ([#64](https://github.com/fiatconnect/fiatconnect-sdk/issues/64)) ([59372d8](https://github.com/fiatconnect/fiatconnect-sdk/commit/59372d875a62ca84624111c7002b6580cc982e04))
+
 ### [0.3.6](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.5...v0.3.6) (2022-08-18)
 
 
