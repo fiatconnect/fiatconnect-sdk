@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.6](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.5...v0.3.6) (2022-08-18)
+
+
+### Features
+
+* **cookie:** getter method to retrieve cookies ([#58](https://github.com/fiatconnect/fiatconnect-sdk/issues/58)) ([fd7f56e](https://github.com/fiatconnect/fiatconnect-sdk/commit/fd7f56e7757defc3d8636c07ba167298a30f6afb))
+* **cookies:** update getter method to extract cookies from each environment ([#61](https://github.com/fiatconnect/fiatconnect-sdk/issues/61)) ([a0e9c32](https://github.com/fiatconnect/fiatconnect-sdk/commit/a0e9c322bc4a78d9f0be76575185a742d9f26f03))
+* **siwe:** expose a SIWE client ([#59](https://github.com/fiatconnect/fiatconnect-sdk/issues/59)) ([2c2357c](https://github.com/fiatconnect/fiatconnect-sdk/commit/2c2357cafef206fd98c183d508938cb9113d2b2b))
+
 ### [0.3.5](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.4...v0.3.5) (2022-08-03)
 
 
