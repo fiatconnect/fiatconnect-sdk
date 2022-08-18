@@ -71,13 +71,18 @@ describe('FiatConnect SDK node', () => {
 
     describe('_extractCookies', () => {
       it('parses header for cookies', async () => {
-        const mockheader: Headers = new Headers({
-          'set-cookie': 'session=session-val',
+        const mockHeader = {
+          raw: () => ({
+            'set-cookie': ['session=session-val', 'session2=session-val2'],
+          }),
+        } as any as Headers
+
+        await client._extractCookies(mockHeader)
+
+        expect(client._cookieJar).toStrictEqual({
+          session: 'session-val',
+          session2: 'session-val2',
         })
-
-        await client._extractCookies(mockheader)
-
-        expect(client._cookieJar).toStrictEqual({ session: 'session-val' })
       })
     })
 
