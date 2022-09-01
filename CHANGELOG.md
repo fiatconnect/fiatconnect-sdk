@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.8](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.7...v0.3.8) (2022-09-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fiatconnect/fiatconnect-types to ^7.0.1 ([#65](https://github.com/fiatconnect/fiatconnect-sdk/issues/65)) ([c7a6399](https://github.com/fiatconnect/fiatconnect-sdk/commit/c7a6399cf43c88754b01b2922f257d4acb1175d0))
+* **deps:** update dependency @fiatconnect/fiatconnect-types to ^7.0.2 ([#68](https://github.com/fiatconnect/fiatconnect-sdk/issues/68)) ([fb92587](https://github.com/fiatconnect/fiatconnect-sdk/commit/fb925875ebfbb4b9f3cf9a3c60c41f189390bc18))
+* **deps:** update dependency ethers to ^5.7.0 ([#40](https://github.com/fiatconnect/fiatconnect-sdk/issues/40)) ([005b4bc](https://github.com/fiatconnect/fiatconnect-sdk/commit/005b4bc28e51ae6d58ae04cdc0ea85804f6b40fc))
+* **fees:** moved fees to correct part of quote response ([#72](https://github.com/fiatconnect/fiatconnect-sdk/issues/72)) ([e3c2260](https://github.com/fiatconnect/fiatconnect-sdk/commit/e3c2260da179672775b4401134876814134146ef))
+
 ### [0.3.7](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.6...v0.3.7) (2022-08-18)
 
 
