@@ -40,6 +40,8 @@ export const mockQuoteInResponse: QuoteResponse = {
     quoteId: 'mock_quote_id',
     guaranteedUntil: '2030-01-01T00:00:00.000Z',
     transferType: TransferType.TransferIn,
+    fee: '.001',
+    feeType: FeeType.PlatformFee,
   },
   kyc: {
     kycRequired: true,
@@ -55,8 +57,6 @@ export const mockQuoteInResponse: QuoteResponse = {
           allowedValues: {},
         },
       ],
-      fee: '.001',
-      feeType: FeeType.PlatformFee,
     },
   },
 }
@@ -70,6 +70,8 @@ export const mockQuoteOutResponse: QuoteResponse = {
     quoteId: 'mock_quote_id',
     guaranteedUntil: '2030-01-01T00:00:00.000Z',
     transferType: TransferType.TransferOut,
+    fee: '.001',
+    feeType: FeeType.PlatformFee,
   },
   kyc: {
     kycRequired: true,
@@ -85,8 +87,6 @@ export const mockQuoteOutResponse: QuoteResponse = {
           allowedValues: {},
         },
       ],
-      fee: '.001',
-      feeType: FeeType.PlatformFee,
     },
   },
 }
