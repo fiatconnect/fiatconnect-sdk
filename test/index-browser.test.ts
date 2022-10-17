@@ -27,7 +27,7 @@ describe('FiatConnect SDK browser', () => {
         sessionDurationMs: 14400000,
         statement: 'Sign in with Ethereum',
         version: '1',
-        loginHeaders: undefined,
+        headers: undefined,
       })
     })
   })

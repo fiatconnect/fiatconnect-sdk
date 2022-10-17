@@ -439,7 +439,7 @@ export function createSiweConfig(
     sessionDurationMs: SESSION_DURATION_MS,
     loginUrl: `${config.baseUrl}/auth/login`,
     clockUrl: `${config.baseUrl}/clock`,
-    loginHeaders: _getAuthHeader(config.apiKey),
+    headers: _getAuthHeader(config.apiKey),
   }
 }
 

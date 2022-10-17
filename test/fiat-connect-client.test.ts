@@ -713,7 +713,7 @@ describe('createSiweConfig', () => {
       sessionDurationMs: 14400000,
       loginUrl: 'https://fiat-connect-api.com/auth/login',
       clockUrl: 'https://fiat-connect-api.com/clock',
-      loginHeaders: undefined,
+      headers: undefined,
     })
   })
 
@@ -733,7 +733,7 @@ describe('createSiweConfig', () => {
       sessionDurationMs: 14400000,
       loginUrl: 'https://fiat-connect-api.com/auth/login',
       clockUrl: 'https://fiat-connect-api.com/clock',
-      loginHeaders: { Authorization: 'Bearer token' },
+      headers: { Authorization: 'Bearer token' },
     })
   })
 })

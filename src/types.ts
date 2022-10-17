@@ -77,7 +77,7 @@ export interface SiweClientConfig {
   sessionDurationMs: number
   loginUrl: string
   clockUrl: string
-  loginHeaders?: HeadersInit
+  headers?: HeadersInit
 }
 
 export interface LoginParams {

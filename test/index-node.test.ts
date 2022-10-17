@@ -15,6 +15,10 @@ jest.mock('siwe', () => ({
 
 describe('FiatConnect SDK node', () => {
   describe('FiatConnectClient', () => {
+    beforeEach(() => {
+      fetchMock.resetMocks()
+    })
+
     it('creates client with fetch cookie and siwe client', () => {
       const signingFunction = jest.fn(() => Promise.resolve('message'))
       const client = new FiatConnectClient(
@@ -39,8 +43,73 @@ describe('FiatConnect SDK node', () => {
         sessionDurationMs: 14400000,
         statement: 'Sign in with Ethereum',
         version: '1',
-        loginHeaders: undefined,
+        headers: undefined,
       })
+    })
+
+    it('logs in with correct params before calling an endpoint that requires login', async () => {
+      fetchMock.mockResponse(async (req) => {
+        if (req.url.endsWith('/clock')) {
+          return JSON.stringify(mockClockResponse)
+        }
+        if (req.url.endsWith('/auth/login')) {
+          return {
+            url: 'https://fiatconnect-api.com/auth/login/',
+            body: 'ok',
+            headers: {
+              'set-cookie': 'session=session-val;Path=/',
+            },
+          }
+        }
+        return '{}'
+      })
+
+      const signingFunction = jest.fn(() => Promise.resolve('signed message'))
+      const client = new FiatConnectClient(
+        {
+          accountAddress: '0x0D8e461687b7D06f86EC348E0c270b0F279855F0',
+          baseUrl: 'https://fiatconnect-api.com',
+          network: Network.Alfajores,
+          apiKey: 'token',
+        },
+        signingFunction,
+      )
+
+      const response = await client.getFiatAccounts()
+      expect(response.isOk).toEqual(true)
+      expect(response.unwrap()).toEqual({})
+      expect(fetchMock).toHaveBeenCalledTimes(3)
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        1,
+        'https://fiatconnect-api.com/clock',
+        expect.objectContaining({
+          headers: {
+            Authorization: 'Bearer token',
+          },
+        }),
+      )
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        2,
+        'https://fiatconnect-api.com/auth/login',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            Authorization: 'Bearer token',
+            'Content-Type': 'application/json',
+          },
+        }),
+      )
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        3,
+        'https://fiatconnect-api.com/accounts',
+        expect.objectContaining({
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer token',
+            cookie: 'session=session-val',
+          },
+        }),
+      )
     })
   })
 
