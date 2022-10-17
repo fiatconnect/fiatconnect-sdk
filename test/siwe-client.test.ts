@@ -61,7 +61,9 @@ describe('SIWE client', () => {
     it('gets the server clock', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
       const response = await client.getClock()
-      expect(fetchMock).toHaveBeenCalledWith('https://siwe-api.com/clock')
+      expect(fetchMock).toHaveBeenCalledWith('https://siwe-api.com/clock', {
+        headers: undefined,
+      })
       expect(response).toMatchObject(mockClockResponse)
     })
     it('handles error responses', async () => {
