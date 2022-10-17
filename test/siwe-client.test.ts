@@ -35,6 +35,20 @@ describe('SIWE client', () => {
     signingFunction,
     fetch,
   )
+  const clientWithHeaders = new TestSiweClient(
+    {
+      accountAddress,
+      statement: 'Sign in with Ethereum',
+      chainId: 1,
+      version: '1',
+      sessionDurationMs: 3600000,
+      loginUrl: 'https://siwe-api.com/login',
+      clockUrl: 'https://siwe-api.com/clock',
+      headers: { Authorization: 'Bearer token' },
+    },
+    signingFunction,
+    fetch,
+  )
 
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(new Date('2022-05-01T00:00:00Z'))
@@ -47,7 +61,9 @@ describe('SIWE client', () => {
     it('gets the server clock', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockClockResponse))
       const response = await client.getClock()
-      expect(fetchMock).toHaveBeenCalledWith('https://siwe-api.com/clock')
+      expect(fetchMock).toHaveBeenCalledWith('https://siwe-api.com/clock', {
+        headers: undefined,
+      })
       expect(response).toMatchObject(mockClockResponse)
     })
     it('handles error responses', async () => {
@@ -162,9 +178,8 @@ describe('SIWE client', () => {
         headers: { 'set-cookie': 'session=session-val' },
       })
 
-      await client.login({
+      await clientWithHeaders.login({
         issuedAt: new Date('2022-10-02T10:01:56+0000'),
-        headers: { Authorization: 'Bearer token' },
       })
 
       const expectedSiweMessage = new siwe.SiweMessage({

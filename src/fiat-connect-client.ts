@@ -51,12 +51,6 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     this.fetchImpl = fetchImpl
   }
 
-  _getAuthHeader() {
-    if (this.config.apiKey) {
-      return { Authorization: `Bearer ${this.config.apiKey}` }
-    }
-  }
-
   /**
    * Checks if a logged in session exists with the provider.
    *
@@ -77,7 +71,6 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     try {
       await this._siweClient.login({
         issuedAt: params?.issuedAt,
-        headers: this._getAuthHeader(),
       })
 
       return Result.ok('success')
@@ -97,7 +90,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...this._getAuthHeader(),
+            ..._getAuthHeader(this.config.apiKey),
           },
           body: JSON.stringify(body),
         },
@@ -182,7 +175,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...this._getAuthHeader(),
+            ..._getAuthHeader(this.config.apiKey),
           },
           body: JSON.stringify(params.data),
         },
@@ -208,7 +201,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/kyc/${params.kycSchema}`,
         {
           method: 'DELETE',
-          headers: this._getAuthHeader(),
+          headers: _getAuthHeader(this.config.apiKey),
         },
       )
       const data = await response.json()
@@ -232,7 +225,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/kyc/${params.kycSchema}/status`,
         {
           method: 'GET',
-          headers: this._getAuthHeader(),
+          headers: _getAuthHeader(this.config.apiKey),
         },
       )
       const data = await response.json()
@@ -258,7 +251,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...this._getAuthHeader(),
+            ..._getAuthHeader(this.config.apiKey),
           },
           body: JSON.stringify(params),
         },
@@ -284,7 +277,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/accounts`,
         {
           method: 'GET',
-          headers: this._getAuthHeader(),
+          headers: _getAuthHeader(this.config.apiKey),
         },
       )
       const data = await response.json()
@@ -308,7 +301,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/accounts/${params.fiatAccountId}`,
         {
           method: 'DELETE',
-          headers: this._getAuthHeader(),
+          headers: _getAuthHeader(this.config.apiKey),
         },
       )
       const data = await response.json()
@@ -335,7 +328,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
           headers: {
             'Content-Type': 'application/json',
             'Idempotency-Key': params.idempotencyKey,
-            ...this._getAuthHeader(),
+            ..._getAuthHeader(this.config.apiKey),
           },
           body: JSON.stringify(params.data),
         },
@@ -364,7 +357,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
           headers: {
             'Content-Type': 'application/json',
             'Idempotency-Key': params.idempotencyKey,
-            ...this._getAuthHeader(),
+            ..._getAuthHeader(this.config.apiKey),
           },
           body: JSON.stringify(params.data),
         },
@@ -390,7 +383,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/transfer/${params.transferId}/status`,
         {
           method: 'GET',
-          headers: this._getAuthHeader(),
+          headers: _getAuthHeader(this.config.apiKey),
         },
       )
       const data = await response.json()
@@ -446,5 +439,12 @@ export function createSiweConfig(
     sessionDurationMs: SESSION_DURATION_MS,
     loginUrl: `${config.baseUrl}/auth/login`,
     clockUrl: `${config.baseUrl}/clock`,
+    headers: _getAuthHeader(config.apiKey),
+  }
+}
+
+function _getAuthHeader(apiKey?: string) {
+  if (apiKey) {
+    return { Authorization: `Bearer ${apiKey}` }
   }
 }

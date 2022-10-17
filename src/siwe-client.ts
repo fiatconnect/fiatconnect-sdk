@@ -4,9 +4,9 @@ import { generateNonce, SiweMessage } from 'siwe'
 import {
   ClockDiffParams,
   ClockDiffResult,
+  LoginParams,
   SiweApiClient,
   SiweClientConfig,
-  SiweLoginParams,
 } from './types'
 
 export abstract class SiweImpl implements SiweApiClient {
@@ -30,9 +30,9 @@ export abstract class SiweImpl implements SiweApiClient {
   /**
    * Logs in with the SIWE compliant API and initializes a session.
    *
-   * @param {SiweLoginParams} params optional object containing params used to log in
+   * @param {LoginParams} params optional object containing params used to log in
    */
-  async login(params?: SiweLoginParams): Promise<void> {
+  async login(params?: LoginParams): Promise<void> {
     // Prefer param issued-at > diff-based issued-at > client-based issued-at
     let issuedAt = params?.issuedAt
     if (!issuedAt) {
@@ -72,8 +72,8 @@ export abstract class SiweImpl implements SiweApiClient {
     const response = await this.fetchImpl(this.config.loginUrl, {
       method: 'POST',
       headers: {
+        ...this.config.headers,
         'Content-Type': 'application/json',
-        ...params?.headers,
       },
       body: JSON.stringify(body),
     })
@@ -112,7 +112,9 @@ export abstract class SiweImpl implements SiweApiClient {
    * 8601 datetime string.
    */
   async getClock(): Promise<ClockResponse> {
-    const response = await this.fetchImpl(`${this.config.clockUrl}`)
+    const response = await this.fetchImpl(this.config.clockUrl, {
+      headers: this.config.headers,
+    })
     if (!response.ok) {
       const responseText = await response.text()
       throw new Error(
@@ -165,7 +167,9 @@ export abstract class SiweImpl implements SiweApiClient {
 
   /**
    * A wrapper around fetch that ensures a session exists before making the
-   * fetch request
+   * fetch request. This has the same API as the fetch API. It ignores headers
+   * set in the config of the constructor and passes fetch options as is, so any
+   * required header MUST be set in the options.
    *
    * @param input the fetch input
    * @param init the fetch options
