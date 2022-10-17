@@ -58,12 +58,21 @@ describe('FiatConnectClientImpl', () => {
     siweClientMock,
     fetch,
   )
-  const getHeadersMock = jest.spyOn(client, '_getAuthHeader')
+
+  const clientWithApiKey = new FiatConnectClientImpl(
+    {
+      baseUrl: 'https://fiat-connect-api.com',
+      network: Network.Alfajores,
+      accountAddress,
+      apiKey: 'api-key',
+    },
+    siweClientMock,
+    fetch,
+  )
 
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(new Date('2022-05-01T00:00:00Z'))
     fetchMock.resetMocks()
-    getHeadersMock.mockReset()
     siweLoginMock.mockReset()
     siweIsLoggedInMock.mockReset()
     siweGetServerTimeApprox.mockReset()
@@ -142,32 +151,26 @@ describe('FiatConnectClientImpl', () => {
   describe('login', () => {
     it('calls siwe client login', async () => {
       siweLoginMock.mockImplementationOnce(() => Promise.resolve())
-      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer token' })
       const response = await client.login({
         issuedAt: new Date('2022-10-02T10:01:56+0000'),
       })
 
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
-      expect(getHeadersMock).toHaveBeenCalled()
       expect(siweLoginMock).toHaveBeenCalledWith({
         issuedAt: new Date('2022-10-02T10:01:56+0000'),
-        headers: { Authorization: 'Bearer token' },
       })
     })
     it('returns error if siwe login throws', async () => {
       siweLoginMock.mockImplementationOnce(() => Promise.reject('error'))
-      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer token' })
       const response = await client.login({
         issuedAt: new Date('2022-10-02T22:01:56+0000'),
       })
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(new ResponseError('error'))
-      expect(getHeadersMock).toHaveBeenCalled()
       expect(siweLoginMock).toHaveBeenCalledWith({
         issuedAt: new Date('2022-10-02T22:01:56+0000'),
-        headers: { Authorization: 'Bearer token' },
       })
     })
     it('calls siwe client login with empty params', async () => {
@@ -177,10 +180,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toEqual('success')
-      expect(getHeadersMock).toHaveBeenCalled()
       expect(siweLoginMock).toHaveBeenCalledWith({
         issuedAt: undefined,
-        headers: undefined,
       })
     })
   })
@@ -189,26 +190,6 @@ describe('FiatConnectClientImpl', () => {
       siweIsLoggedInMock.mockReturnValueOnce(false)
       expect(client.isLoggedIn()).toBeFalsy()
       expect(siweIsLoggedInMock).toHaveBeenCalledWith()
-    })
-  })
-  describe('_getAuthHeader', () => {
-    it('returns auth header if client key is set', () => {
-      const clientWithApiKey = new FiatConnectClientImpl(
-        {
-          baseUrl: 'https://fiat-connect-api.com',
-          network: Network.Alfajores,
-          accountAddress,
-          apiKey: 'some-api-key',
-        },
-        siweClientMock,
-        fetch,
-      )
-      expect(clientWithApiKey._getAuthHeader()).toEqual({
-        Authorization: 'Bearer some-api-key',
-      })
-    })
-    it('returns undefined if client key is not set', () => {
-      expect(client._getAuthHeader()).toBeUndefined()
     })
   })
   describe('getQuoteIn', () => {
@@ -225,7 +206,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockQuoteInResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
@@ -262,7 +242,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockQuoteOutResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
@@ -301,12 +280,10 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockKycStatusResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('calls POST /kyc/${params.kycSchemaName} with auth header and returns KycStatusResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockKycStatusResponse))
-      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
-      const response = await client.addKyc({
+      const response = await clientWithApiKey.addKyc({
         kycSchemaName: KycSchema.PersonalDataAndDocuments,
         data: mockKycSchemaData,
       })
@@ -322,7 +299,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockKycStatusResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceExists }
@@ -362,7 +338,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toBeUndefined()
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceNotFound }
@@ -400,7 +375,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockKycStatusResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceNotFound }
@@ -446,12 +420,10 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockAddFiatAccountResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('calls POST /accounts/${params.fiatAccountSchemaName} and returns AddFiatAccountResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockAddFiatAccountResponse))
-      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
-      const response = await client.addFiatAccount({
+      const response = await clientWithApiKey.addFiatAccount({
         fiatAccountSchema: FiatAccountSchema.AccountNumber,
         data: mockFiatAccountSchemaData,
       })
@@ -471,7 +443,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockAddFiatAccountResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceExists }
@@ -509,7 +480,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockGetFiatAccountsResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceNotFound }
@@ -543,7 +513,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toBeUndefined()
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceNotFound }
@@ -584,12 +553,12 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('calls POST /transfer/in with auth header and returns TransferResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockTransferResponse))
-      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
-      const response = await client.transferIn(mockTransferRequestParams)
+      const response = await clientWithApiKey.transferIn(
+        mockTransferRequestParams,
+      )
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/transfer/in',
         expect.objectContaining({
@@ -602,7 +571,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceNotFound }
@@ -640,12 +608,12 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('calls POST /transfer/out with auth header and returns TransferResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockTransferResponse))
-      getHeadersMock.mockReturnValueOnce({ Authorization: 'Bearer api-key' })
-      const response = await client.transferOut(mockTransferRequestParams)
+      const response = await clientWithApiKey.transferOut(
+        mockTransferRequestParams,
+      )
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/transfer/out',
         expect.objectContaining({
@@ -658,7 +626,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceNotFound }
@@ -693,7 +660,6 @@ describe('FiatConnectClientImpl', () => {
       )
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferStatusResponse)
-      expect(getHeadersMock).toHaveBeenCalled()
     })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceNotFound }
@@ -747,6 +713,27 @@ describe('createSiweConfig', () => {
       sessionDurationMs: 14400000,
       loginUrl: 'https://fiat-connect-api.com/auth/login',
       clockUrl: 'https://fiat-connect-api.com/clock',
+      loginHeaders: undefined,
+    })
+  })
+
+  it('maps fiat connect client config to siwe client config with login headers', () => {
+    expect(
+      createSiweConfig({
+        accountAddress: '0x123',
+        network: Network.Alfajores,
+        baseUrl: 'https://fiat-connect-api.com',
+        apiKey: 'token',
+      }),
+    ).toEqual({
+      accountAddress: '0x123',
+      statement: 'Sign in with Ethereum',
+      version: '1',
+      chainId: 44787,
+      sessionDurationMs: 14400000,
+      loginUrl: 'https://fiat-connect-api.com/auth/login',
+      clockUrl: 'https://fiat-connect-api.com/clock',
+      loginHeaders: { Authorization: 'Bearer token' },
     })
   })
 })

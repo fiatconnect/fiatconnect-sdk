@@ -35,6 +35,20 @@ describe('SIWE client', () => {
     signingFunction,
     fetch,
   )
+  const clientWithLoginHeaders = new TestSiweClient(
+    {
+      accountAddress,
+      statement: 'Sign in with Ethereum',
+      chainId: 1,
+      version: '1',
+      sessionDurationMs: 3600000,
+      loginUrl: 'https://siwe-api.com/login',
+      clockUrl: 'https://siwe-api.com/clock',
+      loginHeaders: { Authorization: 'Bearer token' },
+    },
+    signingFunction,
+    fetch,
+  )
 
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(new Date('2022-05-01T00:00:00Z'))
@@ -162,9 +176,8 @@ describe('SIWE client', () => {
         headers: { 'set-cookie': 'session=session-val' },
       })
 
-      await client.login({
+      await clientWithLoginHeaders.login({
         issuedAt: new Date('2022-10-02T10:01:56+0000'),
-        headers: { Authorization: 'Bearer token' },
       })
 
       const expectedSiweMessage = new siwe.SiweMessage({

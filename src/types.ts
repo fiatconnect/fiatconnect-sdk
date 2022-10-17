@@ -25,7 +25,7 @@ export interface SiweApiClient {
   getServerTimeApprox(): Promise<Date>
   getClockDiffApprox(): Promise<ClockDiffResult>
   getClock(): Promise<ClockResponse>
-  login(params?: SiweLoginParams): Promise<void>
+  login(params?: LoginParams): Promise<void>
   isLoggedIn(): boolean
   fetch: typeof fetch
   getCookies(): Record<string, string>
@@ -77,14 +77,11 @@ export interface SiweClientConfig {
   sessionDurationMs: number
   loginUrl: string
   clockUrl: string
+  loginHeaders?: HeadersInit
 }
 
 export interface LoginParams {
   issuedAt?: Date
-}
-
-export type SiweLoginParams = LoginParams & {
-  headers?: Record<string, string>
 }
 
 export interface AddKycParams<T extends KycSchema> {
