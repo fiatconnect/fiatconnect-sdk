@@ -443,7 +443,7 @@ export function createSiweConfig(
   }
 }
 
-export function _getAuthHeader(apiKey?: string) {
+function _getAuthHeader(apiKey?: string) {
   if (apiKey) {
     return { Authorization: `Bearer ${apiKey}` }
   }
