@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.9](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.8...v0.3.9) (2022-10-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency ethers to ^5.7.1 ([#76](https://github.com/fiatconnect/fiatconnect-sdk/issues/76)) ([f47659d](https://github.com/fiatconnect/fiatconnect-sdk/commit/f47659d664d92fbaa6b4a5e9e0a82d640131f530))
+* **siwe-client:** make headers a constructor param ([#81](https://github.com/fiatconnect/fiatconnect-sdk/issues/81)) ([3be78ab](https://github.com/fiatconnect/fiatconnect-sdk/commit/3be78ab1d505b22b67d15fb24060e079122d790f))
+
 ### [0.3.8](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.7...v0.3.8) (2022-09-01)
 
 
