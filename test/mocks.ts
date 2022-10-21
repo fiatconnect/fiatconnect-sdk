@@ -29,6 +29,7 @@ export const mockQuoteRequestQuery: QuoteRequestBody = {
   fiatType: FiatType.USD,
   cryptoType: CryptoType.cUSD,
   country: 'DE',
+  address: '0x123',
 }
 
 export const mockQuoteInResponse: QuoteResponse = {
