@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.1](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.4.0...v0.4.1) (2022-10-31)
+
+
+### Features
+
+* **client:** add timeout option ([#88](https://github.com/fiatconnect/fiatconnect-sdk/issues/88)) ([a5b49a2](https://github.com/fiatconnect/fiatconnect-sdk/commit/a5b49a2acd074183615aea6b7cc24ef1b0bd1ecb))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @badrap/result to ^0.2.13 ([#86](https://github.com/fiatconnect/fiatconnect-sdk/issues/86)) ([2e0e7ae](https://github.com/fiatconnect/fiatconnect-sdk/commit/2e0e7ae853ae10f361cc8854885f3d0ba9d04731))
+* **deps:** update dependency ethers to ^5.7.2 ([#87](https://github.com/fiatconnect/fiatconnect-sdk/issues/87)) ([65713fa](https://github.com/fiatconnect/fiatconnect-sdk/commit/65713fa81a9ecc856215ef6b1b2e6688529523b5))
+
 ## [0.4.0](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.3.9...v0.4.0) (2022-10-21)
 
 
