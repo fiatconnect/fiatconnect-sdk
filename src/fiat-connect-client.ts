@@ -18,6 +18,7 @@ import {
 } from '@fiatconnect/fiatconnect-types'
 import fetch from 'cross-fetch'
 import { Result } from '@badrap/result'
+import { fetchWithTimeout } from './fetch-timeout'
 import {
   AddKycParams,
   ResponseError,
@@ -48,7 +49,9 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
   ) {
     this.config = config
     this._siweClient = siweClient
-    this.fetchImpl = fetchImpl
+    this.fetchImpl = config.timeout
+      ? fetchWithTimeout(fetchImpl, config.timeout)
+      : fetchImpl
   }
 
   /**
@@ -417,6 +420,9 @@ function handleError<T>(error: unknown): Result<T, ResponseError> {
   if (error instanceof ResponseError) {
     return Result.err(error)
   } else if (error instanceof Error) {
+    if (error.name === 'AbortError') {
+      return Result.err(new ResponseError(error.name))
+    }
     return Result.err(new ResponseError(error.message))
   } else if (error instanceof Object) {
     // We cast to QuoteErrorResponse here since it is a strict superset of all other
@@ -440,6 +446,7 @@ export function createSiweConfig(
     loginUrl: `${config.baseUrl}/auth/login`,
     clockUrl: `${config.baseUrl}/clock`,
     headers: _getAuthHeader(config.apiKey),
+    timeout: config.timeout,
   }
 }
 

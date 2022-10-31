@@ -78,6 +78,7 @@ export interface SiweClientConfig {
   loginUrl: string
   clockUrl: string
   headers?: HeadersInit
+  timeout?: number
 }
 
 export interface LoginParams {
@@ -94,6 +95,7 @@ export interface FiatConnectClientConfig {
   network: Network
   accountAddress: string
   apiKey?: string
+  timeout?: number
 }
 
 export interface TransferRequestParams {
