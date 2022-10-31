@@ -35,7 +35,7 @@ describe('SIWE client', () => {
     signingFunction,
     fetch,
   )
-  const clientWithHeaders = new TestSiweClient(
+  const clientWithHeadersAndTimeout = new TestSiweClient(
     {
       accountAddress,
       statement: 'Sign in with Ethereum',
@@ -45,6 +45,7 @@ describe('SIWE client', () => {
       loginUrl: 'https://siwe-api.com/login',
       clockUrl: 'https://siwe-api.com/clock',
       headers: { Authorization: 'Bearer token' },
+      timeout: 1000,
     },
     signingFunction,
     fetch,
@@ -70,6 +71,15 @@ describe('SIWE client', () => {
       fetchMock.mockResponseOnce('error', { status: 500 })
       await expect(client.getClock()).rejects.toEqual(
         new Error('Received error response from clock endpoint: error'),
+      )
+    })
+    it('aborts if request takes longer than the specified timeout', async () => {
+      fetchMock.mockResponseOnce(async () => {
+        jest.advanceTimersByTime(2000)
+        return JSON.stringify(mockClockResponse)
+      })
+      await expect(clientWithHeadersAndTimeout.getClock()).rejects.toThrowError(
+        'The operation was aborted. ',
       )
     })
   })
@@ -178,7 +188,7 @@ describe('SIWE client', () => {
         headers: { 'set-cookie': 'session=session-val' },
       })
 
-      await clientWithHeaders.login({
+      await clientWithHeadersAndTimeout.login({
         issuedAt: new Date('2022-10-02T10:01:56+0000'),
       })
 
@@ -311,6 +321,18 @@ describe('SIWE client', () => {
         }),
       )
     })
+    it('aborts if request takes longer than the specified timeout', async () => {
+      jest.spyOn(siwe, 'generateNonce').mockReturnValueOnce('12345678')
+      fetchMock.mockResponseOnce(async () => {
+        jest.advanceTimersByTime(2000)
+        return ''
+      })
+      await expect(
+        clientWithHeadersAndTimeout.login({
+          issuedAt: new Date('2022-10-02T10:01:56+0000'),
+        }),
+      ).rejects.toThrowError('The operation was aborted. ')
+    })
   })
 
   describe('isLoggedIn', () => {
@@ -360,6 +382,18 @@ describe('SIWE client', () => {
         method: 'POST',
       })
       expect(mockLogin).not.toHaveBeenCalled()
+    })
+    it('aborts if request takes longer than the specified timeout', async () => {
+      clientWithHeadersAndTimeout._sessionExpiry = new Date(
+        '2022-05-01T03:00:00Z',
+      )
+      fetchMock.mockResponseOnce(async () => {
+        jest.advanceTimersByTime(2000)
+        return 'post response'
+      })
+      await expect(clientWithHeadersAndTimeout.getClock()).rejects.toThrowError(
+        'The operation was aborted. ',
+      )
     })
   })
 })

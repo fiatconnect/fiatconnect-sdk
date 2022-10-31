@@ -54,6 +54,7 @@ describe('FiatConnectClientImpl', () => {
       baseUrl: 'https://fiat-connect-api.com',
       network: Network.Alfajores,
       accountAddress,
+      timeout: 1000,
     },
     siweClientMock,
     fetch,
@@ -225,6 +226,18 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError('fake error message'),
+      )
+    })
+    it('aborts if request takes longer than the specified timeout', async () => {
+      fetchMock.mockResponseOnce(async () => {
+        jest.advanceTimersByTime(2000) // timeout is 1000
+        return JSON.stringify(mockQuoteInResponse)
+      })
+      const response = await client.createQuoteIn(mockQuoteRequestQuery)
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError('AbortError'),
       )
     })
   })
@@ -717,13 +730,14 @@ describe('createSiweConfig', () => {
     })
   })
 
-  it('maps fiat connect client config to siwe client config with login headers', () => {
+  it('maps fiat connect client config to siwe client config with optional params', () => {
     expect(
       createSiweConfig({
         accountAddress: '0x123',
         network: Network.Alfajores,
         baseUrl: 'https://fiat-connect-api.com',
         apiKey: 'token',
+        timeout: 1000,
       }),
     ).toEqual({
       accountAddress: '0x123',
@@ -734,6 +748,7 @@ describe('createSiweConfig', () => {
       loginUrl: 'https://fiat-connect-api.com/auth/login',
       clockUrl: 'https://fiat-connect-api.com/clock',
       headers: { Authorization: 'Bearer token' },
+      timeout: 1000,
     })
   })
 })
