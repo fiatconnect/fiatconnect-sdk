@@ -180,3 +180,13 @@ export const mockTransferStatusResponse: TransferStatusResponse = {
 export const mockClockResponse: ClockResponse = {
   time: '2022-05-02T22:06:00+0000',
 }
+
+export const mockInvalidZodIssues = [
+  {
+    code:"invalid_type",
+    expected:"object",
+    received:"string",
+    path:[],
+    message:"Expected object, received string"
+  }
+]

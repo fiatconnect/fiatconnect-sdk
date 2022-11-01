@@ -17,7 +17,6 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
   ClockResponse,
-  FiatAccountSchema,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
 
@@ -50,8 +49,8 @@ export interface FiatConnectApiClient {
   getKycStatus(
     params: KycRequestParams,
   ): Promise<Result<KycStatusResponse, ResponseError>>
-  addFiatAccount<T extends FiatAccountSchema>(
-    params: PostFiatAccountRequestBody<T>,
+  addFiatAccount(
+    params: PostFiatAccountRequestBody,
   ): Promise<Result<PostFiatAccountResponse, ResponseError>>
   getFiatAccounts(): Promise<Result<GetFiatAccountsResponse, ResponseError>>
   deleteFiatAccount(
