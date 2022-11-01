@@ -1,9 +1,6 @@
 import { ZodError, ZodType } from 'zod'
 
-export function validate<T extends | ZodType>(
-  obj: any,
-  schema: T,
-): void {
+export function validate<T extends ZodType>(obj: any, schema: T): void {
   try {
     schema.parse(obj)
   } catch (err) {

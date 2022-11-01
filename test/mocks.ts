@@ -183,10 +183,10 @@ export const mockClockResponse: ClockResponse = {
 
 export const mockInvalidZodIssues = [
   {
-    code:"invalid_type",
-    expected:"object",
-    received:"string",
-    path:[],
-    message:"Expected object, received string"
-  }
+    code: 'invalid_type',
+    expected: 'object',
+    received: 'string',
+    path: [],
+    message: 'Expected object, received string',
+  },
 ]
