@@ -1,6 +1,6 @@
 {
   "name": "@fiatconnect/fiatconnect-sdk",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A helper library for wallets to integrate with FiatConnect APIs",
   "scripts": {
     "format": "prettier --loglevel error --write \"./**/*.ts\"",
@@ -45,7 +45,7 @@
     "eslint-plugin-react-native": "^4.0.0",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
-    "jest-fetch-mock": "^3.0.3",
+    "jest-fetch-mock": "https://github.com/jefflau/jest-fetch-mock#800c40d",
     "prettier": "2.7.1",
     "standard-version": "^9.3.2",
     "ts-jest": "^27.1.5",

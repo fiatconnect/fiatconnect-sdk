@@ -1,6 +1,7 @@
 import { AuthRequestBody, ClockResponse } from '@fiatconnect/fiatconnect-types'
 import { ethers } from 'ethers'
 import { generateNonce, SiweMessage } from 'siwe'
+import { fetchWithTimeout } from './fetch-timeout'
 import {
   ClockDiffParams,
   ClockDiffResult,
@@ -23,7 +24,9 @@ export abstract class SiweImpl implements SiweApiClient {
   ) {
     this.config = config
     this.signingFunction = signingFunction
-    this.fetchImpl = fetchImpl
+    this.fetchImpl = config.timeout
+      ? fetchWithTimeout(fetchImpl, config.timeout)
+      : fetchImpl
     this._cookieJar = {}
   }
 
