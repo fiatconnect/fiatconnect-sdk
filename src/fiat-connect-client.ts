@@ -13,8 +13,14 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
   ClockResponse,
-  FiatAccountSchema,
   KycSchema,
+  quoteResponseSchema,
+  clockResponseSchema,
+  kycStatusResponseSchema,
+  postFiatAccountResponseSchema,
+  getFiatAccountsResponseSchema,
+  transferResponseSchema,
+  transferStatusResponseSchema,
 } from '@fiatconnect/fiatconnect-types'
 import fetch from 'cross-fetch'
 import { Result } from '@badrap/result'
@@ -30,6 +36,7 @@ import {
   SiweApiClient,
   SiweClientConfig,
 } from './types'
+import { validate } from './validate'
 
 const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
@@ -102,7 +109,8 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
-      return Result.ok(data as QuoteResponse)
+      validate(data, quoteResponseSchema)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
@@ -141,6 +149,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
   async getClock(): Promise<Result<ClockResponse, ResponseError>> {
     try {
       const data = await this._siweClient.getClock()
+      validate(data, clockResponseSchema)
       return Result.ok(data)
     } catch (error) {
       return handleError(error)
@@ -187,6 +196,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
+      validate(data, kycStatusResponseSchema)
       return Result.ok(data)
     } catch (error) {
       return handleError(error)
@@ -235,6 +245,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
+      validate(data, kycStatusResponseSchema)
       return Result.ok(data)
     } catch (error) {
       return handleError(error)
@@ -244,8 +255,8 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
   /**
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3431-post-accounts
    */
-  async addFiatAccount<T extends FiatAccountSchema>(
-    params: PostFiatAccountRequestBody<T>,
+  async addFiatAccount(
+    params: PostFiatAccountRequestBody,
   ): Promise<Result<PostFiatAccountResponse, ResponseError>> {
     try {
       const response = await this._siweClient.fetch(
@@ -263,6 +274,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
+      validate(data, postFiatAccountResponseSchema)
       return Result.ok(data)
     } catch (error) {
       return handleError(error)
@@ -287,6 +299,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
+      validate(data, getFiatAccountsResponseSchema)
       return Result.ok(data)
     } catch (error) {
       return handleError(error)
@@ -340,6 +353,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
+      validate(data, transferResponseSchema)
       return Result.ok(data)
     } catch (error) {
       return handleError(error)
@@ -369,6 +383,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
+      validate(data, transferResponseSchema)
       return Result.ok(data)
     } catch (error) {
       return handleError(error)
@@ -393,6 +408,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
+      validate(data, transferStatusResponseSchema)
       return Result.ok(data)
     } catch (error) {
       return handleError(error)

@@ -98,6 +98,17 @@ describe('FiatConnectClientImpl', () => {
         new ResponseError('fake error message', undefined),
       )
     })
+    it('handles schema validation errors', async () => {
+      siweGetClock.mockResolvedValueOnce('wrong-schema')
+      const response = await client.getClock()
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema clockResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
+      )
+    })
   })
   describe('getServerTimeApprox', () => {
     it('gets using siwe client', async () => {
@@ -208,6 +219,17 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockQuoteInResponse)
     })
+    it('handles schema validation errors', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify('wrong-schema'))
+      const response = await client.createQuoteIn(mockQuoteRequestQuery)
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema quoteResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
+      )
+    })
     it('handles API errors', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
         status: 400,
@@ -265,6 +287,17 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError('FiatConnect API Error', mockQuoteErrorResponse),
+      )
+    })
+    it('handles schema validation errors', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify('wrong-schema'))
+      const response = await client.createQuoteOut(mockQuoteRequestQuery)
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema quoteResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
       )
     })
     it('handles fetch errors', async () => {
@@ -325,6 +358,20 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError('FiatConnect API Error', errorData),
+      )
+    })
+    it('handles schema validation errors', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(''))
+      const response = await clientWithApiKey.addKyc({
+        kycSchemaName: KycSchema.PersonalDataAndDocuments,
+        data: mockKycSchemaData,
+      })
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema kycStatusResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
       )
     })
     it('handles fetch errors', async () => {
@@ -402,6 +449,19 @@ describe('FiatConnectClientImpl', () => {
         new ResponseError('FiatConnect API Error', errorData),
       )
     })
+    it('handles schema validation errors', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(''))
+      const response = await client.getKycStatus({
+        kycSchema: KycSchema.PersonalDataAndDocuments,
+      })
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema kycStatusResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
+      )
+    })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.getKycStatus({
@@ -471,6 +531,20 @@ describe('FiatConnectClientImpl', () => {
         new ResponseError('FiatConnect API Error', errorData),
       )
     })
+    it('handles schema validation errors', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(''))
+      const response = await clientWithApiKey.addFiatAccount({
+        fiatAccountSchema: FiatAccountSchema.AccountNumber,
+        data: mockFiatAccountSchemaData,
+      })
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema obfuscatedFiatAccountDataSchema. {"_errors":["Expected object, received string"]}`,
+        ),
+      )
+    })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
       const response = await client.addFiatAccount({
@@ -503,6 +577,17 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError('FiatConnect API Error', errorData),
+      )
+    })
+    it('handles schema validation errors', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(''))
+      const response = await client.getFiatAccounts()
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema getFiatAccountsResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
       )
     })
     it('handles fetch errors', async () => {
@@ -585,6 +670,17 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
     })
+    it('handles schema validation errors', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(''))
+      const response = await client.transferIn(mockTransferRequestParams)
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema transferResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
+      )
+    })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceNotFound }
       fetchMock.mockResponseOnce(JSON.stringify(errorData), {
@@ -640,6 +736,19 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferResponse)
     })
+    it('handles schema validation errors', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(''))
+      const response = await clientWithApiKey.transferOut(
+        mockTransferRequestParams,
+      )
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema transferResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
+      )
+    })
     it('handles API errors', async () => {
       const errorData = { error: FiatConnectError.ResourceNotFound }
       fetchMock.mockResponseOnce(JSON.stringify(errorData), {
@@ -685,6 +794,19 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError('FiatConnect API Error', errorData),
+      )
+    })
+    it('handles schema validation errors', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(''))
+      const response = await client.getTransferStatus(
+        mockTransferStatusRequestParams,
+      )
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema transferStatusResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
       )
     })
     it('handles fetch errors', async () => {
