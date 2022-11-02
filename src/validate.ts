@@ -9,7 +9,7 @@ export function validate<T extends ZodType>(obj: any, schema: T): void {
       throw new ResponseError(
         `Error validating object with schema ${
           schema.description
-        }. ${JSON.stringify(err.format()._errors)}`,
+        }. ${JSON.stringify(err.format())}`,
         err,
       )
     }

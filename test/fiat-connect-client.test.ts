@@ -105,7 +105,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema clockResponseSchema. ["Expected object, received string"]`,
+          `Error validating object with schema clockResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
@@ -226,7 +226,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema quoteResponseSchema. ["Expected object, received string"]`,
+          `Error validating object with schema quoteResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
@@ -296,7 +296,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema quoteResponseSchema. ["Expected object, received string"]`,
+          `Error validating object with schema quoteResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
@@ -370,7 +370,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema kycStatusResponseSchema. ["Expected object, received string"]`,
+          `Error validating object with schema kycStatusResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
@@ -458,7 +458,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema kycStatusResponseSchema. ["Expected object, received string"]`,
+          `Error validating object with schema kycStatusResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
@@ -541,7 +541,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema obfuscatedFiatAccountDataSchema. ["Expected object, received string"]`,
+          `Error validating object with schema obfuscatedFiatAccountDataSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
@@ -586,7 +586,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema getFiatAccountsResponseSchema. ["Expected object, received string"]`,
+          `Error validating object with schema getFiatAccountsResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
@@ -677,7 +677,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema transferResponseSchema. ["Expected object, received string"]`,
+          `Error validating object with schema transferResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
@@ -745,7 +745,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema transferResponseSchema. ["Expected object, received string"]`,
+          `Error validating object with schema transferResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
@@ -805,7 +805,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema transferStatusResponseSchema. ["Expected object, received string"]`,
+          `Error validating object with schema transferStatusResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
