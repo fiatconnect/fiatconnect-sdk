@@ -17,6 +17,7 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
   ClockResponse,
+  QuotePreviewResponse,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
 import { ZodError } from 'zod'
@@ -39,10 +40,10 @@ export interface FiatConnectApiClient {
   isLoggedIn(): boolean
   createQuoteIn(
     params: QuoteRequestBody,
-  ): Promise<Result<QuoteResponse, ResponseError>>
+  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>>
   createQuoteOut(
     params: QuoteRequestBody,
-  ): Promise<Result<QuoteResponse, ResponseError>>
+  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>>
   addKyc<T extends KycSchema>(
     params: AddKycParams<T>,
   ): Promise<Result<KycStatusResponse, ResponseError>>

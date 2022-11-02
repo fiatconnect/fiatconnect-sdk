@@ -21,6 +21,8 @@ import {
   getFiatAccountsResponseSchema,
   transferResponseSchema,
   transferStatusResponseSchema,
+  QuotePreviewResponse,
+  quotePreviewResponseSchema,
 } from '@fiatconnect/fiatconnect-types'
 import fetch from 'cross-fetch'
 import { Result } from '@badrap/result'
@@ -92,7 +94,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
   async _createQuote(
     body: QuoteRequestBody,
     inOrOut: 'in' | 'out',
-  ): Promise<Result<QuoteResponse, ResponseError>> {
+  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>> {
     try {
       const response = await this.fetchImpl(
         `${this.config.baseUrl}/quote/${inOrOut}`,
@@ -109,8 +111,13 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
-      validate(data, quoteResponseSchema)
-      return Result.ok(data)
+      if (body.preview) {
+        validate(data, quotePreviewResponseSchema)
+        return Result.ok(data as QuotePreviewResponse)
+      } else {
+        validate(data, quoteResponseSchema)
+        return Result.ok(data as QuoteResponse)
+      }
     } catch (error) {
       return handleError(error)
     }
@@ -161,7 +168,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    */
   async createQuoteIn(
     params: QuoteRequestBody,
-  ): Promise<Result<QuoteResponse, ResponseError>> {
+  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>> {
     return this._createQuote(params, 'in')
   }
 
@@ -170,7 +177,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    */
   async createQuoteOut(
     params: QuoteRequestBody,
-  ): Promise<Result<QuoteResponse, ResponseError>> {
+  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>> {
     return this._createQuote(params, 'out')
   }
 

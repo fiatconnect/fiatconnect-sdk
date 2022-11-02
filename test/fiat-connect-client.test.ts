@@ -230,6 +230,21 @@ describe('FiatConnectClientImpl', () => {
         ),
       )
     })
+    it('validates using quotePreviewResponseSchema when preview is true', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify('wrong-schema'))
+
+      const response = await client.createQuoteIn({
+        ...mockQuoteRequestQuery,
+        preview: true,
+      })
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema quotePreviewResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
+      )
+    })
     it('handles API errors', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
         status: 400,
@@ -297,6 +312,21 @@ describe('FiatConnectClientImpl', () => {
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
           `Error validating object with schema quoteResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
+      )
+    })
+    it('validates using quotePreviewResponseSchema when preview is true', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify('wrong-schema'))
+
+      const response = await client.createQuoteOut({
+        ...mockQuoteRequestQuery,
+        preview: true,
+      })
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema quotePreviewResponseSchema. {"_errors":["Expected object, received string"]}`,
         ),
       )
     })
