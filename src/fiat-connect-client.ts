@@ -189,7 +189,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     )
   }
 
-  async createQuoteInPreview(
+  async getQuoteInPreview(
     params: CreateQuoteParams,
   ): Promise<Result<QuotePreviewResponse, ResponseError>> {
     return this._createQuote(
@@ -199,7 +199,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     )
   }
 
-  async createQuoteOutPreview(
+  async getQuoteOutPreview(
     params: CreateQuoteParams,
   ): Promise<Result<QuotePreviewResponse, ResponseError>> {
     return this._createQuote(

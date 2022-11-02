@@ -44,10 +44,10 @@ export interface FiatConnectApiClient {
   createQuoteOut(
     params: CreateQuoteParams,
   ): Promise<Result<QuoteResponse, ResponseError>>
-  createQuoteInPreview(
+  getQuoteInPreview(
     params: CreateQuoteParams,
   ): Promise<Result<QuotePreviewResponse, ResponseError>>
-  createQuoteOutPreview(
+  getQuoteOutPreview(
     params: CreateQuoteParams,
   ): Promise<Result<QuotePreviewResponse, ResponseError>>
   addKyc<T extends KycSchema>(

@@ -30,6 +30,7 @@ import {
   quoteResponseSchema,
 } from '@fiatconnect/fiatconnect-types'
 import { ResponseError } from '../src/types'
+import { Result } from '@badrap/result'
 
 jest.mock('../src/siwe-client')
 
@@ -52,7 +53,16 @@ describe('FiatConnectClientImpl', () => {
     fetch: fetch, // use the real fetch here as it makes mocking easy with fetch mock
   }
 
-  let client: FiatConnectClientImpl
+  const client = new FiatConnectClientImpl(
+    {
+      baseUrl: 'https://fiat-connect-api.com',
+      network: Network.Alfajores,
+      accountAddress,
+      timeout: 1000,
+    },
+    siweClientMock,
+    fetch,
+  )
 
   const clientWithApiKey = new FiatConnectClientImpl(
     {
@@ -66,16 +76,6 @@ describe('FiatConnectClientImpl', () => {
   )
 
   beforeEach(() => {
-    client = new FiatConnectClientImpl(
-      {
-        baseUrl: 'https://fiat-connect-api.com',
-        network: Network.Alfajores,
-        accountAddress,
-        timeout: 1000,
-      },
-      siweClientMock,
-      fetch,
-    )
     jest.useFakeTimers().setSystemTime(new Date('2022-05-01T00:00:00Z'))
     fetchMock.resetMocks()
     siweLoginMock.mockReset()
@@ -323,9 +323,11 @@ describe('FiatConnectClientImpl', () => {
   })
   describe('createQuoteIn', () => {
     it('calls _createQuote with the expected parameters', async () => {
-      client._createQuote = jest.fn().mockResolvedValue('quote')
+      const _createQuote = jest
+        .spyOn(client, '_createQuote')
+        .mockResolvedValueOnce(Result.ok(mockQuoteInResponse))
       const response = await client.createQuoteIn(mockCreateQuoteParams)
-      expect(client._createQuote).toHaveBeenCalledWith(
+      expect(_createQuote).toHaveBeenCalledWith(
         {
           ...mockCreateQuoteParams,
           preview: false,
@@ -333,14 +335,16 @@ describe('FiatConnectClientImpl', () => {
         'in',
         quoteResponseSchema,
       )
-      expect(response).toEqual('quote')
+      expect(response).toEqual(Result.ok(mockQuoteInResponse))
     })
   })
   describe('createQuoteOut', () => {
     it('calls _createQuote with the expected parameters', async () => {
-      client._createQuote = jest.fn().mockResolvedValue('quote')
+      const _createQuote = jest
+        .spyOn(client, '_createQuote')
+        .mockResolvedValueOnce(Result.ok(mockQuoteOutResponse))
       const response = await client.createQuoteOut(mockCreateQuoteParams)
-      expect(client._createQuote).toHaveBeenCalledWith(
+      expect(_createQuote).toHaveBeenCalledWith(
         {
           ...mockCreateQuoteParams,
           preview: false,
@@ -348,14 +352,16 @@ describe('FiatConnectClientImpl', () => {
         'out',
         quoteResponseSchema,
       )
-      expect(response).toEqual('quote')
+      expect(response).toEqual(Result.ok(mockQuoteOutResponse))
     })
   })
-  describe('createQuoteInPreview', () => {
+  describe('getQuoteInPreview', () => {
     it('calls _createQuote with the expected parameters', async () => {
-      client._createQuote = jest.fn().mockResolvedValue('quote')
-      const response = await client.createQuoteInPreview(mockCreateQuoteParams)
-      expect(client._createQuote).toHaveBeenCalledWith(
+      const _createQuote = jest
+        .spyOn(client, '_createQuote')
+        .mockResolvedValueOnce(Result.ok(mockQuoteInResponse))
+      const response = await client.getQuoteInPreview(mockCreateQuoteParams)
+      expect(_createQuote).toHaveBeenCalledWith(
         {
           ...mockCreateQuoteParams,
           preview: true,
@@ -363,14 +369,16 @@ describe('FiatConnectClientImpl', () => {
         'in',
         quotePreviewResponseSchema,
       )
-      expect(response).toEqual('quote')
+      expect(response).toEqual(Result.ok(mockQuoteInResponse))
     })
   })
-  describe('createQuoteOutPreview', () => {
+  describe('getQuoteOutPreview', () => {
     it('calls _createQuote with the expected parameters', async () => {
-      client._createQuote = jest.fn().mockResolvedValue('quote')
-      const response = await client.createQuoteOutPreview(mockCreateQuoteParams)
-      expect(client._createQuote).toHaveBeenCalledWith(
+      const _createQuote = jest
+        .spyOn(client, '_createQuote')
+        .mockResolvedValueOnce(Result.ok(mockQuoteOutResponse))
+      const response = await client.getQuoteOutPreview(mockCreateQuoteParams)
+      expect(_createQuote).toHaveBeenCalledWith(
         {
           ...mockCreateQuoteParams,
           preview: true,
@@ -378,7 +386,7 @@ describe('FiatConnectClientImpl', () => {
         'out',
         quotePreviewResponseSchema,
       )
-      expect(response).toEqual('quote')
+      expect(response).toEqual(Result.ok(mockQuoteOutResponse))
     })
   })
   describe('addKyc', () => {

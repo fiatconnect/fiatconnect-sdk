@@ -25,19 +25,16 @@ import {
 } from '@fiatconnect/fiatconnect-types'
 import { CreateQuoteParams, TransferRequestParams } from '../src/types'
 
-export const mockQuoteRequestQuery: QuoteRequestBody = {
-  fiatType: FiatType.USD,
-  cryptoType: CryptoType.cUSD,
-  country: 'DE',
-  address: '0x123',
-  preview: true,
-}
-
 export const mockCreateQuoteParams: CreateQuoteParams = {
   fiatType: FiatType.USD,
   cryptoType: CryptoType.cUSD,
   country: 'DE',
   address: '0x123',
+}
+
+export const mockQuoteRequestQuery: QuoteRequestBody = {
+  ...mockCreateQuoteParams,
+  preview: true,
 }
 
 export const mockQuoteInResponse: QuoteResponse = {
