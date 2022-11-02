@@ -7,7 +7,7 @@ export function validate<T extends ZodType>(obj: any, schema: T): void {
   } catch (err) {
     if (err instanceof ZodError) {
       throw new ResponseError(
-        `Error validating object with schema ${schema.description}`,
+        `Error validating object with schema ${schema.description}. ${JSON.stringify(err.format()._errors)}`,
         err,
       )
     }
