@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.4.1...v0.5.0) (2022-11-02)
+
+
+### Features
+
+* **quote:** support quotes in preview mode ([#92](https://github.com/fiatconnect/fiatconnect-sdk/issues/92)) ([40b2c82](https://github.com/fiatconnect/fiatconnect-sdk/commit/40b2c82cfcd42f227682c3cf4f6893c214c9fa6b))
+* **zod:** Add zod validation to api responses ([#91](https://github.com/fiatconnect/fiatconnect-sdk/issues/91)) ([484ca31](https://github.com/fiatconnect/fiatconnect-sdk/commit/484ca311275774cf855f1941e2703a81c0275e0d))
+
 ### [0.4.1](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.4.0...v0.4.1) (2022-10-31)
 
 
