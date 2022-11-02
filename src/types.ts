@@ -17,6 +17,7 @@ import {
   TransferStatusRequestParams,
   TransferStatusResponse,
   ClockResponse,
+  QuotePreviewResponse,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
 import { ZodError } from 'zod'
@@ -38,11 +39,17 @@ export interface FiatConnectApiClient {
   login(params?: LoginParams): Promise<Result<'success', ResponseError>>
   isLoggedIn(): boolean
   createQuoteIn(
-    params: QuoteRequestBody,
+    params: CreateQuoteParams,
   ): Promise<Result<QuoteResponse, ResponseError>>
   createQuoteOut(
-    params: QuoteRequestBody,
+    params: CreateQuoteParams,
   ): Promise<Result<QuoteResponse, ResponseError>>
+  getQuoteInPreview(
+    params: CreateQuoteParams,
+  ): Promise<Result<QuotePreviewResponse, ResponseError>>
+  getQuoteOutPreview(
+    params: CreateQuoteParams,
+  ): Promise<Result<QuotePreviewResponse, ResponseError>>
   addKyc<T extends KycSchema>(
     params: AddKycParams<T>,
   ): Promise<Result<KycStatusResponse, ResponseError>>
@@ -68,6 +75,8 @@ export interface FiatConnectApiClient {
   ): Promise<Result<TransferStatusResponse, ResponseError>>
   getCookies(): Record<string, string>
 }
+
+export type CreateQuoteParams = Omit<QuoteRequestBody, 'preview'>
 
 export interface SiweClientConfig {
   accountAddress: string

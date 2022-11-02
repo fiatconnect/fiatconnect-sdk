@@ -23,13 +23,18 @@ import {
   ClockResponse,
   FiatAccountSchemas,
 } from '@fiatconnect/fiatconnect-types'
-import { TransferRequestParams } from '../src/types'
+import { CreateQuoteParams, TransferRequestParams } from '../src/types'
 
-export const mockQuoteRequestQuery: QuoteRequestBody = {
+export const mockCreateQuoteParams: CreateQuoteParams = {
   fiatType: FiatType.USD,
   cryptoType: CryptoType.cUSD,
   country: 'DE',
   address: '0x123',
+}
+
+export const mockQuoteRequestQuery: QuoteRequestBody = {
+  ...mockCreateQuoteParams,
+  preview: true,
 }
 
 export const mockQuoteInResponse: QuoteResponse = {

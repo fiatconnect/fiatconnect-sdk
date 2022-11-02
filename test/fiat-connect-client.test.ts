@@ -18,6 +18,7 @@ import {
   mockTransferStatusRequestParams,
   mockTransferStatusResponse,
   mockClockResponse,
+  mockCreateQuoteParams,
 } from './mocks'
 import 'jest-fetch-mock'
 import {
@@ -25,8 +26,11 @@ import {
   FiatConnectError,
   KycSchema,
   Network,
+  quotePreviewResponseSchema,
+  quoteResponseSchema,
 } from '@fiatconnect/fiatconnect-types'
 import { ResponseError } from '../src/types'
+import { Result } from '@badrap/result'
 
 jest.mock('../src/siwe-client')
 
@@ -204,10 +208,14 @@ describe('FiatConnectClientImpl', () => {
       expect(siweIsLoggedInMock).toHaveBeenCalledWith()
     })
   })
-  describe('getQuoteIn', () => {
+  describe('_createQuote', () => {
     it('calls /quote/in and returns QuoteResponse', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteInResponse))
-      const response = await client.createQuoteIn(mockQuoteRequestQuery)
+      const response = await client._createQuote(
+        mockQuoteRequestQuery,
+        'in',
+        quoteResponseSchema,
+      )
       expect(fetchMock).toHaveBeenCalledWith(
         'https://fiat-connect-api.com/quote/in',
         expect.objectContaining({
@@ -219,9 +227,31 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockQuoteInResponse)
     })
+    it('calls /quote/out and returns QuoteResponse', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(mockQuoteOutResponse))
+      const response = await client._createQuote(
+        mockQuoteRequestQuery,
+        'out',
+        quoteResponseSchema,
+      )
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://fiat-connect-api.com/quote/out',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mockQuoteRequestQuery),
+        }),
+      )
+      expect(response.isOk).toBeTruthy()
+      expect(response.unwrap()).toMatchObject(mockQuoteOutResponse)
+    })
     it('handles schema validation errors', async () => {
       fetchMock.mockResponseOnce(JSON.stringify('wrong-schema'))
-      const response = await client.createQuoteIn(mockQuoteRequestQuery)
+      const response = await client._createQuote(
+        mockQuoteRequestQuery,
+        'in',
+        quoteResponseSchema,
+      )
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -230,11 +260,31 @@ describe('FiatConnectClientImpl', () => {
         ),
       )
     })
+    it('validates using quotePreviewResponseSchema when it is passed', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify('wrong-schema'))
+
+      const response = await client._createQuote(
+        mockQuoteRequestQuery,
+        'in',
+        quotePreviewResponseSchema,
+      )
+
+      expect(response.isOk).toBeFalsy()
+      expect(response.unwrap.bind(response)).toThrow(
+        new ResponseError(
+          `Error validating object with schema quotePreviewResponseSchema. {"_errors":["Expected object, received string"]}`,
+        ),
+      )
+    })
     it('handles API errors', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
         status: 400,
       })
-      const response = await client.createQuoteIn(mockQuoteRequestQuery)
+      const response = await client._createQuote(
+        mockQuoteRequestQuery,
+        'in',
+        quoteResponseSchema,
+      )
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -243,7 +293,11 @@ describe('FiatConnectClientImpl', () => {
     })
     it('handles fetch errors', async () => {
       fetchMock.mockRejectOnce(new Error('fake error message'))
-      const response = await client.createQuoteIn(mockQuoteRequestQuery)
+      const response = await client._createQuote(
+        mockQuoteRequestQuery,
+        'in',
+        quoteResponseSchema,
+      )
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -255,7 +309,11 @@ describe('FiatConnectClientImpl', () => {
         jest.advanceTimersByTime(2000) // timeout is 1000
         return JSON.stringify(mockQuoteInResponse)
       })
-      const response = await client.createQuoteIn(mockQuoteRequestQuery)
+      const response = await client._createQuote(
+        mockQuoteRequestQuery,
+        'in',
+        quoteResponseSchema,
+      )
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
@@ -263,51 +321,72 @@ describe('FiatConnectClientImpl', () => {
       )
     })
   })
-  describe('getQuoteOut', () => {
-    it('calls /quote/out and returns QuoteResponse', async () => {
-      fetchMock.mockResponseOnce(JSON.stringify(mockQuoteOutResponse))
-      const response = await client.createQuoteOut(mockQuoteRequestQuery)
-      expect(fetchMock).toHaveBeenCalledWith(
-        'https://fiat-connect-api.com/quote/out', // ?fiatType=USD&cryptoType=cUSD&country=DE
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(mockQuoteRequestQuery),
-        }),
+  describe('createQuoteIn', () => {
+    it('calls _createQuote with the expected parameters', async () => {
+      const _createQuote = jest
+        .spyOn(client, '_createQuote')
+        .mockResolvedValueOnce(Result.ok(mockQuoteInResponse))
+      const response = await client.createQuoteIn(mockCreateQuoteParams)
+      expect(_createQuote).toHaveBeenCalledWith(
+        {
+          ...mockCreateQuoteParams,
+          preview: false,
+        },
+        'in',
+        quoteResponseSchema,
       )
-      expect(response.isOk).toBeTruthy()
-      expect(response.unwrap()).toMatchObject(mockQuoteOutResponse)
+      expect(response).toEqual(Result.ok(mockQuoteInResponse))
     })
-    it('handles API errors', async () => {
-      fetchMock.mockResponseOnce(JSON.stringify(mockQuoteErrorResponse), {
-        status: 400,
-      })
-      const response = await client.createQuoteOut(mockQuoteRequestQuery)
-
-      expect(response.isOk).toBeFalsy()
-      expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('FiatConnect API Error', mockQuoteErrorResponse),
+  })
+  describe('createQuoteOut', () => {
+    it('calls _createQuote with the expected parameters', async () => {
+      const _createQuote = jest
+        .spyOn(client, '_createQuote')
+        .mockResolvedValueOnce(Result.ok(mockQuoteOutResponse))
+      const response = await client.createQuoteOut(mockCreateQuoteParams)
+      expect(_createQuote).toHaveBeenCalledWith(
+        {
+          ...mockCreateQuoteParams,
+          preview: false,
+        },
+        'out',
+        quoteResponseSchema,
       )
+      expect(response).toEqual(Result.ok(mockQuoteOutResponse))
     })
-    it('handles schema validation errors', async () => {
-      fetchMock.mockResponseOnce(JSON.stringify('wrong-schema'))
-      const response = await client.createQuoteOut(mockQuoteRequestQuery)
-
-      expect(response.isOk).toBeFalsy()
-      expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError(
-          `Error validating object with schema quoteResponseSchema. {"_errors":["Expected object, received string"]}`,
-        ),
+  })
+  describe('getQuoteInPreview', () => {
+    it('calls _createQuote with the expected parameters', async () => {
+      const _createQuote = jest
+        .spyOn(client, '_createQuote')
+        .mockResolvedValueOnce(Result.ok(mockQuoteInResponse))
+      const response = await client.getQuoteInPreview(mockCreateQuoteParams)
+      expect(_createQuote).toHaveBeenCalledWith(
+        {
+          ...mockCreateQuoteParams,
+          preview: true,
+        },
+        'in',
+        quotePreviewResponseSchema,
       )
+      expect(response).toEqual(Result.ok(mockQuoteInResponse))
     })
-    it('handles fetch errors', async () => {
-      fetchMock.mockRejectOnce(new Error('fake error message'))
-      const response = await client.createQuoteOut(mockQuoteRequestQuery)
-
-      expect(response.isOk).toBeFalsy()
-      expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('fake error message'),
+  })
+  describe('getQuoteOutPreview', () => {
+    it('calls _createQuote with the expected parameters', async () => {
+      const _createQuote = jest
+        .spyOn(client, '_createQuote')
+        .mockResolvedValueOnce(Result.ok(mockQuoteOutResponse))
+      const response = await client.getQuoteOutPreview(mockCreateQuoteParams)
+      expect(_createQuote).toHaveBeenCalledWith(
+        {
+          ...mockCreateQuoteParams,
+          preview: true,
+        },
+        'out',
+        quotePreviewResponseSchema,
       )
+      expect(response).toEqual(Result.ok(mockQuoteOutResponse))
     })
   })
   describe('addKyc', () => {
