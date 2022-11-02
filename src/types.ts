@@ -39,11 +39,17 @@ export interface FiatConnectApiClient {
   login(params?: LoginParams): Promise<Result<'success', ResponseError>>
   isLoggedIn(): boolean
   createQuoteIn(
-    params: QuoteRequestBody,
-  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>>
+    params: CreateQuoteParams,
+  ): Promise<Result<QuoteResponse, ResponseError>>
   createQuoteOut(
-    params: QuoteRequestBody,
-  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>>
+    params: CreateQuoteParams,
+  ): Promise<Result<QuoteResponse, ResponseError>>
+  createQuoteInPreview(
+    params: CreateQuoteParams,
+  ): Promise<Result<QuotePreviewResponse, ResponseError>>
+  createQuoteOutPreview(
+    params: CreateQuoteParams,
+  ): Promise<Result<QuotePreviewResponse, ResponseError>>
   addKyc<T extends KycSchema>(
     params: AddKycParams<T>,
   ): Promise<Result<KycStatusResponse, ResponseError>>
@@ -69,6 +75,8 @@ export interface FiatConnectApiClient {
   ): Promise<Result<TransferStatusResponse, ResponseError>>
   getCookies(): Record<string, string>
 }
+
+export type CreateQuoteParams = Omit<QuoteRequestBody, 'preview'>
 
 export interface SiweClientConfig {
   accountAddress: string

@@ -37,8 +37,10 @@ import {
   LoginParams,
   SiweApiClient,
   SiweClientConfig,
+  CreateQuoteParams,
 } from './types'
 import { validate } from './validate'
+import { z } from 'zod'
 
 const NETWORK_CHAIN_IDS = {
   [Network.Alfajores]: 44787,
@@ -91,10 +93,13 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
     }
   }
 
-  async _createQuote(
+  async _createQuote<
+    T extends typeof quotePreviewResponseSchema | typeof quoteResponseSchema,
+  >(
     body: QuoteRequestBody,
     inOrOut: 'in' | 'out',
-  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>> {
+    schema: T,
+  ): Promise<Result<z.infer<T>, ResponseError>> {
     try {
       const response = await this.fetchImpl(
         `${this.config.baseUrl}/quote/${inOrOut}`,
@@ -111,13 +116,8 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
       if (!response.ok) {
         return handleError(data)
       }
-      if (body.preview) {
-        validate(data, quotePreviewResponseSchema)
-        return Result.ok(data as QuotePreviewResponse)
-      } else {
-        validate(data, quoteResponseSchema)
-        return Result.ok(data as QuoteResponse)
-      }
+      validate(data, schema)
+      return Result.ok(data)
     } catch (error) {
       return handleError(error)
     }
@@ -167,18 +167,46 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3411-post-quotein
    */
   async createQuoteIn(
-    params: QuoteRequestBody,
-  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>> {
-    return this._createQuote(params, 'in')
+    params: CreateQuoteParams,
+  ): Promise<Result<QuoteResponse, ResponseError>> {
+    return this._createQuote(
+      { ...params, preview: false },
+      'in',
+      quoteResponseSchema,
+    )
   }
 
   /**
    * https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#3412-post-quoteout
    */
   async createQuoteOut(
-    params: QuoteRequestBody,
-  ): Promise<Result<QuoteResponse | QuotePreviewResponse, ResponseError>> {
-    return this._createQuote(params, 'out')
+    params: CreateQuoteParams,
+  ): Promise<Result<QuoteResponse, ResponseError>> {
+    return this._createQuote(
+      { ...params, preview: false },
+      'out',
+      quoteResponseSchema,
+    )
+  }
+
+  async createQuoteInPreview(
+    params: CreateQuoteParams,
+  ): Promise<Result<QuotePreviewResponse, ResponseError>> {
+    return this._createQuote(
+      { ...params, preview: true },
+      'in',
+      quotePreviewResponseSchema,
+    )
+  }
+
+  async createQuoteOutPreview(
+    params: CreateQuoteParams,
+  ): Promise<Result<QuotePreviewResponse, ResponseError>> {
+    return this._createQuote(
+      { ...params, preview: true },
+      'out',
+      quotePreviewResponseSchema,
+    )
   }
 
   /**
