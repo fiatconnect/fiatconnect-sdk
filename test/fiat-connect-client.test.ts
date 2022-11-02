@@ -18,7 +18,6 @@ import {
   mockTransferStatusRequestParams,
   mockTransferStatusResponse,
   mockClockResponse,
-  mockInvalidZodIssues,
 } from './mocks'
 import 'jest-fetch-mock'
 import {
@@ -104,10 +103,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema clockResponseSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema clockResponseSchema`,
         ),
       )
     })
@@ -227,10 +224,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema quoteResponseSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema quoteResponseSchema`,
         ),
       )
     })
@@ -287,10 +282,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema quoteResponseSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema quoteResponseSchema`,
         ),
       )
     })
@@ -363,10 +356,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema kycStatusResponseSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema kycStatusResponseSchema`,
         ),
       )
     })
@@ -453,10 +444,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema kycStatusResponseSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema kycStatusResponseSchema`,
         ),
       )
     })
@@ -538,10 +527,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema obfuscatedFiatAccountDataSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema obfuscatedFiatAccountDataSchema`,
         ),
       )
     })
@@ -585,10 +572,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema getFiatAccountsResponseSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema getFiatAccountsResponseSchema`,
         ),
       )
     })
@@ -678,10 +663,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema transferResponseSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema transferResponseSchema`,
         ),
       )
     })
@@ -748,10 +731,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema transferResponseSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema transferResponseSchema`,
         ),
       )
     })
@@ -786,7 +767,7 @@ describe('FiatConnectClientImpl', () => {
         'https://fiat-connect-api.com/transfer/82938/status',
         expect.objectContaining({ method: 'GET', headers: undefined }),
       )
-      //expect(response.isOk).toBeTruthy()
+      expect(response.isOk).toBeTruthy()
       expect(response.unwrap()).toMatchObject(mockTransferStatusResponse)
     })
     it('handles API errors', async () => {
@@ -810,10 +791,8 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new Error(
-          `Error validating object with schema transferStatusResponseSchema: ${JSON.stringify(
-            mockInvalidZodIssues,
-          )}`,
+        new ResponseError(
+          `Error validating object with schema transferStatusResponseSchema`,
         ),
       )
     })

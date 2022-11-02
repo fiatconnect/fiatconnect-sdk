@@ -19,6 +19,7 @@ import {
   ClockResponse,
 } from '@fiatconnect/fiatconnect-types'
 import { Result } from '@badrap/result'
+import { ZodError } from 'zod'
 
 export interface SiweApiClient {
   getServerTimeApprox(): Promise<Date>
@@ -122,18 +123,22 @@ export class ResponseError extends Error {
   maximumFiatAmount?: string
   minimumCryptoAmount?: string
   maximumCryptoAmount?: string
+  zodError?: ZodError
 
   // Because QuoteErrorResponse contains the `error` field (the only field returned
   // by all other endpoints on error) as well as additional quote-specific error
   // fields, we use it as the data type here.
-  constructor(message: string, data?: QuoteErrorResponse) {
+  constructor(message: string, data?: QuoteErrorResponse | ZodError) {
     super(message)
     Object.setPrototypeOf(this, ResponseError.prototype)
-
-    this.fiatConnectError = data?.error
-    this.minimumFiatAmount = data?.minimumFiatAmount
-    this.maximumFiatAmount = data?.maximumFiatAmount
-    this.minimumCryptoAmount = data?.minimumCryptoAmount
-    this.maximumCryptoAmount = data?.maximumCryptoAmount
+    if (data instanceof ZodError) {
+      this.zodError = data
+    } else {
+      this.fiatConnectError = data?.error
+      this.minimumFiatAmount = data?.minimumFiatAmount
+      this.maximumFiatAmount = data?.maximumFiatAmount
+      this.minimumCryptoAmount = data?.minimumCryptoAmount
+      this.maximumCryptoAmount = data?.maximumCryptoAmount
+    }
   }
 }
