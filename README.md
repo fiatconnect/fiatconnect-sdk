@@ -29,6 +29,16 @@ FiatConnect provider when:
 Wallets may or may not wish to require a PIN every time a SIWE message is signed, or just some of the time. They may implement 
 whatever preference they have by writing the `signingFunction` accordingly.
 
+### Accessing multiple FiatConnect providers
+In most cases, clients will wish to integrate with multiple FiatConnect providers. However, it is worth noting that the 
+`FiatConnectClient` class deals with only a single provider. This allows for more convenient separation of session 
+cookies and provider-specific configuration data (base URL, etc.). 
+
+For an example of how to manage multiple 
+FiatConnect providers in your codebase using the FiatConnect SDK, you may refer to the 
+[Valora wallet](https://github.com/valora-inc/wallet/blob/61cb017439c7e606d6c09d6a276584d15a857968/src/fiatconnect/clients.ts#L11),
+ which stores an object in memory mapping provider ID's to FiatConnectClient instances. Many similar possibilities exist.
+
 ## Running tests
 
 ```console
