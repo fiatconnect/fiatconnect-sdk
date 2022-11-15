@@ -1,6 +1,33 @@
 # fiatconnect-sdk
 
-A (WIP) Typescript helper libary for wallets to integrate with FiatConnect compliant APIs.
+A lightweight Typescript helper library for wallets or dapps to integrate with FiatConnect compliant APIs.
+
+## Basic usage
+
+To begin, install the library from your project:
+```console
+yarn add @fiatconnect/fiatconnect-sdk
+```
+
+Next, initialize a `FiatConnectClient` wherever you need to access a FiatConnect API in your codebase. See examples in
+the [Valora wallet](https://github.com/valora-inc/wallet/blob/61cb017439c7e606d6c09d6a276584d15a857968/src/fiatconnect/clients.ts#L34) 
+and [FiatConnect validation tests](https://github.com/fiatconnect/validate/blob/main/validations/kyc.test.ts#L18).
+
+From there, you can access any FiatConnect endpoint by invoking a method on the `FiatConnectClient` instance. There is 
+a convenient example of a full transfer in [this validation test](https://github.com/fiatconnect/validate/blob/63995bd10c160c0ed7a82a7a4c505ae5a9743246/validations/transfer.test.ts#L50).
+
+### Authenticated endpoints
+Note that some FiatConnect endpoints require authentication before they can be accessed. You can read up on FiatConnect 
+authentication [here](https://github.com/fiatconnect/specification/blob/main/fiatconnect-api.md#331-sign-in-with-ethereum).
+
+The FiatConnect SDK handles authentication by taking a `signingFunction` as a parameter in the `FiatConnectClient` 
+constructor. The `FiatConnectClient` instance uses the signing function to sign a SIWE message and log in with a 
+FiatConnect provider when:
+- the `login` method is invoked explicitly
+- any method for an endpoint that requires authentication is invoked (and the user does not already have a valid session)
+
+Wallets may or may not wish to require a PIN every time a SIWE message is signed, or just some of the time. They may implement 
+whatever preference they have by writing the `signingFunction` accordingly.
 
 ## Running tests
 
@@ -10,11 +37,13 @@ yarn test
 
 ## Contributing
 
-We welcome contributions in the form of Issues and PRs. See [CONTRIBUTING.md](CONTRIBUTING.md).
+We welcome contributions in the form of Issues and PRs. See [CONTRIBUTING.md](CONTRIBUTING.md). If you have ideas for 
+FiatConnect SDK that you'd like to discuss with other developers, you may contact us on the 
+[FiatConnect Discord](https://discord.gg/yR5hFEVcRz). 
 
 ### Publishing
 
-- Request access to our [NPM organization](https://www.npmjs.com/org/fiatconnect) on [Valora Discord](https://discord.gg/rwxxsZjJbd)
+- Requires access to our [NPM organization](https://www.npmjs.com/org/fiatconnect). Ask on [FiatConnect Discord](https://discord.gg/yR5hFEVcRz)
 - Make sure you are on the latest version of branch `main`
 - Check out a release branch
 - Run `yarn prepublish && yarn release`
