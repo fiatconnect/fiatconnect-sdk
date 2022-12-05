@@ -646,10 +646,10 @@
     "@ethersproject/properties" "^5.7.0"
     "@ethersproject/strings" "^5.7.0"
 
-"@fiatconnect/fiatconnect-types@^10.1.0":
-  version "10.1.0"
-  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-10.1.0.tgz#cf6acd894305bd281ee6d671334550b640269d2a"
-  integrity sha512-ncLwhVnbIrhRgbPSnbSMY/kdPKOmyu2LWeNdi5T1bgKZX7t6LV93cJbatl0zu1IcypOYjntWfmnkthKH+Ploiw==
+"@fiatconnect/fiatconnect-types@^10.2.0":
+  version "10.2.0"
+  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-10.2.0.tgz#340758ae3f5f707075160073bf0bc9691491c884"
+  integrity sha512-tiVTR2YUR1V/GzqY/g2yj/XAWefR124uxEMUbRnMlhrMOp2CZ3S8Z+3GLR8wxVh6QumD+Vm/FA+WcaEmwWFxFQ==
   dependencies:
     zod "^3.19.1"
 
