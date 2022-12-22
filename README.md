@@ -40,7 +40,8 @@ FiatConnect providers in your codebase using the FiatConnect SDK, you may refer 
  which stores an object in memory mapping provider ID's to FiatConnectClient instances. Many similar possibilities exist.
 
 ## Testing with a sandbox server
-At time of writing, three companies offer a FiatConnect-compliant sandbox API: Valora, Alpha Fortress, and Bitmama.
+At time of writing, three companies offer a FiatConnect-compliant sandbox API: [Valora](https://valoraapp.com/), 
+[Alpha Fortress](https://www.alphafortress.com/), and [Bitmama](https://bitmama.io/).
 
 If you want to test against a sandbox server that is FiatConnect-compliant, you can ask one of these companies [on
 Discord](https://discord.gg/yR5hFEVcRz) to share API credentials with you. In particular, you will want a base URL and
