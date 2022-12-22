@@ -39,6 +39,17 @@ FiatConnect providers in your codebase using the FiatConnect SDK, you may refer 
 [Valora wallet](https://github.com/valora-inc/wallet/blob/61cb017439c7e606d6c09d6a276584d15a857968/src/fiatconnect/clients.ts#L11),
  which stores an object in memory mapping provider ID's to FiatConnectClient instances. Many similar possibilities exist.
 
+## Testing with a sandbox server
+At time of writing, three companies offer a FiatConnect-compliant sandbox API: Valora, Alpha Fortress, and Bitmama.
+
+If you want to test against a sandbox server that is FiatConnect-compliant, you can ask one of these companies [on
+Discord](https://discord.gg/yR5hFEVcRz) to share API credentials with you. In particular, you will want a base URL and
+client API key that can be used to instantiate a FiatConnectClient.
+
+Alternatively, if you want to make heavier use of
+a sandbox server (such as for CI), you can stand up your own FiatConnect-compliant sandbox using the
+[api starter](https://github.com/fiatconnect/api-starter).
+
 ## Running tests
 
 ```console
