@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### [0.5.1](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.0...v0.5.1) (2023-01-04)
 
 
-### Bug Fixes
+### Dependency Updates
 
 * **deps:** update dependency @fiatconnect/fiatconnect-types to ^10.1.0 ([#94](https://github.com/fiatconnect/fiatconnect-sdk/issues/94)) ([25fb905](https://github.com/fiatconnect/fiatconnect-sdk/commit/25fb9055e12a3937854ad9780850be5379dc142c))
 * **deps:** update dependency @fiatconnect/fiatconnect-types to ^10.2.0 ([#104](https://github.com/fiatconnect/fiatconnect-sdk/issues/104)) ([50ac9dc](https://github.com/fiatconnect/fiatconnect-sdk/commit/50ac9dc890b3d7e67049358cb7a1b2a35a23c456))
