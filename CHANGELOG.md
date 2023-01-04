@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.1](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.0...v0.5.1) (2023-01-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fiatconnect/fiatconnect-types to ^10.1.0 ([#94](https://github.com/fiatconnect/fiatconnect-sdk/issues/94)) ([25fb905](https://github.com/fiatconnect/fiatconnect-sdk/commit/25fb9055e12a3937854ad9780850be5379dc142c))
+* **deps:** update dependency @fiatconnect/fiatconnect-types to ^10.2.0 ([#104](https://github.com/fiatconnect/fiatconnect-sdk/issues/104)) ([50ac9dc](https://github.com/fiatconnect/fiatconnect-sdk/commit/50ac9dc890b3d7e67049358cb7a1b2a35a23c456))
+* **deps:** update dependency @fiatconnect/fiatconnect-types to ^10.2.1 ([#109](https://github.com/fiatconnect/fiatconnect-sdk/issues/109)) ([69f20a3](https://github.com/fiatconnect/fiatconnect-sdk/commit/69f20a3d4bacea01640313342e6a69ba6e5e823c))
+* **deps:** update dependency @fiatconnect/fiatconnect-types to ^10.2.2 ([#112](https://github.com/fiatconnect/fiatconnect-sdk/issues/112)) ([8dfbf26](https://github.com/fiatconnect/fiatconnect-sdk/commit/8dfbf268bd21b0b0fd22f3b85875d421a203a553))
+* **deps:** update dependency @fiatconnect/fiatconnect-types to v11 ([#116](https://github.com/fiatconnect/fiatconnect-sdk/issues/116)) ([fa2b248](https://github.com/fiatconnect/fiatconnect-sdk/commit/fa2b248f0eead058074baf0500fcad5ba14815c2))
+* **deps:** update dependency tslib to ^2.4.1 ([#95](https://github.com/fiatconnect/fiatconnect-sdk/issues/95)) ([7cd4087](https://github.com/fiatconnect/fiatconnect-sdk/commit/7cd40877aecf7bc1c6edf1264adb3ed10727537f))
+* **deps:** update dependency zod to ^3.20.0 ([#108](https://github.com/fiatconnect/fiatconnect-sdk/issues/108)) ([b62392a](https://github.com/fiatconnect/fiatconnect-sdk/commit/b62392aaf355e7a8d9321597530a8c72f5cdd625))
+* **deps:** update dependency zod to ^3.20.2 ([#110](https://github.com/fiatconnect/fiatconnect-sdk/issues/110)) ([0577455](https://github.com/fiatconnect/fiatconnect-sdk/commit/0577455cc36324990795c4adbcfb41d2f8671495))
+
 ## [0.5.0](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.4.1...v0.5.0) (2022-11-02)
 
 
