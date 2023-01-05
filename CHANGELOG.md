@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.1](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.0...v0.5.1) (2023-01-04)
+
+
+### Dependency Updates
+
+* **deps:** update dependency @fiatconnect/fiatconnect-types to v11 ([#116](https://github.com/fiatconnect/fiatconnect-sdk/issues/116)) ([fa2b248](https://github.com/fiatconnect/fiatconnect-sdk/commit/fa2b248f0eead058074baf0500fcad5ba14815c2))
+* **deps:** update dependency tslib to ^2.4.1 ([#95](https://github.com/fiatconnect/fiatconnect-sdk/issues/95)) ([7cd4087](https://github.com/fiatconnect/fiatconnect-sdk/commit/7cd40877aecf7bc1c6edf1264adb3ed10727537f))
+* **deps:** update dependency zod to ^3.20.2 ([#110](https://github.com/fiatconnect/fiatconnect-sdk/issues/110)) ([0577455](https://github.com/fiatconnect/fiatconnect-sdk/commit/0577455cc36324990795c4adbcfb41d2f8671495))
+
 ## [0.5.0](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.4.1...v0.5.0) (2022-11-02)
 
 
