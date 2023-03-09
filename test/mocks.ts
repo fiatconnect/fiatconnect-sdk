@@ -180,7 +180,7 @@ export const mockTransferStatusResponse: TransferStatusResponse = {
   fiatAccountId: '12358',
   transferId: '82938',
   transferAddress: '0xCC6DDE7638B2409e120e915adD948069CA619e10',
-  txHash: '0x4a6ae42bdb149459de201f22c11594da290a66b8affbb152e54ea4448f4bfaaa'
+  txHash: '0x4a6ae42bdb149459de201f22c11594da290a66b8affbb152e54ea4448f4bfaaa',
 }
 
 export const mockClockResponse: ClockResponse = {
