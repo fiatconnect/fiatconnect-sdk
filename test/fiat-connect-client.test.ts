@@ -883,9 +883,7 @@ describe('FiatConnectClientImpl', () => {
 
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError(
-          `Error validating object with schema transferStatusResponseSchema. {"_errors":["Expected object, received string"]}`,
-        ),
+        /Error validating object with schema transferInStatusPreTxResponseSchema/,
       )
     })
     it('handles fetch errors', async () => {
