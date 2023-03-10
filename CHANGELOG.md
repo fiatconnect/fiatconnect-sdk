@@ -2,10 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.5.2](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.1...v0.5.2) (2023-03-09)
+### [0.5.2](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.1...v0.5.2) (2023-03-10)
 
 
-### Dependency updates
+### Dependency Updates
 
 * **deps:** update dependency @fiatconnect/fiatconnect-types to ^11.0.1 ([#118](https://github.com/fiatconnect/fiatconnect-sdk/issues/118)) ([28514b2](https://github.com/fiatconnect/fiatconnect-sdk/commit/28514b2aeeb353118afb1cb03f373f173ca172c8))
 * **deps:** update dependency @fiatconnect/fiatconnect-types to ^11.0.2 ([#123](https://github.com/fiatconnect/fiatconnect-sdk/issues/123)) ([8f33eda](https://github.com/fiatconnect/fiatconnect-sdk/commit/8f33edad770ccf496a7a7cd28a2a6b204c132ea5))
@@ -14,11 +14,14 @@ All notable changes to this project will be documented in this file. See [standa
 * **deps:** update dependency @fiatconnect/fiatconnect-types to ^11.1.2 ([#135](https://github.com/fiatconnect/fiatconnect-sdk/issues/135)) ([220c158](https://github.com/fiatconnect/fiatconnect-sdk/commit/220c158d57a00987e4aaeb943667919a2819caae))
 * **deps:** update dependency @fiatconnect/fiatconnect-types to ^11.1.3 ([#138](https://github.com/fiatconnect/fiatconnect-sdk/issues/138)) ([e304ebe](https://github.com/fiatconnect/fiatconnect-sdk/commit/e304ebeb7e81551adde27f6bd96cfba7304395b2))
 * **deps:** update dependency @fiatconnect/fiatconnect-types to ^13.0.0 ([#139](https://github.com/fiatconnect/fiatconnect-sdk/issues/139)) ([260c37b](https://github.com/fiatconnect/fiatconnect-sdk/commit/260c37b10d169ee107cfec98786e8acbc59240fa))
+* **deps:** update dependency @fiatconnect/fiatconnect-types to ^13.0.1 ([#143](https://github.com/fiatconnect/fiatconnect-sdk/issues/143)) ([abc6255](https://github.com/fiatconnect/fiatconnect-sdk/commit/abc625525aff2dd6bccbda556862feb4f708b246))
+* **deps:** update dependency @fiatconnect/fiatconnect-types to ^13.0.2 ([#145](https://github.com/fiatconnect/fiatconnect-sdk/issues/145)) ([3141f06](https://github.com/fiatconnect/fiatconnect-sdk/commit/3141f061bdd6a6425f8b45fd718bfea7c53066a8))
 * **deps:** update dependency tslib to ^2.5.0 ([#124](https://github.com/fiatconnect/fiatconnect-sdk/issues/124)) ([3df8ea0](https://github.com/fiatconnect/fiatconnect-sdk/commit/3df8ea0990fb8a62cabe8949ce708da1b7653f68))
 * **deps:** update dependency zod to ^3.20.6 ([#129](https://github.com/fiatconnect/fiatconnect-sdk/issues/129)) ([26f761c](https://github.com/fiatconnect/fiatconnect-sdk/commit/26f761c7b5fe130932389ff5bcdb64a2b6889519))
 * **deps:** update dependency zod to ^3.21.0 ([#137](https://github.com/fiatconnect/fiatconnect-sdk/issues/137)) ([e33238b](https://github.com/fiatconnect/fiatconnect-sdk/commit/e33238be8a1d98d66833fbd57c87ea3a746016dd))
 * **deps:** update dependency zod to ^3.21.2 ([#140](https://github.com/fiatconnect/fiatconnect-sdk/issues/140)) ([92f7dfe](https://github.com/fiatconnect/fiatconnect-sdk/commit/92f7dfeedab6ef534075356725a7bcb1ad9b09d3))
 * **deps:** update dependency zod to ^3.21.3 ([#141](https://github.com/fiatconnect/fiatconnect-sdk/issues/141)) ([84bcff6](https://github.com/fiatconnect/fiatconnect-sdk/commit/84bcff6351f2feade3a5d75f3e4baea2ba16dd9b))
+* **deps:** update dependency zod to ^3.21.4 ([#144](https://github.com/fiatconnect/fiatconnect-sdk/issues/144)) ([227939d](https://github.com/fiatconnect/fiatconnect-sdk/commit/227939d371072438f75c31eab16944e691dcd5d5))
 
 ### [0.5.1](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.0...v0.5.1) (2023-01-04)
 
