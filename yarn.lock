@@ -651,12 +651,12 @@
     "@ethersproject/properties" "^5.7.0"
     "@ethersproject/strings" "^5.7.0"
 
-"@fiatconnect/fiatconnect-types@^13.0.0":
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-13.0.0.tgz#47a9d152c4787783168b7dd7660714cf792db39e"
-  integrity sha512-sgBDArGQvQdLEPSwThZS033MLqfDIqwBmItHPzhdOSIu0T465zCV5zrUtQFr1zVi20gWkzD81pjPqVl4+sEOwg==
+"@fiatconnect/fiatconnect-types@^13.0.2":
+  version "13.0.2"
+  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-13.0.2.tgz#8577c3856549dcab744d61aab8d045cd6885c1a1"
+  integrity sha512-QpqSpBKpde6l6aJdmx013YyjeGJXNUIaltNvEyKjt4yaSxtjBiCzzAy/EC3zemO+h+QUmUy7eP+87hmBtwAE5A==
   dependencies:
-    zod "^3.21.2"
+    zod "^3.21.4"
 
 "@humanwhocodes/config-array@^0.11.8":
   version "0.11.8"
@@ -5193,7 +5193,7 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zod@^3.21.2, zod@^3.21.3:
+zod@^3.21.4:
   version "3.21.4"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.21.4.tgz#10882231d992519f0a10b5dd58a38c9dabbb64db"
   integrity sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==

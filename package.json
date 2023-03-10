@@ -61,13 +61,13 @@
   },
   "dependencies": {
     "@badrap/result": "^0.2.13",
-    "@fiatconnect/fiatconnect-types": "^13.0.0",
+    "@fiatconnect/fiatconnect-types": "^13.0.2",
     "cross-fetch": "^3.1.5",
     "ethers": "^5.7.2",
     "fetch-cookie": "^2.0.3",
     "siwe": "^1.1.6",
     "tough-cookie": "^4.0.0",
     "tslib": "^2.5.0",
-    "zod": "^3.21.3"
+    "zod": "^3.21.4"
   }
 }
