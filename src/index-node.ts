@@ -1,9 +1,9 @@
 import 'cross-fetch/polyfill'
-import { FiatConnectClientImpl, createSiweConfig } from './fiat-connect-client'
-import { FiatConnectClientConfig, SiweClientConfig } from './types'
 import fetchCookie from 'fetch-cookie'
-import { SiweImpl } from './siwe-client'
 import { Cookie } from 'tough-cookie'
+import { FiatConnectClientImpl, createSiweConfig } from './fiat-connect-client'
+import { SiweImpl } from './siwe-client'
+import { FiatConnectClientConfig, SiweClientConfig } from './types'
 export * from './types'
 
 const fetchWithCookie = fetchCookie(fetch)
@@ -28,9 +28,21 @@ export class SiweClient extends SiweImpl {
 
   async _extractCookies(headers?: Headers): Promise<void> {
     const cookieRecord: Record<string, string> = {}
-    const headerSetCookies = (headers as any).raw()[
-      'set-cookie'
-    ] as Array<string>
+    // previously
+
+    let headerSetCookies: Array<string> = []
+
+    try {
+      // returns headers.raw is not a function while running the sdk on a repl
+      headerSetCookies = (headers as any)?.raw()['set-cookie'] as Array<string>
+    } catch {
+      //  returns headers.get is not a function while running test cases
+      // according to the type definitions, .get happens to be the correct method to extract the cookie headers
+      headerSetCookies = headers
+        ?.get('set-cookie')
+        ?.split(';')
+        ?.map((headerValue) => String(headerValue).trim()) as Array<string>
+    }
 
     if (headerSetCookies) {
       headerSetCookies.forEach(async (cookieString: string) => {
