@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.3](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.2...v0.5.3) (2023-06-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fiatconnect/fiatconnect-types to ^13.1.0 ([#162](https://github.com/fiatconnect/fiatconnect-sdk/issues/162)) ([4c12c66](https://github.com/fiatconnect/fiatconnect-sdk/commit/4c12c668f64baaac82fbf2f0b9a2ee6436c5bbf1))
+* **deps:** update dependency cross-fetch to ^3.1.6 ([#151](https://github.com/fiatconnect/fiatconnect-sdk/issues/151)) ([20f342a](https://github.com/fiatconnect/fiatconnect-sdk/commit/20f342a38be9a8d04b1b0b178c77175d3e6157fe))
+* **deps:** update dependency siwe to v2 ([#153](https://github.com/fiatconnect/fiatconnect-sdk/issues/153)) ([931cf9c](https://github.com/fiatconnect/fiatconnect-sdk/commit/931cf9c22f75a7d07fbba42f3ac46ef782ea64b8))
+* **deps:** update dependency tslib to ^2.5.2 ([#152](https://github.com/fiatconnect/fiatconnect-sdk/issues/152)) ([9ba5dac](https://github.com/fiatconnect/fiatconnect-sdk/commit/9ba5dacf8cc2df1ab89f4b1f32c910b294925950))
+* **deps:** update dependency tslib to ^2.5.3 ([#158](https://github.com/fiatconnect/fiatconnect-sdk/issues/158)) ([401c2c0](https://github.com/fiatconnect/fiatconnect-sdk/commit/401c2c0b66ac6bcd034f24f29e188fa0fc09f185))
+
 ### [0.5.2](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.1...v0.5.2) (2023-03-10)
 
 
