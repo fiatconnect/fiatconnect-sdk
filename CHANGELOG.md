@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.4](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.3...v0.5.4) (2023-07-07)
+
+
+### Features
+
+* **types:** Update transfer endpoint types ([#170](https://github.com/fiatconnect/fiatconnect-sdk/issues/170)) ([3432c31](https://github.com/fiatconnect/fiatconnect-sdk/commit/3432c31c8e4d58dde36127cf736af98e51835e03))
+
 ### [0.5.3](https://github.com/fiatconnect/fiatconnect-sdk/compare/v0.5.2...v0.5.3) (2023-06-27)
 
 
