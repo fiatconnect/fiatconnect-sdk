@@ -2503,10 +2503,10 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "2.1.1"
 
-fetch-cookie@^2.0.3:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/fetch-cookie/-/fetch-cookie-2.0.5.tgz#d49b0886f79c71ce927245d928b9c230a2ddc69e"
-  integrity sha512-zsX/vrrLLCrLUKS/45u/NqZDwRSyopUscM/0huSH5clYe8dmkxIiDs3g4po+f5baWiXiTAOqPMtflP80CtR5rA==
+fetch-cookie@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/fetch-cookie/-/fetch-cookie-2.1.0.tgz#6e127909912f9e527533b045aab555c06b33801b"
+  integrity sha512-39+cZRbWfbibmj22R2Jy6dmTbAWC+oqun1f1FzQaNurkPDUP4C38jpeZbiXCR88RKRVDp8UcDrbFXkNhN+NjYg==
   dependencies:
     set-cookie-parser "^2.4.8"
     tough-cookie "^4.0.0"
