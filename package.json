@@ -5,7 +5,7 @@
   "scripts": {
     "format": "prettier --loglevel error --write \"./**/*.ts\"",
     "prepublish": "rm -rf dist && tsc",
-    "release": "standard-version --skip.tag",
+    "release": "npx semantic-release",
     "lint": "eslint --ext=.ts src/",
     "test": "jest",
     "prepare": "husky install"
