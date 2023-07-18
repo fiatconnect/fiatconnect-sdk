@@ -38,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@valora/eslint-config-typescript": "^0.0.1",
     "@valora/prettier-config": "^0.0.1",
+    "conventional-changelog-conventionalcommits": "^6.1.0",
     "eslint": "^8.44.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.2",
@@ -70,5 +71,11 @@
     "tough-cookie": "^4.0.0",
     "tslib": "^2.6.0",
     "zod": "^3.21.4"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "preset": "conventionalcommits"
   }
 }
