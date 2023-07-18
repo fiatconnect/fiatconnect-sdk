@@ -5,6 +5,7 @@
   "scripts": {
     "format": "prettier --loglevel error --write \"./**/*.ts\"",
     "prepublish": "rm -rf dist && tsc",
+    "release": "npx semantic-release",
     "lint": "eslint --ext=.ts src/",
     "release": "standard-version --skip.tag",
     "test": "jest",
@@ -47,6 +48,7 @@
     "jest": "^27.5.1",
     "jest-fetch-mock": "https://github.com/jefflau/jest-fetch-mock#800c40d",
     "prettier": "2.8.8",
+    "semantic-release": "^21.0.7",
     "standard-version": "^9.3.2",
     "ts-jest": "^27.1.5",
     "typescript": "^5.1.6"
