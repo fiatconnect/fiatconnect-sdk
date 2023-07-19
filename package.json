@@ -5,8 +5,8 @@
   "scripts": {
     "format": "prettier --loglevel error --write \"./**/*.ts\"",
     "prepublish": "rm -rf dist && tsc",
+    "release": "npx semantic-release",
     "lint": "eslint --ext=.ts src/",
-    "release": "standard-version --skip.tag",
     "test": "jest",
     "prepare": "husky install"
   },
@@ -38,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@valora/eslint-config-typescript": "^0.0.1",
     "@valora/prettier-config": "^0.0.1",
+    "conventional-changelog-conventionalcommits": "^6.1.0",
     "eslint": "^8.44.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.2",
@@ -47,6 +48,7 @@
     "jest": "^27.5.1",
     "jest-fetch-mock": "https://github.com/jefflau/jest-fetch-mock#800c40d",
     "prettier": "3.0.0",
+    "semantic-release": "^19.0.5",
     "standard-version": "^9.3.2",
     "ts-jest": "^27.1.5",
     "typescript": "^5.1.6"
@@ -69,5 +71,11 @@
     "tough-cookie": "^4.0.0",
     "tslib": "^2.6.0",
     "zod": "^3.21.4"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "preset": "conventionalcommits"
   }
 }

@@ -65,13 +65,6 @@ FiatConnect SDK that you'd like to discuss with other developers, you may contac
 
 ### Publishing
 
-- Requires access to our [NPM organization](https://www.npmjs.com/org/fiatconnect). Ask on [FiatConnect Discord](https://discord.gg/yR5hFEVcRz)
-- Make sure you are on the latest version of branch `main`
-- Check out a release branch
-- Run `yarn prepublish && yarn release`
-- Add release notes to `CHANGELOG.md`
-- Once code review has taken place:
-  - Merge your branch
-  - Run `git tag vX.Y.Z && git push origin vX.Y.Z` to push your tag (where X.Y.Z is the version you are trying to publish)
-  - [Create a release](https://github.com/fiatconnect/fiatconnect-sdk/releases) with the new tag
-  - Run `npm publish --public`
+- Publishing updates is done automatically via [semantic-release](https://github.com/semantic-release/semantic-release).
+  Remember to use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) or your PR will be rejected (since
+  merging it would mess up the changelog and version numbers).

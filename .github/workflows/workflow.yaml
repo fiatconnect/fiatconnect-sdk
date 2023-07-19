@@ -1,0 +1,67 @@
+name: Workflow
+
+on:
+  # Run on pushes to main..
+  push:
+    branches:
+      - main
+  # ..and any pull request.
+  pull_request:
+
+# Cancel any in progress run of the workflow for a given PR
+# This avoids building outdated code
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-for-sh:
+    name: Check for .sh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: "echo '*** Do not write .sh scripts! ***'; ! find . -type f -name '*.sh' | grep ."
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          check-latest: true
+      - uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn
+      - run: yarn lint
+      - run: yarn test
+  publish:
+    name: Publish to NPM
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - check-for-sh
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          check-latest: true
+      - name: Install dependencies
+        run: yarn
+      - name: Prepublish
+        run: yarn prepublish
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn release
