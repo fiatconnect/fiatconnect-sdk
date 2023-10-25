@@ -13,7 +13,8 @@ import {
   QuoteRequestBody,
   QuoteResponse,
   TransferRequestBody,
-  TransferResponse,
+  TransferInResponse,
+  TransferOutResponse,
   TransferStatusRequestParams,
   TransferStatusResponse,
   ClockResponse,
@@ -66,10 +67,10 @@ export interface FiatConnectApiClient {
   ): Promise<Result<void, ResponseError>>
   transferIn(
     params: TransferRequestParams,
-  ): Promise<Result<TransferResponse, ResponseError>>
+  ): Promise<Result<TransferInResponse, ResponseError>>
   transferOut(
     params: TransferRequestParams,
-  ): Promise<Result<TransferResponse, ResponseError>>
+  ): Promise<Result<TransferOutResponse, ResponseError>>
   getTransferStatus(
     params: TransferStatusRequestParams,
   ): Promise<Result<TransferStatusResponse, ResponseError>>

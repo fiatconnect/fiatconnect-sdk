@@ -756,7 +756,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema transferResponseSchema. {"_errors":["Expected object, received string"]}`,
+          `Error validating object with schema transferInResponseSchema. {"_errors":["Expected object, received string","Expected object, received string"]}`,
         ),
       )
     })
@@ -824,7 +824,7 @@ describe('FiatConnectClientImpl', () => {
       expect(response.isOk).toBeFalsy()
       expect(response.unwrap.bind(response)).toThrow(
         new ResponseError(
-          `Error validating object with schema transferResponseSchema. {"_errors":["Expected object, received string"]}`,
+          `Error validating object with schema transferInResponseSchema. {"_errors":["Expected object, received string","Expected object, received string"]}`,
         ),
       )
     })

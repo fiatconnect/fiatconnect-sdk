@@ -1,12 +1,12 @@
 {
   "name": "@fiatconnect/fiatconnect-sdk",
-  "version": "0.5.2",
+  "version": "0.5.4",
   "description": "A helper library for wallets to integrate with FiatConnect APIs",
   "scripts": {
     "format": "prettier --loglevel error --write \"./**/*.ts\"",
     "prepublish": "rm -rf dist && tsc",
+    "release": "npx semantic-release",
     "lint": "eslint --ext=.ts src/",
-    "release": "standard-version --skip.tag",
     "test": "jest",
     "prepare": "husky install"
   },
@@ -32,24 +32,26 @@
   "devDependencies": {
     "@react-native-cookies/cookies": "^6.2.1",
     "@types/jest": "^27.5.2",
-    "@types/node-fetch": "^2.6.2",
-    "@types/tough-cookie": "^4.0.2",
+    "@types/node-fetch": "^2.6.7",
+    "@types/tough-cookie": "^4.0.4",
     "@types/uuid": "^8.3.4",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@valora/eslint-config-typescript": "^0.0.1",
     "@valora/prettier-config": "^0.0.1",
-    "eslint": "^8.35.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-react": "^7.32.2",
+    "conventional-changelog-conventionalcommits": "^6.1.0",
+    "eslint": "^8.51.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-native": "^4.0.0",
+    "eslint-plugin-react-native": "^4.1.0",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
     "jest-fetch-mock": "https://github.com/jefflau/jest-fetch-mock#800c40d",
-    "prettier": "2.8.4",
+    "prettier": "3.0.3",
+    "semantic-release": "^19.0.5",
     "standard-version": "^9.3.2",
     "ts-jest": "^27.1.5",
-    "typescript": "^4.9.5"
+    "typescript": "^5.1.6"
   },
   "peerDependencies": {
     "@react-native-cookies/cookies": "^6.2.1"
@@ -61,13 +63,19 @@
   },
   "dependencies": {
     "@badrap/result": "^0.2.13",
-    "@fiatconnect/fiatconnect-types": "^13.0.2",
-    "cross-fetch": "^3.1.5",
+    "@fiatconnect/fiatconnect-types": "^13.2.2",
+    "cross-fetch": "^4.0.0",
     "ethers": "^5.7.2",
-    "fetch-cookie": "^2.0.3",
-    "siwe": "^1.1.6",
+    "fetch-cookie": "^2.1.0",
+    "siwe": "^2.1.4",
     "tough-cookie": "^4.0.0",
-    "tslib": "^2.5.0",
-    "zod": "^3.21.4"
+    "tslib": "^2.6.2",
+    "zod": "^3.22.4"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "preset": "conventionalcommits"
   }
 }

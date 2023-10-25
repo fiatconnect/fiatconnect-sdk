@@ -9,7 +9,8 @@ import {
   QuoteErrorResponse,
   QuoteRequestBody,
   QuoteResponse,
-  TransferResponse,
+  TransferInResponse,
+  TransferOutResponse,
   TransferStatusRequestParams,
   TransferStatusResponse,
   ClockResponse,
@@ -376,7 +377,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    */
   async transferIn(
     params: TransferRequestParams,
-  ): Promise<Result<TransferResponse, ResponseError>> {
+  ): Promise<Result<TransferInResponse, ResponseError>> {
     try {
       const response = await this._siweClient.fetch(
         `${this.config.baseUrl}/transfer/in`,
@@ -407,7 +408,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
    */
   async transferOut(
     params: TransferRequestParams,
-  ): Promise<Result<TransferResponse, ResponseError>> {
+  ): Promise<Result<TransferOutResponse, ResponseError>> {
     try {
       const response = await this._siweClient.fetch(
         `${this.config.baseUrl}/transfer/out`,
