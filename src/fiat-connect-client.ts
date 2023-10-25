@@ -220,6 +220,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/kyc/${params.kycSchemaName}`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             ..._getAuthHeader(this.config.apiKey),
@@ -249,6 +250,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/kyc/${params.kycSchema}`,
         {
           method: 'DELETE',
+          credentials: 'include',
           headers: _getAuthHeader(this.config.apiKey),
         },
       )
@@ -273,6 +275,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/kyc/${params.kycSchema}/status`,
         {
           method: 'GET',
+          credentials: 'include',
           headers: _getAuthHeader(this.config.apiKey),
         },
       )
@@ -298,6 +301,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/accounts`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             ..._getAuthHeader(this.config.apiKey),
@@ -327,6 +331,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/accounts`,
         {
           method: 'GET',
+          credentials: 'include',
           headers: _getAuthHeader(this.config.apiKey),
         },
       )
@@ -352,6 +357,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/accounts/${params.fiatAccountId}`,
         {
           method: 'DELETE',
+          credentials: 'include',
           headers: _getAuthHeader(this.config.apiKey),
         },
       )
@@ -376,6 +382,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/transfer/in`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             'Idempotency-Key': params.idempotencyKey,
@@ -406,6 +413,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/transfer/out`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             'Idempotency-Key': params.idempotencyKey,
@@ -436,6 +444,7 @@ export class FiatConnectClientImpl implements FiatConnectApiClient {
         `${this.config.baseUrl}/transfer/${params.transferId}/status`,
         {
           method: 'GET',
+          credentials: 'include',
           headers: _getAuthHeader(this.config.apiKey),
         },
       )
