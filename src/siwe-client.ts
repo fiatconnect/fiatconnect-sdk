@@ -1,5 +1,5 @@
 import { AuthRequestBody, ClockResponse } from '@fiatconnect/fiatconnect-types'
-import { ethers } from 'ethers'
+import { getAddress } from 'ethers'
 import { generateNonce, SiweMessage } from 'siwe'
 import { fetchWithTimeout } from './fetch-timeout'
 import {
@@ -57,7 +57,7 @@ export abstract class SiweImpl implements SiweApiClient {
       // Some SIWE validators compare this against the checksummed signing address,
       // and thus will always fail if this address is not checksummed. This coerces
       // non-checksummed addresses to be checksummed.
-      address: ethers.utils.getAddress(this.config.accountAddress),
+      address: getAddress(this.config.accountAddress),
       statement: this.config.statement,
       uri: this.config.loginUrl,
       version: this.config.version,
