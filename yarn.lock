@@ -349,10 +349,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.53.0.tgz#bea56f2ed2b5baea164348ff4d5a879f6f81f20d"
   integrity sha512-Kn7K8dx/5U6+cT1yEhpX1w4PCSg0M+XyRILPgvwcEBjerFWCwQj5sbr3/VmxqV0JGHCBCzyd6LxypEuehypY1w==
 
-"@fiatconnect/fiatconnect-types@^13.2.2":
-  version "13.2.2"
-  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-13.2.2.tgz#e9debf40a17324de150b5ab526c197cd65761ba7"
-  integrity sha512-K4A+mmahOA70U2UjLFaV7cKeUmzkR2LgRWiBi2WtKxtFs9lbFCErm+joTAnRz6IxEV8zuPGoIhO9Aq8vZV8WJA==
+"@fiatconnect/fiatconnect-types@^13.3.0":
+  version "13.3.0"
+  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-13.3.0.tgz#4fac2160cf69923fc5c9f9ac1ef48e79de222af3"
+  integrity sha512-MXi/M76piNiD6L+dihwjU3wPeihZ4/tEccRObId2XK+qZsCDi76fB38J7eo6LmfWsxBq1V0WwrFM/aagjgtkNQ==
   dependencies:
     zod "^3.22.4"
 
