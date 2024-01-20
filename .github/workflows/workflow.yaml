@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: '16'
           check-latest: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: |
             node_modules
