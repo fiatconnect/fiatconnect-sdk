@@ -68,7 +68,7 @@
     "ethers": "^6.11.1",
     "fetch-cookie": "^3.0.1",
     "siwe": "^2.1.4",
-    "tough-cookie": "^4.0.0",
+    "tough-cookie": "^4.1.3",
     "tslib": "^2.6.2",
     "zod": "^3.22.4"
   },
