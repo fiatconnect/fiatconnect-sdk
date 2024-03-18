@@ -4137,9 +4137,10 @@ jest-environment-node@^29.7.0:
     jest-mock "^29.7.0"
     jest-util "^29.7.0"
 
-"jest-fetch-mock@https://github.com/jefflau/jest-fetch-mock#800c40d":
+"jest-fetch-mock@https://github.com/jefflau/jest-fetch-mock#8a71ffb":
   version "3.0.3"
-  resolved "https://github.com/jefflau/jest-fetch-mock#800c40d9c73455281901fe527fc26fb1165cc528"
+  uid "8a71ffbf79b20815b4888945c383a4fb34b8f32b"
+  resolved "https://github.com/jefflau/jest-fetch-mock#8a71ffbf79b20815b4888945c383a4fb34b8f32b"
   dependencies:
     cross-fetch "^3.1.5"
     domexception "^2.0.1"
