@@ -46,7 +46,7 @@
     "eslint-plugin-react-native": "^4.1.0",
     "husky": "^7.0.4",
     "jest": "^29.7.0",
-    "jest-fetch-mock": "https://github.com/jefflau/jest-fetch-mock#8a71ffb",
+    "jest-fetch-mock": "https://github.com/jefflau/jest-fetch-mock#69882ba",
     "prettier": "3.2.5",
     "semantic-release": "^19.0.5",
     "standard-version": "^9.3.2",
