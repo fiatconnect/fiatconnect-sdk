@@ -63,7 +63,7 @@
   },
   "dependencies": {
     "@badrap/result": "^0.2.13",
-    "@fiatconnect/fiatconnect-types": "^13.3.6",
+    "@fiatconnect/fiatconnect-types": "^13.3.7",
     "cross-fetch": "^4.0.0",
     "ethers": "^6.12.1",
     "fetch-cookie": "^3.0.1",
