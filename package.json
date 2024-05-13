@@ -49,7 +49,7 @@
     "jest-fetch-mock": "https://github.com/jefflau/jest-fetch-mock#69882ba",
     "prettier": "3.2.5",
     "semantic-release": "^19.0.5",
-    "standard-version": "^9.3.2",
+    "commit-and-tag-version": "^9.5.0",
     "ts-jest": "^29.1.2",
     "typescript": "^5.1.6"
   },
