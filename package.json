@@ -51,7 +51,7 @@
     "semantic-release": "^19.0.5",
     "commit-and-tag-version": "^9.6.0",
     "ts-jest": "^29.2.3",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "peerDependencies": {
     "@react-native-cookies/cookies": "^6.2.1"
