@@ -64,7 +64,7 @@
   "dependencies": {
     "@badrap/result": "^0.2.13",
     "@fiatconnect/fiatconnect-types": "^13.3.10",
-    "cross-fetch": "^4.0.0",
+    "cross-fetch": "^4.1.0",
     "ethers": "^6.13.4",
     "fetch-cookie": "^3.0.1",
     "siwe": "^2.3.2",
