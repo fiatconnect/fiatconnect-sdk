@@ -66,7 +66,7 @@
     "@fiatconnect/fiatconnect-types": "^13.3.10",
     "cross-fetch": "^4.1.0",
     "ethers": "^6.13.4",
-    "fetch-cookie": "^3.0.1",
+    "fetch-cookie": "^3.1.0",
     "siwe": "^2.3.2",
     "tough-cookie": "^5.0.0",
     "tslib": "^2.8.1",
