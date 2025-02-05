@@ -30,7 +30,7 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@react-native-cookies/cookies": "^6.2.1",
+    "@divvi/cookies": "^6.2.3",
     "@types/jest": "^29.5.14",
     "@types/node-fetch": "^2.6.12",
     "@types/tough-cookie": "^4.0.5",
@@ -38,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@valora/eslint-config-typescript": "^0.0.1",
     "@valora/prettier-config": "^0.0.1",
+    "commit-and-tag-version": "^9.6.0",
     "conventional-changelog-conventionalcommits": "^6.1.0",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
@@ -49,15 +50,14 @@
     "jest-fetch-mock": "https://github.com/jefflau/jest-fetch-mock#69882ba",
     "prettier": "3.4.2",
     "semantic-release": "^19.0.5",
-    "commit-and-tag-version": "^9.6.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.3"
   },
   "peerDependencies": {
-    "@react-native-cookies/cookies": "^6.2.1"
+    "@divvi/cookies": "^6.2.3"
   },
   "peerDependenciesMeta": {
-    "@react-native-cookies/cookies": {
+    "@divvi/cookies": {
       "optional": true
     }
   },
