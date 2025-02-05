@@ -54,7 +54,7 @@
     "typescript": "^5.7.3"
   },
   "peerDependencies": {
-    "@divvi/cookies": "^6.2.1"
+    "@divvi/cookies": "^6.2.3"
   },
   "peerDependenciesMeta": {
     "@divvi/cookies": {
