@@ -317,6 +317,13 @@
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
   integrity sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==
 
+"@divvi/cookies@^6.2.3":
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/@divvi/cookies/-/cookies-6.2.3.tgz#1cf922bcf499bf78ed64d91494967fdf54899336"
+  integrity sha512-XSDEXNy002b9vZ3h+tKMbP82lYOGOPqbnreQh5HeRvXLdGyunvgHNztFuVtSoW2hInIoiXo1dMoBVTfwEhKnzQ==
+  dependencies:
+    invariant "^2.2.4"
+
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz#a23514e8fb9af1269d5f7788aa556798d61c6b59"
@@ -977,13 +984,6 @@
     "@pnpm/config.env-replace" "^1.1.0"
     "@pnpm/network.ca-file" "^1.0.1"
     config-chain "^1.1.11"
-
-"@react-native-cookies/cookies@^6.2.1":
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/@react-native-cookies/cookies/-/cookies-6.2.1.tgz#54d50b9496400bbdc19e43c155f70f8f918999e3"
-  integrity sha512-D17wCA0DXJkGJIxkL74Qs9sZ3sA+c+kCoGmXVknW7bVw/W+Vv1m/7mWTNi9DLBZSRddhzYw8SU0aJapIaM/g5w==
-  dependencies:
-    invariant "^2.2.4"
 
 "@semantic-release/commit-analyzer@^9.0.2":
   version "9.0.2"
@@ -4188,7 +4188,6 @@ jest-environment-node@^29.7.0:
 
 "jest-fetch-mock@https://github.com/jefflau/jest-fetch-mock#69882ba":
   version "3.1.0"
-  uid "69882ba07f72f3f0e10345a28c725d0850e57ef3"
   resolved "https://github.com/jefflau/jest-fetch-mock#69882ba07f72f3f0e10345a28c725d0850e57ef3"
   dependencies:
     cross-fetch "^3.1.8"

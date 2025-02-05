@@ -2,7 +2,7 @@ import { FiatConnectClient, SiweClient } from '../src/index-react-native'
 import { Network } from '@fiatconnect/fiatconnect-types'
 import * as siwe from 'siwe'
 import 'jest-fetch-mock'
-import CookieManager, { Cookies } from '@react-native-cookies/cookies'
+import CookieManager, { Cookies } from '@divvi/cookies'
 import { mockClockResponse } from './mocks'
 
 // work around from
@@ -21,7 +21,7 @@ const mockSetCookies: Cookies = {
   },
 }
 
-jest.mock('@react-native-cookies/cookies', () => {
+jest.mock('@divvi/cookies', () => {
   return {
     get: jest.fn(),
   }
