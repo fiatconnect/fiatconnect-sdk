@@ -54,7 +54,7 @@
     "typescript": "^5.7.3"
   },
   "peerDependencies": {
-    "@react-native-cookies/cookies": "^6.2.1"
+    "@divvi/cookies": "^6.2.1"
   },
   "peerDependenciesMeta": {
     "@divvi/cookies": {
