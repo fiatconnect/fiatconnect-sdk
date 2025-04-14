@@ -51,7 +51,7 @@
     "prettier": "3.5.3",
     "semantic-release": "^19.0.5",
     "ts-jest": "^29.3.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "@divvi/cookies": "^6.2.3"
