@@ -65,7 +65,7 @@
     "@badrap/result": "^0.2.13",
     "@fiatconnect/fiatconnect-types": "^13.3.13",
     "cross-fetch": "^4.1.0",
-    "ethers": "^6.13.7",
+    "ethers": "^6.14.0",
     "fetch-cookie": "^3.0.1",
     "siwe": "^3.0.0",
     "tough-cookie": "^5.1.2",
