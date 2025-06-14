@@ -356,12 +356,12 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.0.tgz#a5417ae8427873f1dd08b70b3574b453e67b5f7f"
   integrity sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==
 
-"@fiatconnect/fiatconnect-types@^13.3.39":
-  version "13.3.39"
-  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-13.3.39.tgz#92673acf6f98663b3cb054a8975544a7c92f393e"
-  integrity sha512-HqHGhYIz9DEwd5ZADW+J6+vT//u16WUReP3KNW8+vfviPBusSHmsKDO9FxExTnz6GgdyIqodhlDCoXYGDQYhoA==
+"@fiatconnect/fiatconnect-types@^13.3.40":
+  version "13.3.40"
+  resolved "https://registry.yarnpkg.com/@fiatconnect/fiatconnect-types/-/fiatconnect-types-13.3.40.tgz#4e84dfe57bf9a9dd18a0bb83460fe4df36249a73"
+  integrity sha512-1y9Zykrfwgpwx0mdlFaZyUnPi43i2WMq7xfsji0ad4rTPBKDUPykCHzk1FAtcOVENZvM87/LwUTCWpChqZ8U8w==
   dependencies:
-    zod "^3.25.58"
+    zod "^3.25.61"
 
 "@gar/promisify@^1.1.3":
   version "1.1.3"
@@ -7194,7 +7194,7 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zod@^3.25.58, zod@^3.25.61:
+zod@^3.25.61:
   version "3.25.64"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.25.64.tgz#57b5c7e76dd64e447f7e710285fcdb396b32f803"
   integrity sha512-hbP9FpSZf7pkS7hRVUrOjhwKJNyampPgtXKc3AN6DsWtoHsg2Sb4SQaS4Tcay380zSwd2VPo9G9180emBACp5g==
