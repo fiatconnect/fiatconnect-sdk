@@ -32,7 +32,7 @@
   "devDependencies": {
     "@divvi/cookies": "^6.2.3",
     "@types/jest": "^29.5.14",
-    "@types/node-fetch": "^2.6.12",
+    "@types/node-fetch": "^2.6.13",
     "@types/tough-cookie": "^4.0.5",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
