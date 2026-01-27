@@ -3,7 +3,7 @@ import { FiatConnectClientImpl, createSiweConfig } from './fiat-connect-client'
 import { SiweImpl } from './siwe-client'
 import { FiatConnectClientConfig, SiweClientConfig } from './types'
 export * from './types'
-import CookieManager from '@divvi/cookies'
+import CookieManager from '@valora/react-native-cookies'
 
 export class FiatConnectClient extends FiatConnectClientImpl {
   constructor(
