@@ -317,13 +317,6 @@
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
   integrity sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==
 
-"@divvi/cookies@^6.2.3":
-  version "6.2.3"
-  resolved "https://registry.yarnpkg.com/@divvi/cookies/-/cookies-6.2.3.tgz#1cf922bcf499bf78ed64d91494967fdf54899336"
-  integrity sha512-XSDEXNy002b9vZ3h+tKMbP82lYOGOPqbnreQh5HeRvXLdGyunvgHNztFuVtSoW2hInIoiXo1dMoBVTfwEhKnzQ==
-  dependencies:
-    invariant "^2.2.4"
-
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz#a23514e8fb9af1269d5f7788aa556798d61c6b59"
@@ -1392,6 +1385,13 @@
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@valora/prettier-config/-/prettier-config-0.0.1.tgz#5c739ce07c4d2d8b320c7b49366efa80ac98a655"
   integrity sha512-wg05yCU8Ext1jr8LEEs7dm2KakYbyg3rPxoD7ASSfGycP7HlkIfMJW6NzLTFko3CmkaFxeeydpFbgVOe36cnig==
+
+"@valora/react-native-cookies@^6.2.3":
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/@valora/react-native-cookies/-/react-native-cookies-6.2.3.tgz#227968c16f869e70729b3a551c57f7bc43902a6a"
+  integrity sha512-CjaVmb17KUc22zSJUwR35p0GtdiTJP14uPVhICfU53RbpU1ky4OE4DT/D0UsIx4v5Hm67kDWUui3tjN50FrWMw==
+  dependencies:
+    invariant "^2.2.4"
 
 JSONStream@^1.0.4:
   version "1.3.5"

@@ -30,7 +30,7 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@divvi/cookies": "^6.2.3",
+    "@valora/react-native-cookies": "^6.2.3",
     "@types/jest": "^29.5.14",
     "@types/node-fetch": "^2.6.12",
     "@types/tough-cookie": "^4.0.5",
@@ -54,10 +54,10 @@
     "typescript": "^5.7.3"
   },
   "peerDependencies": {
-    "@divvi/cookies": "^6.2.3"
+    "@valora/react-native-cookies": "^6.2.3"
   },
   "peerDependenciesMeta": {
-    "@divvi/cookies": {
+    "@valora/react-native-cookies": {
       "optional": true
     }
   },
