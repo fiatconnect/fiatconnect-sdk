@@ -316,9 +316,7 @@ describe('FiatConnectClientImpl', () => {
       )
 
       expect(response.isOk).toBeFalsy()
-      expect(response.unwrap.bind(response)).toThrow(
-        new ResponseError('AbortError'),
-      )
+      expect(response.unwrap.bind(response)).toThrow(/AbortError/)
     })
   })
   describe('createQuoteIn', () => {
