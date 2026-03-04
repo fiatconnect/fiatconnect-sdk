@@ -1,3 +1,4 @@
 {
   extends: ['github>valora-inc/renovate-config:default.json5'],
+  ignoreDeps: ['@badrap/result'],
 }
