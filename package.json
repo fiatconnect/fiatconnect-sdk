@@ -54,7 +54,7 @@
     "prettier": "3.8.4",
     "semantic-release": "^25.0.5",
     "ts-jest": "^29.4.11",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "peerDependencies": {
     "@valora/react-native-cookies": "^6.2.3"
