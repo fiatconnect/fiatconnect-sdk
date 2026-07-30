@@ -6253,10 +6253,10 @@ safe-regex-test@^1.1.0:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-semantic-release@^25.0.5:
-  version "25.0.5"
-  resolved "https://registry.yarnpkg.com/semantic-release/-/semantic-release-25.0.5.tgz#67be786556e40e8e81c591a12f38877f1eee6052"
-  integrity sha512-mn61SUJwtM8ThrWn2WmgLVpwVJeG/hPSupua1psdMoufmwRIPyvRLkRkL0JDXkP67OntlLWUYnBnfVc8EDO3/g==
+semantic-release@^25.0.8:
+  version "25.0.8"
+  resolved "https://registry.yarnpkg.com/semantic-release/-/semantic-release-25.0.8.tgz#a665bbcd3aa56ed602854d26094406dcfb1e9aea"
+  integrity sha512-w/iZ0bur36rKffXZYmIUmy068eoBY3Ij1DCCddx2JwWEM5Tg+eU9ld/E9qSInVvPASyyR2Ln/XGfQ9OZrMlhtw==
   dependencies:
     "@semantic-release/commit-analyzer" "^13.0.1"
     "@semantic-release/error" "^4.0.0"
